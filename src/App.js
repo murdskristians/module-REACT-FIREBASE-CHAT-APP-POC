@@ -35,9 +35,7 @@ function App() {
       } else {
         setUser(null);
       }
-      if (isLoading) {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
     });
     return () => unsubscribe();
   }, []);
