@@ -1,0 +1,45 @@
+.button {
+  padding: 10px 20px;
+  background-color: white;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.button:hover {
+  background-color: #f5f5f5;
+  border-color: #bbb;
+}
+
+.button-primary {
+  background-color: #4285f4;
+  color: white;
+  border-color: #4285f4;
+}
+
+.button-primary:hover {
+  background-color: #357ae8;
+  border-color: #357ae8;
+}
+
+.header-sign-out-button {
+  padding: 8px 16px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.header-sign-out-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
