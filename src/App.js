@@ -9,15 +9,20 @@ import 'firebase/compat/firestore';
 
 import './App.css';
 
-firebase.initializeApp({
-  apiKey: "AIzaSyCM1QD0mr_eVQh-Go5sjvL1Ng6uqmzVELA",
-  authDomain: "fir-chat-poc-62204.firebaseapp.com",
-  projectId: "fir-chat-poc-62204",
-  storageBucket: "fir-chat-poc-62204.firebasestorage.app",
-  messagingSenderId: "370842921024",
-  appId: "1:370842921024:web:8f0f4067722a56449497a5",
-  measurementId: "G-L3ZL56XDML"
-});
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+};
+
+if (process.env.REACT_APP_FIREBASE_MEASUREMENT_ID) {
+  firebaseConfig.measurementId = process.env.REACT_APP_FIREBASE_MEASUREMENT_ID;
+}
+
+firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 const db = firebase.firestore();
