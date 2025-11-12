@@ -7,8 +7,8 @@ import './Message.css';
 type MessageProps = {
   createdAt?: firebase.firestore.Timestamp | null;
   text?: string;
-  displayName?: string;
-  photoURL?: string;
+  displayName?: string | null;
+  photoURL?: string | null;
 };
 
 const Message: React.FC<MessageProps> = ({

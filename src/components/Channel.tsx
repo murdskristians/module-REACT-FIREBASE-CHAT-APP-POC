@@ -1,46 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import firebase from 'firebase/compat/app';
 
 import Message from './Message';
+
+import {
+  sendMessage,
+  subscribeToMessages,
+  type FirestoreMessage,
+} from '../firebase/messages';
+
+import type { FirebaseUser } from '../firebase/auth';
 
 import './Channel.css';
 
 type ChannelProps = {
-  user: firebase.User;
-  db: firebase.firestore.Firestore;
+  user: FirebaseUser;
 };
 
-type FirestoreMessage = {
-  id: string;
-  text: string;
-  createdAt?: firebase.firestore.Timestamp | null;
-  uid?: string;
-  displayName?: string;
-  photoURL?: string;
-};
-
-const Channel: React.FC<ChannelProps> = ({ user, db }) => {
+const Channel: React.FC<ChannelProps> = ({ user }) => {
   const [messages, setMessages] = useState<FirestoreMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
 
   const { uid, displayName, photoURL } = user;
 
   useEffect(() => {
-    const unsubscribe = db
-      .collection('messages')
-      .orderBy('createdAt')
-      .limit(100)
-      .onSnapshot((querySnapshot) => {
-        const data = querySnapshot.docs.map((doc) => ({
-          ...(doc.data() as firebase.firestore.DocumentData),
-          id: doc.id,
-        })) as FirestoreMessage[];
-
-        setMessages(data);
-      });
+    const unsubscribe = subscribeToMessages(setMessages);
 
     return unsubscribe;
-  }, [db]);
+  }, []);
 
   const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (
     event
@@ -57,9 +43,8 @@ const Channel: React.FC<ChannelProps> = ({ user, db }) => {
       return;
     }
 
-    await db.collection('messages').add({
+    await sendMessage({
       text: newMessage,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       uid,
       displayName,
       photoURL,
@@ -101,4 +86,3 @@ const Channel: React.FC<ChannelProps> = ({ user, db }) => {
 };
 
 export default Channel;
-
