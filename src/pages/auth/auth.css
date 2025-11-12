@@ -49,7 +49,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: end;
   background-color: #fff;
   border-radius: 16px;
   padding: 27px;
@@ -69,10 +69,10 @@
 }
 
 .auth-card {
-  background-color: white;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: transparent;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
 }
 
 .auth-divider {
@@ -126,7 +126,8 @@
 .auth-footer {
   text-align: center;
   font-size: 13px;
-  color: #939393;
+  color: #6f6f6f;
+  margin-top: 16px;
 }
 
 .auth-footer p {
@@ -134,7 +135,7 @@
 }
 
 .auth-footer a {
-  color: #4b4b4b;
+  color: #111827;
   text-decoration: none;
   margin: 0 8px;
 }
@@ -162,10 +163,6 @@
 @media (max-width: 640px) {
   .auth-page {
     padding: 16px;
-  }
-
-  .auth-card {
-    padding: 24px 20px;
   }
 
   .auth-container {

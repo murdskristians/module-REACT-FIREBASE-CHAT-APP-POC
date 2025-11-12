@@ -38,17 +38,17 @@
 
 .testimonial-title {
   font-size: 48px;
-  font-weight: 700;
+  font-weight: 600;
   margin: 0;
   color: white;
 }
 
 .testimonial-text {
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1.6;
   margin: 0;
   color: white;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 .testimonial-footer {
