@@ -9,7 +9,7 @@
     "@testing-library/user-event": "^13.5.0",
     "date-fns": "^2.30.0",
     "firebase": "^12.5.0",
-    "piche.npm.core": "github:murdskristians/piche.npm.core",
+    "piche.ui": "^1.1.461",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-scripts": "5.0.1",
