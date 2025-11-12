@@ -55,7 +55,7 @@ function App() {
           <div className="app-header">
             <h1>Welcome to chat</h1>
             <Button onClick={handleSignOut} className="header-sign-out-button">
-              Sign out
+              Sign out.
             </Button>
           </div>
           <div className="chat-container">

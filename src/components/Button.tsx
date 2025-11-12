@@ -19,4 +19,3 @@ const Button: React.FC<ButtonProps> = ({
 );
 
 export default Button;
-
