@@ -1,0 +1,117 @@
+@keyframes fadeEffect {
+  0% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 0;
+  }
+  60% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.fadeInOut {
+  animation: fadeEffect 1s linear forwards;
+}
+
+.onboarding {
+  position: relative;
+  padding: 50px 50px 100px 30px;
+  max-width: 561px;
+  color: white;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  height: 100%;
+  gap: 50px;
+}
+
+.testimonial-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.testimonial-title {
+  font-size: 48px;
+  font-weight: 700;
+  margin: 0;
+  color: white;
+}
+
+.testimonial-text {
+  font-size: 20px;
+  line-height: 1.6;
+  margin: 0;
+  color: white;
+  font-weight: 300;
+}
+
+.testimonial-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.progress-bars {
+  display: flex;
+  gap: 5px;
+  width: 100%;
+}
+
+.progress-bar-container {
+  flex: 1;
+  height: 3px;
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #fff;
+  transition: width 0.05s linear;
+  border-radius: 5px;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.author-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  flex-shrink: 0;
+}
+
+.author-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.author-name {
+  font-size: 16px;
+  font-weight: 400;
+  color: white;
+}
+
+.author-position {
+  font-size: 14px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.8);
+}
