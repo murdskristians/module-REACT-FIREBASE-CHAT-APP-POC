@@ -50,14 +50,10 @@ export function ConversationList({
 
   return (
     <section className="conversation-panel" aria-label="Conversation list">
-      <div className="conversation-panel__header">
-        <h2>Messages</h2>
-        <button type="button">＋</button>
-      </div>
       <label className="conversation-panel__search">
-        <span className="conversation-panel__search-icon" aria-hidden="true">
-          🔍
-        </span>
+        <button type="button" className="conversation-panel__search-button">
+          ＋
+        </button>
         <input
           type="search"
           placeholder="Search"
@@ -121,11 +117,10 @@ export function ConversationList({
                   )}
                 </span>
                 <span className="conversation-panel__item-content">
-                  <span className="conversation-panel__item-title">
-                    <span>{displayTitle}</span>
-                    <time>{formatTimestamp(conversation.updatedAt)}</time>
+                  <span className="conversation-panel__item-header">
+                    <span className="conversation-panel__item-title">{displayTitle}</span>
+                    <time className="conversation-panel__item-time">{formatTimestamp(conversation.updatedAt)}</time>
                   </span>
-                  <span className="conversation-panel__item-subtitle">{subtitle}</span>
                   <span className="conversation-panel__item-subtitle conversation-panel__item-subtitle--message">
                     {lastMessageText}
                   </span>

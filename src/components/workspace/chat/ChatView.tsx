@@ -11,6 +11,7 @@ import type firebaseCompat from 'firebase/compat/app';
 import type { ConversationMessage } from '../../../firebase/conversations';
 import type { ViewConversation } from '../Workspace';
 import { MessageBubble } from './MessageBubble';
+import { SendIcon } from './SendIcon';
 
 type ChatViewProps = {
   user: firebaseCompat.User;
@@ -206,8 +207,9 @@ export function ChatView({
               type="submit"
               className="chat-panel__composer-send"
               disabled={isSending || (!composerValue.trim() && !pendingFile)}
+              aria-label="Send message"
             >
-              ➤
+              <SendIcon />
             </button>
           </div>
         </div>
