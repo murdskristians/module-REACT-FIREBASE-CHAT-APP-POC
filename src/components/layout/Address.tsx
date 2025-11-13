@@ -19,15 +19,8 @@ interface AddressProps {
 }
 
 export const Address = ({ address }: AddressProps) => {
-  const details = address ?? {
-    country: 'Latvia',
-    street: 'Brīvības iela 123',
-    postalCode: 'LV-1010',
-    city: 'Riga',
-  };
-
   const hasAddress = Boolean(
-    details?.country || details?.street || details?.postalCode || details?.city
+    address?.country || address?.street || address?.postalCode || address?.city
   );
 
   return (
@@ -44,18 +37,19 @@ export const Address = ({ address }: AddressProps) => {
       </ContactInformationTitle>
       {hasAddress ? (
         <AddressWrapper>
-          <PersonalDataItem title="Country" value={details?.country ?? ''} />
-          <PersonalDataItem title="Street" value={details?.street ?? ''} />
+          <PersonalDataItem title="Country" value={address?.country ?? ''} />
+          <PersonalDataItem title="Street" value={address?.street ?? ''} />
           <PersonalDataItem
             title="Postal code"
-            value={details?.postalCode ?? ''}
+            value={address?.postalCode ?? ''}
           />
-          <PersonalDataItem title="City" value={details?.city ?? ''} />
+          <PersonalDataItem title="City" value={address?.city ?? ''} />
         </AddressWrapper>
       ) : (
         <NoContent
           title="No address added"
           text="Add your address to complete your profile and help others reach you when needed."
+          align="center"
         />
       )}
     </SectionContainer>

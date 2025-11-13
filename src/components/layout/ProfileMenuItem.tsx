@@ -5,21 +5,31 @@ import { ProfileMenuItemWrapper } from './StyledComponents';
 
 interface ProfileMenuItemProps {
   item: { title: string; path: string; icon: PuiIcon; enabled: boolean };
+  isSelected: boolean;
 }
 
-export const ProfileMenuItem = ({ item }: ProfileMenuItemProps) => {
+export const ProfileMenuItem = ({ item, isSelected }: ProfileMenuItemProps) => {
+  const isDisabled = !item.enabled;
+  const iconColor = isSelected ? Colors.blue.base : '#A7AEC3';
+
   return (
     <ProfileMenuItemWrapper
-      className={`${true ? 'selected' : ''} ${!item.enabled ? 'disabled' : ''}`}
-      onClick={() => {}}
+      className={`${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}`}
+      role="menuitem"
+      aria-disabled={isDisabled}
     >
       <PuiSvgIcon
         icon={item.icon}
         width={20}
         height={20}
-        stroke={Colors.blue.base}
+        stroke={iconColor}
       />
-      <PuiTypography variant="body-sm-medium">{item.title}</PuiTypography>
+      <PuiTypography
+        variant="body-sm-medium"
+        sx={{ fontSize: '13px', color: isSelected ? '#20243B' : '#8A90A6' }}
+      >
+        {item.title}
+      </PuiTypography>
     </ProfileMenuItemWrapper>
   );
 };

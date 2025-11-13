@@ -19,6 +19,7 @@ type ProfileMenuProps = {
 
 export const ProfileMenu = ({ onSignOut }: ProfileMenuProps) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const selectedItem = menuList.find((item) => item.enabled) ?? menuList[0];
 
   const handleLogout = async () => {
     try {
@@ -30,12 +31,24 @@ export const ProfileMenu = ({ onSignOut }: ProfileMenuProps) => {
 
   return (
     <ProfileMenuWrapper>
-      <PuiTypography variant="body-xl-medium" sx={{ marginBottom: '24px' }}>
+      <PuiTypography
+        variant="body-lg-medium"
+        sx={{
+          marginBottom: '28px',
+          fontWeight: 500,
+          fontSize: '18px',
+          letterSpacing: '-0.01em',
+        }}
+      >
         Account settings
       </PuiTypography>
       <PuiBox sx={{ flex: 1 }}>
         {menuList.map((item) => (
-          <ProfileMenuItem key={item.path} item={item} />
+          <ProfileMenuItem
+            key={item.path}
+            item={item}
+            isSelected={item.path === selectedItem.path}
+          />
         ))}
       </PuiBox>
 

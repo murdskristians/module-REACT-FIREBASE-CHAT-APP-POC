@@ -73,7 +73,10 @@ export const PersonalData = ({
     <SectionContainer sx={{ marginBottom: '16px' }}>
       <PersonalDataHeader profileContact={profileContact} />
       <NameWrapper>
-        <PuiTypography variant="h5" sx={{ marginBottom: '8px' }}>
+        <PuiTypography
+          variant="h5"
+          sx={{ marginBottom: '8px', fontWeight: 600 }}
+        >
           {profileContact.name}
         </PuiTypography>
         {profileContact.statusMessage && (
@@ -86,10 +89,10 @@ export const PersonalData = ({
           </PuiStack>
         )}
       </NameWrapper>
-      <PuiBox sx={{ padding: '24px' }}>
-        <PuiDivider orientation="horizontal" sx={{ marginBottom: '24px' }} />
+      <PuiBox sx={{ padding: '28px 24px' }}>
+        <PuiDivider orientation="horizontal" sx={{ marginBottom: '28px' }} />
         <ContactInformationTitle>
-          <SectionTitle variant="body-m-medium">
+          <SectionTitle variant="body-sm-medium" sx={{ color: '#8A90A6' }}>
             <PuiSvgIcon
               icon={PuiIcon.File2}
               width={IconSize.Small}
@@ -101,7 +104,8 @@ export const PersonalData = ({
         <PuiBox
           sx={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
+            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+            columnGap: '32px',
             rowGap: '24px',
           }}
         >

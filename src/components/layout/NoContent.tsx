@@ -1,27 +1,42 @@
-import { PuiTypography, useTheme } from 'piche.ui';
+import { PuiBox, PuiTypography, useTheme } from 'piche.ui';
 
 interface NoContentProps {
   title: string;
   text: string;
+  align?: 'left' | 'center';
 }
 
-export const NoContent = ({ title, text }: NoContentProps) => {
+export const NoContent = ({
+  title,
+  text,
+  align = 'center',
+}: NoContentProps) => {
   const theme = useTheme();
+  const alignItems = align === 'center' ? 'center' : 'flex-start';
 
   return (
-    <>
-      <PuiTypography
-        variant='body-m-medium'
-        sx={{ textAlign: 'center', marginBottom: '8px' }}
-      >
+    <PuiBox
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems,
+        gap: '6px',
+        textAlign: align,
+      }}
+    >
+      <PuiTypography variant="body-m-medium" sx={{ textAlign: align }}>
         {title}
       </PuiTypography>
       <PuiTypography
-        variant='body-m-medium'
-        sx={{ textAlign: 'center', color: theme.palette.grey[300] }}
+        variant="body-m-medium"
+        sx={{
+          textAlign: align,
+          color: theme.palette.grey[300],
+          maxWidth: '420px',
+        }}
       >
         {text}
       </PuiTypography>
-    </>
+    </PuiBox>
   );
 };
