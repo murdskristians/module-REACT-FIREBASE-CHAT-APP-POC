@@ -13,4 +13,3 @@ export async function uploadConversationAttachment(
   return storageRef.getDownloadURL();
 }
 
-
