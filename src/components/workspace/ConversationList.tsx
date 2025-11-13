@@ -77,8 +77,6 @@ export function ConversationList({
             counterpart?.email ??
             conversation.title ??
             'Conversation';
-          const subtitle =
-            counterpart?.status ?? conversation.subtitle ?? counterpart?.email ?? '';
 
           const lastMessageText =
             conversation.lastMessage?.type === 'image'

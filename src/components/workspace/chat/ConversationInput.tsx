@@ -1,4 +1,4 @@
-import { PuiBox, PuiIcon, PuiStack, PuiSvgIcon } from 'piche.ui';
+import { PuiBox, PuiIcon, PuiSvgIcon } from 'piche.ui';
 import { FormEvent, useState } from 'react';
 
 import { AddMedia } from './AddMedia';
