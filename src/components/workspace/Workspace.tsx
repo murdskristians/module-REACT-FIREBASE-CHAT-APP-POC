@@ -1,4 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  ThemeProvider as MuiThemeProvider,
+  createTheme,
+} from '@mui/material/styles';
 import type firebaseCompat from 'firebase/compat/app';
 
 import './Workspace.css';
@@ -15,7 +19,16 @@ import {
   type Conversation,
   type ConversationMessage,
 } from '../../firebase/conversations';
-import { subscribeToContacts, type Contact } from '../../firebase/users';
+import {
+  subscribeToContacts,
+  subscribeToUserProfile,
+  type Contact,
+  type UserProfile,
+} from '../../firebase/users';
+import type { ProfileContact } from '../../types/profile';
+import { MainPanelWrapper } from '../../pages/user-info/MainPanelWrapper';
+import { PersonalInfo } from '../../pages/user-info/PersonalInfo';
+import { defaultTheme } from 'piche.ui';
 
 type WorkspaceProps = {
   user: firebaseCompat.User;
@@ -48,7 +61,13 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [activeApp, setActiveApp] = useState<'chat' | 'profile'>('chat');
+  const [profileContact, setProfileContact] = useState<ProfileContact | null>(
+    null
+  );
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
   const ensuredContactsRef = useRef<Set<string>>(new Set());
+  const profileTheme = useMemo(() => createTheme(defaultTheme), []);
 
   const contactsMap = useMemo(() => {
     const map = new Map<string, Contact>();
@@ -132,6 +151,98 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
 
     return unsubscribe;
   }, [user.uid]);
+
+  const buildProfileContact = useCallback(
+    (profile: UserProfile | null): ProfileContact => {
+      const name =
+        profile?.displayName ??
+        user.displayName ??
+        user.email ??
+        'Unknown user';
+      const email = profile?.email ?? user.email ?? '';
+
+      const additionalEmails = profile?.additionalEmails?.length
+        ? profile.additionalEmails
+        : email
+        ? [
+            {
+              id: 'primary-email',
+              label: 'Primary',
+              email,
+            },
+          ]
+        : [];
+
+      const phoneNumbers = profile?.phoneNumbers?.length
+        ? profile.phoneNumbers
+        : [
+            {
+              id: 'mobile-phone',
+              label: 'Mobile',
+              phone: '+371 2000 0000',
+            },
+          ];
+
+      return {
+        id: user.uid,
+        name,
+        email,
+        avatarUrl: profile?.avatarUrl ?? user.photoURL ?? null,
+        avatarColor: profile?.avatarColor ?? '#A8D0FF',
+        statusMessage: profile?.status ?? 'Available',
+        company: profile?.company ?? 'Piche Communications',
+        department:
+          profile?.department === undefined
+            ? { name: 'Customer Success' }
+            : profile.department
+            ? { name: profile.department }
+            : null,
+        position:
+          profile?.position === undefined
+            ? { jobTitle: 'Account Executive' }
+            : profile.position
+            ? { jobTitle: profile.position }
+            : null,
+        additionalEmails,
+        phoneNumbers,
+        address: profile?.address ?? {
+          country: 'Latvia',
+          street: 'Brīvības iela 123',
+          postalCode: 'LV-1010',
+          city: 'Riga',
+        },
+        socialLinks: profile?.socialLinks?.length
+          ? profile.socialLinks
+          : [
+              {
+                id: 'linkedin',
+                label: 'LinkedIn',
+                url: 'https://www.linkedin.com',
+              },
+              {
+                id: 'instagram',
+                label: 'Instagram',
+                url: 'https://www.instagram.com',
+              },
+            ],
+        coverImageUrl:
+          profile?.coverImageUrl ??
+          'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1600&auto=format&fit=crop',
+      };
+    },
+    [user.displayName, user.email, user.photoURL, user.uid]
+  );
+
+  useEffect(() => {
+    setIsProfileLoading(true);
+
+    const unsubscribe = subscribeToUserProfile(user.uid, (nextProfile) => {
+      setProfileContact(buildProfileContact(nextProfile));
+      setIsProfileLoading(false);
+    });
+
+    return unsubscribe;
+  }, [user.uid, buildProfileContact]);
 
   useEffect(() => {
     if (!contacts.length) {
@@ -262,27 +373,51 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
 
   return (
     <div className="workspace">
-      <AppDock user={user} onSignOut={onSignOut} />
-
-      <ConversationList
-        conversations={filteredConversations}
-        onSearchChange={setSearchTerm}
-        searchTerm={searchTerm}
-        selectedConversationId={selectedConversationId}
-        onSelectConversation={handleConversationSelect}
-        contactsMap={contactsMap}
-        currentUserId={user.uid}
-      />
-
-      <ChatView
+      <AppDock
         user={user}
-        conversation={activeConversationState.conversation}
-        messages={activeConversationState.messages}
-        onSendMessage={handleSendMessage}
-        isSending={isSending}
+        activeApp={activeApp}
+        onSelectApp={(appId) => {
+          if (appId === 'chat') {
+            setActiveApp('chat');
+          }
+        }}
+        onOpenProfile={() => setActiveApp('profile')}
       />
 
-      <AiPanel />
+      {activeApp === 'profile' ? (
+        <MuiThemeProvider theme={profileTheme}>
+          <div className="profile-view">
+            <MainPanelWrapper onSignOut={onSignOut}>
+              <PersonalInfo
+                profileContact={profileContact}
+                isLoading={isProfileLoading}
+              />
+            </MainPanelWrapper>
+          </div>
+        </MuiThemeProvider>
+      ) : (
+        <>
+          <ConversationList
+            conversations={filteredConversations}
+            onSearchChange={setSearchTerm}
+            searchTerm={searchTerm}
+            selectedConversationId={selectedConversationId}
+            onSelectConversation={handleConversationSelect}
+            contactsMap={contactsMap}
+            currentUserId={user.uid}
+          />
+
+          <ChatView
+            user={user}
+            conversation={activeConversationState.conversation}
+            messages={activeConversationState.messages}
+            onSendMessage={handleSendMessage}
+            isSending={isSending}
+          />
+
+          <AiPanel />
+        </>
+      )}
     </div>
   );
 }
