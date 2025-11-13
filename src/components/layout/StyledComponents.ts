@@ -204,13 +204,13 @@ export const StyledInput = PuiStyled(PuiTextInput)(({ theme }) => ({
     {
       borderWidth: '1px',
     },
-  ["input[type='number']::-webkit-inner-spin-button, input[type='number']::-webkit-outer-spin-button"]:
+  "& input[type='number']::-webkit-inner-spin-button, & input[type='number']::-webkit-outer-spin-button":
     {
       margin: 0,
-      ['WebkitAppearance']: 'none',
+      WebkitAppearance: 'none',
     },
-  ["input[type='number']"]: {
-    ['MozAppearance']: 'textfield',
+  "& input[type='number']": {
+    MozAppearance: 'textfield',
   },
   '&.label': {
     maxWidth: '150px',
