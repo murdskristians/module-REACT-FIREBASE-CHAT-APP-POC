@@ -1,17 +1,19 @@
 import {
-  ChangeEvent,
   FormEvent,
-  useCallback,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import type firebaseCompat from 'firebase/compat/app';
 
+import { PuiIcon, PuiSvgIcon } from 'piche.ui';
+
 import type { ConversationMessage } from '../../../firebase/conversations';
 import type { ViewConversation } from '../Workspace';
+import { AddMedia } from './AddMedia';
 import { MessageBubble } from './MessageBubble';
-import { SendIcon } from './SendIcon';
+import { SendMessage } from './SendMessage';
+import { VoiceInput } from './VoiceInput';
 
 type ChatViewProps = {
   user: firebaseCompat.User;
@@ -33,7 +35,6 @@ export function ChatView({
 }: ChatViewProps) {
   const [composerValue, setComposerValue] = useState('');
   const [pendingFile, setPendingFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const listRef = useRef<HTMLUListElement | null>(null);
 
   useEffect(() => {
@@ -50,9 +51,6 @@ export function ChatView({
     if (!messages.length) {
       setComposerValue('');
       setPendingFile(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
     }
   }, [messages]);
 
@@ -72,21 +70,8 @@ export function ChatView({
 
     setComposerValue('');
     setPendingFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
   };
 
-  const handleFileSelect = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (!file) {
-        return;
-      }
-      setPendingFile(file);
-    },
-    []
-  );
 
   if (!conversation) {
     return (
@@ -142,9 +127,11 @@ export function ChatView({
             aria-label="Add participant"
             title="Add participant"
           >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M13.333 17.5v-1.667a3.333 3.333 0 00-3.333-3.333H4.167a3.333 3.333 0 00-3.334 3.333V17.5M16.667 6.667v5M19.167 9.167h-5M7.083 9.167a3.333 3.333 0 100-6.667 3.333 3.333 0 000 6.667z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <PuiSvgIcon
+              width={20}
+              height={20}
+              icon={PuiIcon.UserPlus1}
+            />
           </button>
           <button
             type="button"
@@ -152,9 +139,11 @@ export function ChatView({
             aria-label="Start a call"
             title="Start a call"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14.667 11.28v2a1.333 1.333 0 01-1.454 1.333 13.2 13.2 0 01-5.76-2.046 13 13 0 01-4-4 13.2 13.2 0 01-2.046-5.787A1.333 1.333 0 012.74 1.333h2a1.333 1.333 0 011.333 1.147c.084.64.24 1.267.467 1.867a1.333 1.333 0 01-.3 1.406L5.24 6.753a10.667 10.667 0 004 4l1-1a1.333 1.333 0 011.407-.3c.6.227 1.226.383 1.866.467a1.333 1.333 0 011.147 1.353z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <PuiSvgIcon
+              width={16}
+              height={16}
+              icon={PuiIcon.Phone}
+            />
           </button>
         </div>
       </header>
@@ -194,38 +183,43 @@ export function ChatView({
           </div>
         ) : null}
         <div className="chat-panel__composer-row">
+          <AddMedia onFileSelect={(file) => setPendingFile(file)} />
           <button
             type="button"
-            className="chat-panel__composer-button"
-            onClick={() => fileInputRef.current?.click()}
-            aria-label="Attach file"
+            className="chat-panel__composer-button chat-panel__composer-button--emoji"
+            aria-label="Add emoji"
+            title="Add emoji"
           >
-            📎
+            <PuiSvgIcon
+              width={16}
+              height={16}
+              icon={PuiIcon.FaceSmile}
+            />
           </button>
           <input
             type="text"
             placeholder={`Message ${conversation.displayTitle}`}
             value={composerValue}
             onChange={(event) => setComposerValue(event.target.value)}
+            className="chat-panel__composer-input"
           />
-          <div className="chat-panel__composer-actions">
-            <button
-              type="submit"
-              className="chat-panel__composer-send"
-              disabled={isSending || (!composerValue.trim() && !pendingFile)}
-              aria-label="Send message"
-            >
-              <SendIcon />
-            </button>
-          </div>
+          <VoiceInput />
+          {(composerValue.trim() || pendingFile) && (
+            <>
+              <div className="chat-panel__composer-divider"></div>
+              <SendMessage
+                handleSend={async () => {
+                  const text = composerValue.trim();
+                  if (!text && !pendingFile) return;
+                  await onSendMessage({ text, file: pendingFile });
+                  setComposerValue('');
+                  setPendingFile(null);
+                }}
+                disabled={isSending}
+              />
+            </>
+          )}
         </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          style={{ display: 'none' }}
-          onChange={handleFileSelect}
-        />
       </form>
     </section>
   );
