@@ -1,21 +1,17 @@
 import type firebaseCompat from 'firebase/compat/app';
 
-type DockItemId = 'spreadsheets' | 'chat' | 'contacts';
-
 type AppDockProps = {
   user: firebaseCompat.User;
-  activeApp: 'chat' | 'profile';
-  onSelectApp: (appId: DockItemId) => void;
-  onOpenProfile: () => void;
+  onSignOut: () => Promise<void> | void;
 };
 
-const DOCK_ITEMS: Array<{ id: DockItemId; label: string; icon: string }> = [
+const DOCK_ITEMS = [
   { id: 'spreadsheets', label: 'Spreadsheets', icon: '📊' },
-  { id: 'chat', label: 'Chat', icon: '💬' },
+  { id: 'chat', label: 'Chat', icon: '💬', active: true },
   { id: 'contacts', label: 'Contacts', icon: '👥' },
 ];
 
-export function AppDock({ user, activeApp, onSelectApp, onOpenProfile }: AppDockProps) {
+export function AppDock({ user, onSignOut }: AppDockProps) {
   const initials = (user.displayName ?? user.email ?? 'User')
     .split(' ')
     .map((part) => part[0])
@@ -31,11 +27,8 @@ export function AppDock({ user, activeApp, onSelectApp, onOpenProfile }: AppDock
           <button
             key={item.id}
             type="button"
-            className={`dock__item ${
-              item.id === 'chat' && activeApp === 'chat' ? 'dock__item--active' : ''
-            }`}
-            aria-pressed={item.id === 'chat' && activeApp === 'chat'}
-            onClick={() => onSelectApp(item.id)}
+            className={`dock__item ${item.active ? 'dock__item--active' : ''}`}
+            aria-pressed={item.active ?? false}
           >
             <span aria-hidden="true" className="dock__item-icon">
               {item.icon}
@@ -44,12 +37,7 @@ export function AppDock({ user, activeApp, onSelectApp, onOpenProfile }: AppDock
           </button>
         ))}
       </nav>
-      <button
-        type="button"
-        className={`dock__user ${activeApp === 'profile' ? 'dock__user--active' : ''}`}
-        onClick={onOpenProfile}
-        title="View profile"
-      >
+      <button type="button" className="dock__user" onClick={onSignOut} title="Sign out">
         {user.photoURL ? (
           <img src={user.photoURL} alt={user.displayName ?? 'Current user'} />
         ) : (

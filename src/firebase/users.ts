@@ -11,22 +11,6 @@ export type Contact = {
   status?: string | null;
 };
 
-export type UserProfile = Contact & {
-  company?: string | null;
-  department?: string | null;
-  position?: string | null;
-  additionalEmails?: Array<{ id: string; label: string; email: string }>;
-  phoneNumbers?: Array<{ id: string; label: string; phone: string }>;
-  address?: {
-    country?: string | null;
-    street?: string | null;
-    postalCode?: string | null;
-    city?: string | null;
-  };
-  socialLinks?: Array<{ id: string; label: string; url: string }>;
-  coverImageUrl?: string | null;
-};
-
 const AVATAR_COLORS = [
   '#FFD37D',
   '#A8D0FF',
@@ -88,55 +72,4 @@ export function subscribeToContacts(
 
     callback(contacts);
   });
-}
-
-export function subscribeToUserProfile(
-  userId: string,
-  callback: (profile: UserProfile | null) => void
-): firebase.Unsubscribe {
-  return db
-    .collection('users')
-    .doc(userId)
-    .onSnapshot((doc) => {
-      if (!doc.exists) {
-        callback(null);
-        return;
-      }
-
-      const data = doc.data() ?? {};
-
-      callback({
-        id: doc.id,
-        displayName: (data.displayName ?? data.name ?? null) as string | null,
-        email: (data.email ?? null) as string | null,
-        avatarUrl: (data.avatarUrl ?? null) as string | null,
-        avatarColor: (data.avatarColor ?? null) as string | null,
-        status: (data.status ?? null) as string | null,
-        company: (data.company ?? null) as string | null,
-        department: (data.department ?? null) as string | null,
-        position: (data.position ?? null) as string | null,
-        additionalEmails: (data.additionalEmails ?? []) as Array<{
-          id: string;
-          label: string;
-          email: string;
-        }>,
-        phoneNumbers: (data.phoneNumbers ?? []) as Array<{
-          id: string;
-          label: string;
-          phone: string;
-        }>,
-        address: (data.address ?? null) as {
-          country?: string | null;
-          street?: string | null;
-          postalCode?: string | null;
-          city?: string | null;
-        } | null,
-        socialLinks: (data.socialLinks ?? []) as Array<{
-          id: string;
-          label: string;
-          url: string;
-        }>,
-        coverImageUrl: (data.coverImageUrl ?? null) as string | null,
-      });
-    });
 }
