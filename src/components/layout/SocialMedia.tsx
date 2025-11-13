@@ -18,28 +18,7 @@ interface SocialMediaProps {
 }
 
 export const SocialMedia = ({ links }: SocialMediaProps) => {
-  const socialLinks =
-    links.length > 0
-      ? links
-      : [
-          {
-            id: 'linkedin',
-            label: 'LinkedIn',
-            url: 'https://www.linkedin.com',
-          },
-          {
-            id: 'instagram',
-            label: 'Instagram',
-            url: 'https://www.instagram.com',
-          },
-          {
-            id: 'x',
-            label: 'X',
-            url: 'https://x.com',
-          },
-        ];
-
-  const hasLinks = socialLinks.length > 0;
+  const hasLinks = links.length > 0;
 
   return (
     <SectionContainer sx={{ padding: '24px' }}>
@@ -56,7 +35,7 @@ export const SocialMedia = ({ links }: SocialMediaProps) => {
       </ContactInformationTitle>
       {hasLinks ? (
         <SocialMediaList>
-          {socialLinks.map((item, index) => (
+          {links.map((item, index) => (
             <SocialMediaItemWrapper
               key={item.id}
               className={(index + 1) % 5 === 0 ? 'last-item' : undefined}
@@ -93,6 +72,7 @@ export const SocialMedia = ({ links }: SocialMediaProps) => {
         <NoContent
           title="No social links added yet"
           text="Add your social media profiles to make it easier for others to connect with you."
+          align="center"
         />
       )}
     </SectionContainer>

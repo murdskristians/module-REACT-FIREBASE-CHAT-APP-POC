@@ -412,7 +412,8 @@ export const ProfileMenuWrapper = PuiStyled(PuiBox)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   height: '100%',
-  padding: '24px 24px 38px',
+  padding: '32px 24px 28px',
+  borderRight: `1px solid ${theme.palette.grey[100]}`,
 }));
 
 export const ProfileMenuItemWrapper = PuiStyled(PuiBox)(({ theme }) => ({
@@ -422,20 +423,22 @@ export const ProfileMenuItemWrapper = PuiStyled(PuiBox)(({ theme }) => ({
   borderRadius: '8px',
   marginBottom: '4px',
   '& .MuiTypography-root': {
-    color: theme.palette.grey[400],
+    color: '#8A90A6',
   },
   '&.selected': {
-    backgroundColor: theme.palette.primary.light,
+    backgroundColor: '#E7F1FF',
     '& .MuiTypography-root': {
-      color: theme.palette.grey[600],
+      color: '#20243B',
     },
   },
   '&:hover': {
     cursor: 'pointer',
-    backgroundColor: theme.palette.background.default,
+    backgroundColor: '#F5F7FB',
   },
   '&.disabled': {
-    cursor: 'auto',
+    cursor: 'default',
+    pointerEvents: 'none',
+    opacity: 0.9,
     '&:hover': {
       backgroundColor: 'transparent',
     },
@@ -446,6 +449,7 @@ export const LogoutButton = PuiStyled(PuiButton)(({ theme }) => ({
   backgroundColor: Colors.red[25],
   color: theme.palette.grey[600],
   justifyContent: 'flex-start',
+  padding: '5px 16px',
   '&.MuiButton-sizeMedium .MuiButton-startIcon .MuiSvgIcon-root': {
     width: 'unset',
     height: 'unset',
