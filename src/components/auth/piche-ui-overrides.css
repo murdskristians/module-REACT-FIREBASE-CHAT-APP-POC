@@ -1,0 +1,111 @@
+/* Piche.ui Material-UI Component Overrides */
+
+/* Input Labels */
+.MuiInputLabel-root {
+  letter-spacing: normal !important;
+  font-family: 'Poppins', 'Inter', sans-serif !important;
+  padding: 0 !important;
+  position: relative !important;
+  color: #272727 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 1.6 !important;
+  display: block !important;
+  transform-origin: top left !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+  margin-bottom: 10px !important;
+}
+
+/* Required asterisk color */
+.MuiInputLabel-root .MuiInputLabel-asterisk {
+  color: #E16D6D !important;
+}
+
+/* Input Fields */
+.MuiOutlinedInput-root {
+  border-radius: 6px !important;
+  font-family: 'Poppins', 'Inter', sans-serif !important;
+}
+
+.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-radius: 6px !important;
+}
+
+.MuiOutlinedInput-input {
+  padding: 18px 16px !important;
+  font-size: 14px !important;
+  font-family: 'Poppins', 'Inter', sans-serif !important;
+}
+
+/* Buttons */
+.MuiButton-root,
+.MuiLoadingButton-root {
+  border-radius: 6px !important;
+  padding: 18px 16px !important;
+  font-size: 14px !important;
+  font-family: 'Poppins', 'Inter', sans-serif !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+}
+
+.MuiButton-sizeLarge,
+.MuiLoadingButton-sizeLarge {
+  padding: 18px 16px !important;
+  font-size: 14px !important;
+}
+
+/* Primary Button Color */
+.MuiButton-containedPrimary,
+.MuiLoadingButton-root.MuiButton-containedPrimary {
+  background-color: #3398DB !important;
+}
+
+.MuiButton-containedPrimary:hover,
+.MuiLoadingButton-root.MuiButton-containedPrimary:hover {
+  background-color: #2980b9 !important;
+}
+
+/* Outlined Button */
+.MuiButton-outlined {
+  border-color: #3398DB !important;
+  color: #3398DB !important;
+}
+
+/* Form Helper Text */
+.MuiFormHelperText-root {
+  font-family: 'Poppins', 'Inter', sans-serif !important;
+  font-size: 13px !important;
+  margin-top: 6px !important;
+}
+
+/* Typography */
+.MuiTypography-root {
+  font-family: 'Poppins', 'Inter', sans-serif !important;
+}
+
+/* Checkbox */
+.MuiCheckbox-root {
+  padding: 4px !important;
+}
+
+/* Form Control Label */
+.MuiFormControlLabel-root {
+  margin: 0 !important;
+}
+
+.MuiFormControlLabel-label {
+  font-family: 'Poppins', 'Inter', sans-serif !important;
+}
+
+/* Link */
+.MuiLink-root {
+  font-family: 'Poppins', 'Inter', sans-serif !important;
+  text-decoration: none !important;
+}
+
+.MuiLink-root:hover {
+  text-decoration: underline !important;
+}
