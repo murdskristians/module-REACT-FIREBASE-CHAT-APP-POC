@@ -1,10 +1,22 @@
+import { PuiBox } from 'piche.ui';
 import { FormEvent, useState } from 'react';
+
+import { SendButton } from './SendButton';
 
 export function AiPanel() {
   const [prompt, setPrompt] = useState('');
+  const trimmedValue = prompt.trim();
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!trimmedValue) return;
+    // TODO: Handle AI message sending
+    setPrompt('');
+  };
+
+  const sendMessage = () => {
+    if (!trimmedValue) return;
+    // TODO: Handle AI message sending
     setPrompt('');
   };
 
@@ -20,13 +32,18 @@ export function AiPanel() {
         </div>
       </div>
       <form className="ai-panel__composer" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Message to Q Assistant"
-          value={prompt}
-          onChange={(event) => setPrompt(event.target.value)}
-        />
-        <button type="submit">Send</button>
+        <div className="ai-panel__input-box">
+          <textarea
+            placeholder="Message to Q Assistant"
+            value={prompt}
+            onChange={(event) => setPrompt(event.target.value)}
+            className="ai-panel__textarea"
+            rows={1}
+          />
+          <PuiBox display="flex" gap="8px">
+            {trimmedValue ? <SendButton onClick={sendMessage} /> : null}
+          </PuiBox>
+        </div>
       </form>
     </aside>
   );
