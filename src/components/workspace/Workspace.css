@@ -313,11 +313,10 @@
 
 /* Chat panel */
 .chat-panel {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, #ffffff 100%);
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   height: 100%;
-  border-right: 1px solid rgba(99, 106, 124, 0.08);
 }
 
 .chat-panel--empty {
@@ -338,27 +337,32 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 28px;
-  border-bottom: 1px solid rgba(99, 106, 124, 0.08);
+  padding: 16px 32px;
+  height: 64px;
+  background: #ffffff;
+  border-bottom: 1px solid #f0f0f0;
+  z-index: 1;
 }
 
 .chat-panel__contact {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
+  min-width: 0;
 }
 
 .chat-panel__avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
+  font-size: 13px;
   color: #1f2131;
-  background: #cbd4ff;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .chat-panel__avatar img {
@@ -367,37 +371,73 @@
   object-fit: cover;
 }
 
+.chat-panel__meta {
+  min-width: 0;
+}
+
 .chat-panel__meta h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 600;
+  font-family: 'Poppins', 'Inter', sans-serif;
+  color: #272727;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.chat-panel__meta h2:hover {
+  color: #939393;
 }
 
 .chat-panel__meta p {
-  margin: 4px 0 0;
-  font-size: 13px;
-  color: #6e7388;
+  margin: 2px 0 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: #a0a0a0;
+  font-family: 'Poppins', 'Inter', sans-serif;
 }
 
 .chat-panel__actions {
   display: flex;
-  gap: 12px;
+  gap: 16px;
 }
 
 .chat-panel__action {
   width: 40px;
   height: 40px;
-  border-radius: 14px;
+  border-radius: 50%;
   border: none;
-  background: #f4f6fb;
-  font-size: 18px;
+  background: #f6f8ff;
+  color: #939393;
+  padding: 0;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
 .chat-panel__action:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 24px -20px rgba(0, 0, 0, 0.4);
+  background-color: #f0f0f0;
+}
+
+.chat-panel__action:hover svg {
+  color: #3398DB;
+}
+
+.chat-panel__action--call {
+  background: linear-gradient(112deg, #3398DB -3.42%, #3375A0 98.18%);
+  color: #ffffff;
+}
+
+.chat-panel__action--call:hover {
+  background: linear-gradient(112deg, #3192D3 -3.42%, #235373 98.18%);
+}
+
+.chat-panel__action--call:hover svg {
+  color: #ffffff;
 }
 
 .chat-panel__messages {

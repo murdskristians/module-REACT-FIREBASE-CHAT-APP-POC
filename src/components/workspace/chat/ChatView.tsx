@@ -139,16 +139,22 @@ export function ChatView({
           <button
             type="button"
             className="chat-panel__action"
-            aria-label="Open profile"
+            aria-label="Add participant"
+            title="Add participant"
           >
-            👤
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13.333 17.5v-1.667a3.333 3.333 0 00-3.333-3.333H4.167a3.333 3.333 0 00-3.334 3.333V17.5M16.667 6.667v5M19.167 9.167h-5M7.083 9.167a3.333 3.333 0 100-6.667 3.333 3.333 0 000 6.667z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </button>
           <button
             type="button"
-            className="chat-panel__action"
+            className="chat-panel__action chat-panel__action--call"
             aria-label="Start a call"
+            title="Start a call"
           >
-            📞
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14.667 11.28v2a1.333 1.333 0 01-1.454 1.333 13.2 13.2 0 01-5.76-2.046 13 13 0 01-4-4 13.2 13.2 0 01-2.046-5.787A1.333 1.333 0 012.74 1.333h2a1.333 1.333 0 011.333 1.147c.084.64.24 1.267.467 1.867a1.333 1.333 0 01-.3 1.406L5.24 6.753a10.667 10.667 0 004 4l1-1a1.333 1.333 0 011.407-.3c.6.227 1.226.383 1.866.467a1.333 1.333 0 011.147 1.353z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </button>
         </div>
       </header>
