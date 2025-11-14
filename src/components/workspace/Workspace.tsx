@@ -11,6 +11,7 @@ import { AiPanel } from './ai/AiPanel';
 import { UserSearchModal } from './UserSearchModal';
 import { createViewConversationFromContact as createViewConversationFromContactUtil } from './utils';
 import { ContactCardView } from './contact/ContactCardView';
+import { CreateNewGroupPanel } from './group/CreateNewGroupPanel';
 import {
   ensureConversationExists,
   sendMessage,
@@ -18,6 +19,7 @@ import {
   subscribeToConversations,
   togglePinConversation,
   toggleHideConversation,
+  createGroupConversation,
   type Conversation,
   type ConversationMessage,
 } from '../../firebase/conversations';
@@ -75,6 +77,7 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
   const [selectedContactId, setSelectedContactId] = useState<string | null>(
     null
   );
+  const [showCreateGroupPanel, setShowCreateGroupPanel] = useState(false);
 
   const contactsMap = useMemo(() => {
     const map = new Map<string, Contact>();
@@ -100,6 +103,7 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
   const buildViewConversation = useCallback(
     (conversation: Conversation): ViewConversation => {
       const isPrivateConversation = conversation.type === 'private';
+      const isGroupConversation = conversation.type === 'group';
 
       if (isPrivateConversation) {
         return {
@@ -114,6 +118,22 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
             '#A8D0FF',
           counterpartId: user.uid,
           isPinned: true, // Always pinned
+        };
+      }
+
+      if (isGroupConversation) {
+        return {
+          ...conversation,
+          displayTitle: conversation.title ?? 'Group',
+          displaySubtitle:
+            conversation.subtitle ??
+            `${conversation.participants.length} members`,
+          displayAvatarUrl: conversation.avatarUrl ?? null,
+          displayAvatarColor: conversation.avatarColor ?? '#A8D0FF',
+          counterpartId:
+            conversation.participants.find((id) => id !== user.uid) ??
+            conversation.participants[0] ??
+            user.uid,
         };
       }
 
@@ -133,7 +153,6 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
         conversation.subtitle ??
         counterpart?.email ??
         'Last seen recently';
-      const isGroupConversation = conversation.participants.length > 2;
       const currentUserAvatarUrl = currentUserProfile?.avatarUrl ?? null;
 
       console.log('[buildViewConversation] Avatar Debug', {
@@ -367,6 +386,36 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
     []
   );
 
+  const handleCreateGroup = useCallback(() => {
+    setShowCreateGroupPanel(true);
+  }, []);
+
+  const handleCloseCreateGroupPanel = useCallback(() => {
+    setShowCreateGroupPanel(false);
+  }, []);
+
+  const handleGroupCreated = useCallback(
+    async (title: string, selectedContactIds: string[]) => {
+      try {
+        const conversationId = await createGroupConversation({
+          title,
+          participants: selectedContactIds,
+          ownerId: user.uid,
+          avatarColor: '#A8D0FF',
+          avatarUrl: null,
+        });
+
+        // Select the newly created group conversation
+        setSelectedConversationId(conversationId);
+        setShowCreateGroupPanel(false);
+      } catch (error) {
+        console.error('Failed to create group:', error);
+        throw error;
+      }
+    },
+    [user.uid]
+  );
+
   const handleConversationSelect = (conversationId: string) => {
     // Check if this is a new user (not a real conversation)
     if (conversationId.startsWith('new_')) {
@@ -584,6 +633,7 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
               onSelectConversation={handleConversationSelect}
               onPinToggle={handlePinToggle}
               onHideToggle={handleHideToggle}
+              onCreateGroup={handleCreateGroup}
             />
             <ChatView
               user={user}
@@ -600,6 +650,13 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
                 contact={selectedContact}
                 onBack={handleContactCardBack}
                 onClose={handleContactCardClose}
+              />
+            ) : showCreateGroupPanel ? (
+              <CreateNewGroupPanel
+                currentUserId={user.uid}
+                contacts={contacts}
+                onCreateGroup={handleGroupCreated}
+                onClose={handleCloseCreateGroupPanel}
               />
             ) : (
               <AiPanel />

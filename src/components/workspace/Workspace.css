@@ -276,7 +276,7 @@
   height: 24px;
   border-radius: 50%;
   border: 1px solid #f0f0f0;
-  background: #ffffff;
+  background: #ffffff !important;
   color: #a0a0a0;
   font-size: 16px;
   cursor: pointer;
@@ -288,11 +288,17 @@
   transition: all 0.2s ease;
   line-height: 1;
   position: relative;
-  z-index: 1;
+  z-index: 1004 !important;
 }
 
 .conversation-panel__search-button:hover {
   background-color: #f0f0f0 !important;
+  color: var(--palette-primary) !important;
+}
+
+.conversation-panel__search-button.menu-is-open:hover {
+  background-color: #f0f0f0 !important;
+  background: #f0f0f0 !important;
   color: var(--palette-primary) !important;
 }
 
@@ -650,6 +656,32 @@
   border-radius: 3px;
 }
 
+.scrollbar-hover {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.scrollbar-hover:hover {
+  scrollbar-color: #d0d0d0 transparent;
+}
+
+.scrollbar-hover::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-hover::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-hover::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 4px;
+}
+
+.scrollbar-hover:hover::-webkit-scrollbar-thumb {
+  background-color: #d0d0d0;
+}
+
 .message-wrapper.user-message {
   --avatar-padding: 0px;
 }
@@ -858,17 +890,40 @@
   z-index: 999;
 }
 
+.popup-overlay {
+  pointer-events: auto;
+}
+
+.popup-overlay:has(+ .ai-panel),
+.popup-overlay:has(~ .ai-panel) {
+  display: none;
+}
+
+.ai-panel,
+[aria-label="Create new group panel"] {
+  position: relative;
+  z-index: 1001 !important;
+  pointer-events: auto !important;
+}
+
+[aria-label="Create new group panel"] input {
+  pointer-events: auto !important;
+  z-index: 1002 !important;
+  position: relative;
+}
+
 .popup-menu {
   position: absolute;
   bottom: calc(100% + 4px);
   left: 0;
   z-index: 1000;
   width: 161px;
+  min-height: auto;
   background: #ffffff;
   border: 1px solid #f0f0f0;
   border-radius: 8px;
   box-shadow: 0px -4px 12px 0px rgba(0, 0, 0, 0.05), -4px 8px 16px -2px rgba(27, 33, 44, 0.12);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .popup-menu-item {
@@ -878,7 +933,6 @@
   gap: 12px;
   padding: 12px 16px;
   border: none;
-  background: transparent;
   cursor: pointer;
   color: #272727;
   font-family: 'Poppins', 'Inter', sans-serif;
@@ -886,6 +940,9 @@
   font-weight: 500;
   text-align: left;
   transition: background-color 0.2s ease;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  white-space: nowrap;
 }
 
 .popup-menu-item:hover {
@@ -899,6 +956,25 @@
 
 .chat-panel__composer-button--add.menu-is-open {
   background-color: #f0f0f0;
+}
+
+/* Force solid background for styled plus button - override any transparent backgrounds */
+.conversation-panel__search [class*="MuiButtonBase-root"],
+.conversation-panel__search [class*="MuiIconButton-root"],
+.conversation-panel__search button[class*="Mui"],
+.conversation-panel__search button {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  background-image: none !important;
+}
+
+.conversation-panel__search [class*="MuiButtonBase-root"]:hover,
+.conversation-panel__search [class*="MuiIconButton-root"]:hover,
+.conversation-panel__search button[class*="Mui"]:hover,
+.conversation-panel__search button:hover {
+  background-color: #f0f0f0 !important;
+  background: #f0f0f0 !important;
+  background-image: none !important;
 }
 
 /* AI panel */

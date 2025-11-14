@@ -1,10 +1,55 @@
 import { format, isToday, isYesterday } from 'date-fns';
 import type firebase from 'firebase/compat/app';
-import { ChangeEvent, MouseEvent, useState } from 'react';
-import { PuiIcon, PuiSvgIcon } from 'piche.ui';
+import { ChangeEvent, MouseEvent, useRef, useState } from 'react';
+import { PuiIcon, PuiIconButton, PuiSvgIcon, PuiStyled } from 'piche.ui';
 
 import { Avatar } from './shared/Avatar';
 import type { ViewConversation } from './Workspace';
+
+const StyledPlusButton = PuiStyled(PuiIconButton)<{ isOpen: boolean }>(
+  ({ isOpen }) => ({
+    width: '24px',
+    height: '24px',
+    minWidth: '24px',
+    padding: 0,
+    borderRadius: '8px',
+    border: '1px solid #d0d0d0',
+    backgroundColor: isOpen ? '#f0f0f0' : '#ffffff',
+    background: isOpen ? '#f0f0f0' : '#ffffff',
+    backgroundImage: 'none',
+    color: isOpen ? 'var(--palette-primary)' : '#a0a0a0',
+    position: 'relative',
+    zIndex: 1004,
+    fontSize: '16px',
+    '&': {
+      backgroundColor: isOpen ? '#f0f0f0' : '#ffffff',
+      background: isOpen ? '#f0f0f0' : '#ffffff',
+      backgroundImage: 'none',
+      border: '1px solid #d0d0d0',
+    },
+    '&.MuiButtonBase-root': {
+      backgroundColor: isOpen ? '#f0f0f0' : '#ffffff',
+      background: isOpen ? '#f0f0f0' : '#ffffff',
+      backgroundImage: 'none',
+      border: '1px solid #d0d0d0',
+      borderRadius: '8px',
+    },
+    '&.MuiIconButton-root': {
+      backgroundColor: isOpen ? '#f0f0f0' : '#ffffff',
+      background: isOpen ? '#f0f0f0' : '#ffffff',
+      backgroundImage: 'none',
+      border: '1px solid #d0d0d0',
+      borderRadius: '8px',
+    },
+    '&:hover': {
+      backgroundColor: '#f0f0f0',
+      background: '#f0f0f0',
+      backgroundImage: 'none',
+      color: 'var(--palette-primary)',
+      border: '1px solid #d0d0d0',
+    },
+  })
+);
 
 type ConversationListProps = {
   conversations: ViewConversation[];
@@ -12,9 +57,9 @@ type ConversationListProps = {
   onSearchChange: (value: string) => void;
   selectedConversationId: string | null;
   onSelectConversation: (conversationId: string) => void;
-  onAddConversation?: () => void;
   onPinToggle: (conversationId: string, isPinned: boolean) => void;
   onHideToggle: (conversationId: string, isHidden: boolean) => void;
+  onCreateGroup?: () => void;
 };
 
 const formatTimestamp = (timestamp?: firebase.firestore.Timestamp | null) => {
@@ -43,12 +88,19 @@ export function ConversationList({
   onSelectConversation,
   onPinToggle,
   onHideToggle,
+  onCreateGroup,
 }: ConversationListProps) {
   const [contextMenu, setContextMenu] = useState<{
     conversationId: string;
     x: number;
     y: number;
   } | null>(null);
+  const [isPlusMenuOpen, setIsPlusMenuOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
+  const plusButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     onSearchChange(event.target.value);
@@ -81,15 +133,74 @@ export function ConversationList({
     handleCloseContextMenu();
   };
 
+  const handlePlusClick = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (plusButtonRef.current) {
+      const rect = plusButtonRef.current.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.bottom + 4,
+        left: rect.left,
+      });
+    }
+    setIsPlusMenuOpen(!isPlusMenuOpen);
+  };
+
+  const handleClosePlusMenu = () => {
+    setIsPlusMenuOpen(false);
+  };
+
+  const handleCreateGroup = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsPlusMenuOpen(false);
+    setMenuPosition(null);
+    if (onCreateGroup) {
+      onCreateGroup();
+    }
+  };
+
   return (
     <section className="conversation-panel" aria-label="Conversation list">
       <label className="conversation-panel__search">
-        <button
-          type="button"
-          className="conversation-panel__search-button"
-        >
-          ＋
-        </button>
+        <div style={{ position: 'relative', zIndex: 1003 }}>
+          <StyledPlusButton
+            ref={plusButtonRef}
+            onClick={handlePlusClick}
+            isOpen={isPlusMenuOpen}
+          >
+            ＋
+          </StyledPlusButton>
+          {isPlusMenuOpen && (
+            <>
+              <div
+                className="popup-overlay"
+                onClick={handleClosePlusMenu}
+                style={{ zIndex: 999, pointerEvents: 'auto' }}
+              />
+              <div
+                className="popup-menu"
+                style={{
+                  position: 'fixed',
+                  top: menuPosition ? `${menuPosition.top}px` : 'auto',
+                  left: menuPosition ? `${menuPosition.left}px` : 'auto',
+                  zIndex: 1002,
+                  pointerEvents: 'auto',
+                }}
+              >
+                <button
+                  type="button"
+                  className="popup-menu-item"
+                  onClick={handleCreateGroup}
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
+                  <PuiSvgIcon width={16} height={16} icon={PuiIcon.Users3} />
+                  <span>Create a group</span>
+                </button>
+              </div>
+            </>
+          )}
+        </div>
         <input
           type="search"
           placeholder="Search"

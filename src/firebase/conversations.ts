@@ -12,7 +12,7 @@ export type Conversation = {
   avatarColor?: string | null;
   avatarUrl?: string | null;
   participants: string[];
-  type: 'private' | 'direct';
+  type: 'private' | 'direct' | 'group';
   isPinned?: boolean;
   isHidden?: boolean;
   updatedAt?: firebase.firestore.Timestamp | null;
@@ -297,5 +297,40 @@ export async function toggleHideConversation(
   await db.collection(CONVERSATIONS_COLLECTION).doc(conversationId).update({
     isHidden,
   });
+}
+
+type CreateGroupConversationOptions = {
+  title: string;
+  participants: string[];
+  ownerId: string;
+  avatarColor?: string | null;
+  avatarUrl?: string | null;
+};
+
+export async function createGroupConversation({
+  title,
+  participants,
+  ownerId,
+  avatarColor = null,
+  avatarUrl = null,
+}: CreateGroupConversationOptions): Promise<string> {
+  // Ensure owner is included in participants
+  const allParticipants = [...new Set([ownerId, ...participants])].sort();
+
+  const conversationRef = await db.collection(CONVERSATIONS_COLLECTION).add({
+    title,
+    subtitle: null,
+    avatarColor,
+    avatarUrl,
+    participants: allParticipants,
+    type: 'group',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    lastMessage: null,
+    isPinned: false,
+    isHidden: false,
+  });
+
+  return conversationRef.id;
 }
 
