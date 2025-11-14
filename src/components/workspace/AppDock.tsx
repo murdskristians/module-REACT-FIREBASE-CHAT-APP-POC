@@ -1,4 +1,7 @@
 import type firebaseCompat from 'firebase/compat/app';
+import { MenuItem } from './StyledComponents';
+import { PuiAvatar, type PuiContact, PuiTypography } from 'piche.ui';
+import chatIcon from './chat.svg';
 
 type ActiveApp = 'chat' | 'profile';
 
@@ -9,67 +12,42 @@ type AppDockProps = {
   onOpenProfile: () => void;
 };
 
-type DockItem = {
-  id: 'spreadsheets' | 'chat' | 'contacts';
-  label: string;
-  icon: string;
-};
+export function AppDock({
+  user,
+  activeApp,
+  onSelectApp,
+  onOpenProfile,
+}: AppDockProps) {
+  const displayName = user.displayName ?? user.email ?? 'User';
 
-const DOCK_ITEMS: DockItem[] = [
-  { id: 'spreadsheets', label: 'Spreadsheets', icon: '📊' },
-  { id: 'chat', label: 'Chat', icon: '💬' },
-  { id: 'contacts', label: 'Contacts', icon: '👥' },
-];
-
-export function AppDock({ user, activeApp, onSelectApp, onOpenProfile }: AppDockProps) {
-  const initials = (user.displayName ?? user.email ?? 'User')
-    .split(' ')
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-
-  const handleDockClick = (id: DockItem['id']) => {
-    if (id === 'chat') {
-      onSelectApp('chat');
-    }
-  };
+  const profileContact: PuiContact = {
+    id: user.uid,
+    name: displayName,
+    email: user.email ?? undefined,
+    avatarUrl: user.photoURL ?? undefined,
+  } as PuiContact;
 
   return (
     <aside className="dock">
-      <div className="dock__logo">PC</div>
       <nav className="dock__nav" aria-label="Applications">
-        {DOCK_ITEMS.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            className={`dock__item ${
-              item.id === 'chat' && activeApp === 'chat' ? 'dock__item--active' : ''
-            }`}
-            aria-pressed={item.id === 'chat' && activeApp === 'chat'}
-            onClick={() => handleDockClick(item.id)}
-          >
-            <span aria-hidden="true" className="dock__item-icon">
-              {item.icon}
-            </span>
-            <span className="sr-only">{item.label}</span>
-          </button>
-        ))}
+        <MenuItem
+          onClick={() => onSelectApp('chat')}
+          className={`dock__chat-menu ${activeApp === 'chat' ? 'active' : ''}`}
+        >
+          <img className="menu-item-icon" src={chatIcon} alt="" />
+          <PuiTypography variant="body-xs-semibold">Chat</PuiTypography>
+        </MenuItem>
       </nav>
-      <button
-        type="button"
-        className={`dock__user ${activeApp === 'profile' ? 'dock__item--active' : ''}`}
+
+      <MenuItem
         onClick={onOpenProfile}
-        title="Open profile"
+        className={`dock__profile-item ${
+          activeApp === 'profile' ? 'active' : ''
+        }`}
       >
-        {user.photoURL ? (
-          <img src={user.photoURL} alt={user.displayName ?? 'Current user'} />
-        ) : (
-          <span>{initials}</span>
-        )}
-        <span className="dock__status-indicator" aria-hidden="true" />
-      </button>
+        <PuiAvatar className="menu-item-icon" contact={profileContact} />
+        <PuiTypography variant="body-sm-regular">{displayName}</PuiTypography>
+      </MenuItem>
     </aside>
   );
 }
-
