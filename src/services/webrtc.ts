@@ -134,26 +134,33 @@ export class WebRTCService {
 
     this.peer.on('signal', async (signal: PeerSignalData) => {
       // Send signal to remote peer via Firebase
+      console.log('Sending signal:', signal.type);
       if (this.callId && this.userId && this.remoteUserId) {
-        await sendSignal(this.callId, this.userId, this.remoteUserId, signal);
+        try {
+          await sendSignal(this.callId, this.userId, this.remoteUserId, signal);
+          console.log('Signal sent successfully');
+        } catch (error) {
+          console.error('Error sending signal:', error);
+        }
       }
     });
 
-    this.peer.on('stream', (stream: MediaStream) => {
-      // Received remote stream
-      if (callbacks.onStream) {
-        callbacks.onStream(stream);
-      }
-    });
-
-    this.peer.on('connect', async () => {
-      console.log('Peer connection established');
+    this.peer.on('stream', async (stream: MediaStream) => {
+      // Received remote stream - this means connection is established
+      console.log('Received remote stream');
       if (this.callId) {
         await updateCallStatus(this.callId, 'active');
+      }
+      if (callbacks.onStream) {
+        callbacks.onStream(stream);
       }
       if (callbacks.onConnect) {
         callbacks.onConnect();
       }
+    });
+
+    this.peer.on('connect', () => {
+      console.log('Peer data channel connected');
     });
 
     this.peer.on('close', () => {
@@ -179,13 +186,17 @@ export class WebRTCService {
   private subscribeToRemoteSignals(): void {
     if (!this.callId || !this.userId) return;
 
+    console.log('Subscribing to signals for call:', this.callId, 'user:', this.userId);
+
     this.unsubscribeSignals = subscribeToSignals(
       this.callId,
       this.userId,
       (signalData) => {
+        console.log('Received signal from:', signalData.from, 'type:', signalData.signal?.type);
         if (this.peer && signalData.signal) {
           try {
             this.peer.signal(signalData.signal);
+            console.log('Signal processed successfully');
           } catch (error) {
             console.error('Error processing signal:', error);
           }
