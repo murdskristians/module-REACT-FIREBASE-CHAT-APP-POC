@@ -114,8 +114,15 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
         conversation.subtitle ??
         counterpart?.email ??
         'Last seen recently';
-      const displayAvatarUrl =
-        conversation.avatarUrl ?? counterpart?.avatarUrl ?? null;
+      const isGroupConversation = conversation.participants.length > 2;
+      const currentUserAvatarUrl = currentUserProfile?.avatarUrl ?? null;
+      const displayAvatarUrl = isGroupConversation
+        ? conversation.avatarUrl ?? null
+        : counterpart?.avatarUrl ??
+          (conversation.avatarUrl !== currentUserAvatarUrl
+            ? conversation.avatarUrl
+            : null) ??
+          null;
       const displayAvatarColor =
         conversation.avatarColor ?? counterpart?.avatarColor ?? '#A8D0FF';
 
@@ -128,7 +135,7 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
         counterpartId,
       };
     },
-    [contactsMap, user.uid]
+    [contactsMap, user.uid, currentUserProfile]
   );
 
   const viewConversations = useMemo<ViewConversation[]>(() => {

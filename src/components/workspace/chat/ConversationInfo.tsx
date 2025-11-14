@@ -13,7 +13,10 @@ interface ConversationInfoProps {
   onContactClick?: () => void;
 }
 
-export const ConversationInfo: FC<ConversationInfoProps> = ({ conversation, onContactClick }) => {
+export const ConversationInfo: FC<ConversationInfoProps> = ({
+  conversation,
+  onContactClick,
+}) => {
   const conversationInitials = conversation.displayTitle
     .split(' ')
     .map((part) => part[0])
