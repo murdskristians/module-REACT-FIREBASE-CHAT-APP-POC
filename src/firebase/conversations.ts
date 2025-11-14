@@ -176,28 +176,23 @@ export async function ensureConversationExists({
 }: EnsureConversationOptions): Promise<string> {
   const sortedParticipants = [...new Set(participants)].sort();
 
-  const existing = await db
-    .collection(CONVERSATIONS_COLLECTION)
-    .where('participantKey', '==', sortedParticipants.join('_'))
-    .limit(1)
-    .get();
+  try {
+    // Simply create a new conversation
+    // The check for existing conversations is done in the UI before calling this
+    const conversationRef = await db.collection(CONVERSATIONS_COLLECTION).add({
+      title,
+      subtitle,
+      avatarColor,
+      avatarUrl,
+      participants: sortedParticipants,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      lastMessage: null,
+    });
 
-  if (!existing.empty) {
-    return existing.docs[0].id;
+    return conversationRef.id;
+  } catch (error) {
+    throw error;
   }
-
-  const conversationRef = await db.collection(CONVERSATIONS_COLLECTION).add({
-    title,
-    subtitle,
-    avatarColor,
-    avatarUrl,
-    participants: sortedParticipants,
-    participantKey: sortedParticipants.join('_'),
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-    lastMessage: null,
-  });
-
-  return conversationRef.id;
 }
 

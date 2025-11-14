@@ -6,6 +6,7 @@ import { PuiStack, PuiTypography } from 'piche.ui';
 import type { ConversationMessage } from '../../../firebase/conversations';
 import type { Contact } from '../../../firebase/users';
 import type { ViewConversation } from '../Workspace';
+import { createViewConversationFromContact } from '../utils';
 import { ConversationInput } from './ConversationInput';
 import { ConversationTopBar } from './ConversationTopBar';
 import { MessageList } from './MessageList';
@@ -15,13 +16,26 @@ type ChatViewProps = {
   user: firebaseCompat.User;
   conversation: ViewConversation | null;
   messages: ConversationMessage[];
-  onSendMessage: (payload: { text: string; file?: File | null }) => Promise<void>;
+  onSendMessage: (payload: {
+    text: string;
+    file?: File | null;
+  }) => Promise<void>;
   isSending: boolean;
   contactsMap: Map<string, Contact>;
+  pendingUser?: Contact | null;
   onContactClick?: () => void;
 };
 
-export function ChatView({ user, conversation, messages, onSendMessage, isSending, contactsMap, onContactClick }: ChatViewProps) {
+export function ChatView({
+  user,
+  conversation,
+  messages,
+  onSendMessage,
+  isSending,
+  contactsMap,
+  pendingUser,
+  onContactClick,
+}: ChatViewProps) {
   const [composerValue, setComposerValue] = useState('');
   const [pendingFile, setPendingFile] = useState<File | null>(null);
 
@@ -42,7 +56,7 @@ export function ChatView({ user, conversation, messages, onSendMessage, isSendin
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!conversation) {
+    if (!conversation && !pendingUser) {
       return;
     }
 
@@ -57,9 +71,20 @@ export function ChatView({ user, conversation, messages, onSendMessage, isSendin
     setPendingFile(null);
   };
 
-  if (!conversation) {
+  const displayConversation: ViewConversation | null =
+    conversation ||
+    (pendingUser
+      ? createViewConversationFromContact(pendingUser, 'pending', user.uid)
+      : null);
+
+  if (!displayConversation) {
     return (
-      <PuiStack height="100%" justifyContent="center" alignItems="center" gap="10px">
+      <PuiStack
+        height="100%"
+        justifyContent="center"
+        alignItems="center"
+        gap="10px"
+      >
         <PuiTypography variant="body-m-medium" color="grey.400">
           Select a conversation
         </PuiTypography>
@@ -70,21 +95,45 @@ export function ChatView({ user, conversation, messages, onSendMessage, isSendin
     );
   }
 
+  // Show empty state for pending conversations
+  const isPendingConversation = displayConversation.id === 'pending';
+  const displayMessages = isPendingConversation ? [] : messages;
+
   return (
     <ChatAreaWrapper>
-      <ConversationTopBar conversation={conversation} onContactClick={onContactClick} />
+      <ConversationTopBar
+        conversation={displayConversation}
+        onContactClick={onContactClick}
+      />
 
       <MessagesContainer>
-        <MessageList
-          messages={messages}
-          currentUserId={user.uid}
-          isGroup={conversation.participants.length > 2}
-          contactsMap={contactsMap}
-        />
+        {isPendingConversation ? (
+          <PuiStack
+            height="100%"
+            justifyContent="center"
+            alignItems="center"
+            gap="10px"
+          >
+            <PuiTypography variant="body-m-medium" color="grey.400">
+              Start a conversation with{' '}
+              {pendingUser?.displayName || 'this user'}
+            </PuiTypography>
+            <PuiTypography variant="body-sm-regular" color="grey.300">
+              Send a message to begin chatting
+            </PuiTypography>
+          </PuiStack>
+        ) : (
+          <MessageList
+            messages={displayMessages}
+            currentUserId={user.uid}
+            isGroup={displayConversation.participants.length > 2}
+            contactsMap={contactsMap}
+          />
+        )}
       </MessagesContainer>
 
       <ConversationInput
-        conversationTitle={conversation.displayTitle}
+        conversationTitle={displayConversation.displayTitle}
         composerValue={composerValue}
         setComposerValue={setComposerValue}
         pendingFile={pendingFile}

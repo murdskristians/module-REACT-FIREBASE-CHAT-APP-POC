@@ -215,3 +215,9 @@ const MyComponent = () => {
 - Claude Code has been initialized in this project
 - Environment variables are configured in `.env`
 - Using pnpm with hoisted node linker for dependency management
+
+## Additional
+
+- Dont put any comments in code
+- End files with empty line
+- Put new line before return statements

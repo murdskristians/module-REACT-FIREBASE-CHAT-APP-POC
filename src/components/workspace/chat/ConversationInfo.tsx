@@ -1,8 +1,12 @@
-import { PuiStack, PuiTypography, PuiBox } from 'piche.ui';
+import { PuiBox, PuiStack } from 'piche.ui';
 import { FC } from 'react';
 
 import type { ViewConversation } from '../Workspace';
-import { ConversationInfoWrapper, StyledConversationTitle } from './StyledComponents';
+import {
+  ConversationInfoWrapper,
+  StyledConversationTitle,
+  StyledConversationSubtitle,
+} from './StyledComponents';
 
 interface ConversationInfoProps {
   conversation: ViewConversation;
@@ -24,44 +28,29 @@ export const ConversationInfo: FC<ConversationInfoProps> = ({ conversation, onCo
     >
       <PuiBox
         className="chat-panel__avatar"
-        style={{
+        sx={{
           background: conversation.displayAvatarUrl
             ? undefined
             : conversation.displayAvatarColor ?? '#A8D0FF',
-          width: '40px',
-          height: '40px',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontWeight: 600,
-          fontSize: '13px',
-          color: '#1f2131',
-          overflow: 'hidden',
-          flexShrink: 0,
         }}
       >
         {conversation.displayAvatarUrl ? (
           <img
             src={conversation.displayAvatarUrl}
             alt={conversation.displayTitle}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            referrerPolicy="no-referrer"
           />
         ) : (
           conversationInitials
         )}
       </PuiBox>
-      <PuiStack gap='2px' sx={{ minWidth: 0 }}>
-        <StyledConversationTitle variant='body-m-semibold'>
+      <PuiStack gap="2px" sx={{ minWidth: 0 }}>
+        <StyledConversationTitle variant="body-m-semibold">
           {conversation.displayTitle}
         </StyledConversationTitle>
-        <PuiTypography
-          variant='body-sm-medium'
-          color='grey.300'
-          sx={{ textOverflow: 'ellipsis', overflow: 'hidden', fontSize: '12px', fontWeight: 500, lineHeight: 1.6 }}
-        >
+        <StyledConversationSubtitle variant="body-sm-medium" color="grey.300">
           {conversation.displaySubtitle}
-        </PuiTypography>
+        </StyledConversationSubtitle>
       </PuiStack>
     </ConversationInfoWrapper>
   );
