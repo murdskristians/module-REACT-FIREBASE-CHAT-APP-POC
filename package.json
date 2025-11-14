@@ -10,6 +10,7 @@
     "@types/simple-peer": "^9.11.9",
     "buffer": "^6.0.3",
     "clsx": "^2.1.1",
+    "core-js": "^3.46.0",
     "date-fns": "^2.30.0",
     "emoji-picker-react": "^4.15.1",
     "firebase": "^12.5.0",
