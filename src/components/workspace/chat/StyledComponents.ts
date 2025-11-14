@@ -119,3 +119,104 @@ export const StyledConversationSubtitle = PuiStyled(PuiTypography)(() => ({
   fontWeight: 500,
   lineHeight: 1.6,
 }));
+
+export const StyledEmojiButton = PuiStyled('button')(({ theme }) => ({
+  cursor: 'pointer',
+  width: '24px',
+  height: '24px',
+  background: 'transparent',
+  border: 'none',
+  padding: 0,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: '#a0a0a0',
+  borderRadius: '50%',
+  transition: 'background-color 0.2s ease',
+  '&:hover, &.menu-is-open': {
+    backgroundColor: theme.palette.grey[50],
+  },
+  '& svg': {
+    color: '#a0a0a0',
+  },
+  '&:hover svg, &.menu-is-open svg': {
+    color: theme.palette.grey[600],
+  },
+}));
+
+export const StyledEmojiWrapper = PuiStyled(PuiBox)(({ theme }) => ({
+  '& .epr-main': {
+    position: 'absolute',
+    bottom: '32px',
+    left: 0,
+    border: 'none',
+    borderRadius: 8,
+    boxShadow: '0px -4px 12px 0px rgba(0, 0, 0, 0.05), -4px 8px 16px -2px rgba(27, 33, 44, 0.12)',
+    zIndex: 1000,
+    '& .epr-header': {
+      position: 'initial !important',
+      '& > div:first-of-type': {
+        padding: 16,
+        '& input': {
+          padding: '0 16px 0 40px',
+          borderRadius: 4,
+          backgroundColor: theme.palette.background.default,
+          borderColor: theme.palette.background.default,
+          color: theme.palette.grey[600],
+          fontFamily: 'Poppins, Inter, sans-serif',
+          fontSize: 12,
+          fontWeight: 500,
+          lineHeight: '160%',
+          transition: 'border-color 0.2s ease',
+          '&:focus': {
+            borderColor: theme.palette.grey[100],
+            outline: 'none',
+          },
+        },
+        '& .epr-icn-search': {
+          left: 16,
+        },
+      },
+      '& .epr-category-nav': {
+        position: 'absolute',
+        bottom: 0,
+        width: '100%',
+        background: theme.palette.background.default,
+        padding: '12px 16px',
+        zIndex: 5,
+        opacity: '1 !important',
+      },
+    },
+    '& .epr-emoji-list': {
+      marginBottom: 72,
+      '& .epr-emoji-category-content': {
+        gridTemplateColumns: 'repeat(auto-fill, 28px)',
+        gap: 84,
+        margin: '16px 4px 16px 16px',
+        '& .epr-btn': {
+          maxWidth: 28,
+          maxHeight: 28,
+          minWidth: 28,
+          minHeight: 28,
+          padding: 4,
+          '& .epr-emoji-img': {
+            maxWidth: 28,
+            maxHeight: 28,
+            minWidth: 28,
+            minHeight: 28,
+            padding: 0,
+          },
+        },
+      },
+      '& .epr-emoji-category-label': {
+        color: theme.palette.grey[600],
+        fontFamily: 'Poppins, Inter, sans-serif',
+        fontSize: 12,
+        fontWeight: 500,
+        lineHeight: '160%',
+        height: 'auto',
+        padding: '0 16px',
+      },
+    },
+  },
+}));

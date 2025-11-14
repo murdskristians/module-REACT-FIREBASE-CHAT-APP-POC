@@ -1,7 +1,8 @@
-import { PuiBox, PuiIcon, PuiSvgIcon } from 'piche.ui';
+import { PuiBox } from 'piche.ui';
 import { FormEvent, useState } from 'react';
 
 import { AddMedia } from './AddMedia';
+import { EmojiList } from './EmojiList';
 import { SendMessage } from './SendMessage';
 import { StyledConversationInput, StyledInputBox, StyledInputWrapper } from './StyledComponents';
 import { VoiceInput } from './VoiceInput';
@@ -28,6 +29,10 @@ export function ConversationInput({
   onSendMessage,
 }: ConversationInputProps) {
   const [isInputActive, setIsInputActive] = useState(false);
+
+  const handleEmojiSelect = (emoji: string) => {
+    setComposerValue(composerValue + emoji);
+  };
 
   return (
     <StyledInputWrapper>
@@ -64,27 +69,7 @@ export function ConversationInput({
       >
         <StyledInputBox>
           <AddMedia onFileSelect={(file) => setPendingFile(file)} />
-          <button
-            type="button"
-            className="chat-panel__composer-button chat-panel__composer-button--emoji"
-            aria-label="Add emoji"
-            title="Add emoji"
-            style={{
-              cursor: 'pointer',
-              width: '24px',
-              height: '24px',
-              background: 'transparent',
-              border: 'none',
-              padding: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#a0a0a0',
-              borderRadius: '50%',
-            }}
-          >
-            <PuiSvgIcon width={16} height={16} icon={PuiIcon.FaceSmile} />
-          </button>
+          <EmojiList onEmojiSelect={handleEmojiSelect} />
           <input
             type="text"
             placeholder={`Message ${conversationTitle}`}
