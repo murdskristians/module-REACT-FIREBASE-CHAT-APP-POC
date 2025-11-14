@@ -23,6 +23,9 @@ importers:
       '@types/simple-peer':
         specifier: ^9.11.9
         version: 9.11.9
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -41,6 +44,9 @@ importers:
       piche.ui:
         specifier: ^1.1.461
         version: 1.1.461(@mui/system@5.18.0(@emotion/react@11.14.0(@types/react@18.3.26)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.26)(react@18.3.1))(@types/react@18.3.26)(react@18.3.1))(@types/react@18.3.26)(react@18.3.1))(@types/react@18.3.26)(vite@7.2.2(@types/node@20.19.25)(jiti@1.21.7)(terser@5.44.1))
+      process:
+        specifier: ^0.11.10
+        version: 0.11.10
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -5862,6 +5868,10 @@ packages:
 
   process-nextick-args@2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
+
+  process@0.11.10:
+    resolution: {integrity: sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==}
+    engines: {node: '>= 0.6.0'}
 
   promise@8.3.0:
     resolution: {integrity: sha512-rZPNPKTOYVNEEKFaq1HqTgOwZD+4/YHS5ukLzQCypkj+OkYx7iv0mA91lJlpPPZ8vMau3IIGj5Qlwrx+8iiSmg==}
@@ -14241,6 +14251,8 @@ snapshots:
       react-is: 18.3.1
 
   process-nextick-args@2.0.1: {}
+
+  process@0.11.10: {}
 
   promise@8.3.0:
     dependencies:

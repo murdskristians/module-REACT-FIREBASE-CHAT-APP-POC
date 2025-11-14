@@ -1,3 +1,11 @@
+// Polyfills for WebRTC libraries
+import { Buffer } from 'buffer';
+import process from 'process';
+
+// Make them globally available
+(window as any).Buffer = Buffer;
+(window as any).process = process;
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
