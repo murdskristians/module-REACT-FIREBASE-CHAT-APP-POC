@@ -128,6 +128,8 @@ export function ChatView({
             currentUserId={user.uid}
             isGroup={displayConversation.participants.length > 2}
             contactsMap={contactsMap}
+            conversationAvatarColor={displayConversation.displayAvatarColor}
+            counterpartId={displayConversation.counterpartId}
           />
         )}
       </MessagesContainer>
