@@ -2,7 +2,7 @@ import { PuiStack, PuiTypography } from 'piche.ui';
 import { FC } from 'react';
 
 import type { ConversationMessage } from '../../../firebase/conversations';
-import { getInitials } from '../shared/avatarUtils';
+import { Avatar } from '../shared/Avatar';
 import { TextMessage } from './TextMessage';
 
 interface MessageCardProps {
@@ -53,37 +53,16 @@ export const MessageCard: FC<MessageCardProps> = ({
           width: '100%',
         }}
       >
-        {/* Avatar for non-user messages */}
         {!isUserMessage && (
-          <PuiStack
+          <Avatar
+            avatarUrl={senderAvatar}
+            name={senderName || 'User'}
+            avatarColor={senderAvatarColor}
+            size={32}
             sx={{
-              width: '32px',
-              height: '32px',
-              flexShrink: 0,
               visibility: sequenceStarted ? 'visible' : 'hidden',
-              borderRadius: '50%',
-              backgroundColor: senderAvatarColor || '#A8D0FF',
-              backgroundImage: senderAvatar ? `url(${senderAvatar})` : 'none',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden',
             }}
-          >
-            {!senderAvatar && sequenceStarted && (
-              <PuiTypography
-                sx={{
-                  color: 'white',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                }}
-              >
-                {getInitials(senderName || 'User')}
-              </PuiTypography>
-            )}
-          </PuiStack>
+          />
         )}
 
         {/* Message bubble */}
