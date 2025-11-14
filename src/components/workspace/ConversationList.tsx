@@ -41,7 +41,6 @@ export function ConversationList({
   searchTerm,
   selectedConversationId,
   onSelectConversation,
-  onAddConversation,
   onPinToggle,
   onHideToggle,
 }: ConversationListProps) {
@@ -88,11 +87,6 @@ export function ConversationList({
         <button
           type="button"
           className="conversation-panel__search-button"
-          onClick={() => {
-            if (onAddConversation) {
-              onAddConversation();
-            }
-          }}
         >
           ＋
         </button>
