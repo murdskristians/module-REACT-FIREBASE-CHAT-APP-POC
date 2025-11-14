@@ -7,13 +7,14 @@ import { StyledTopBar, StyledTopBarButton } from './StyledComponents';
 
 interface ConversationTopBarProps {
   conversation: ViewConversation;
+  onContactClick?: () => void;
 }
 
-export const ConversationTopBar: FC<ConversationTopBarProps> = ({ conversation }) => {
+export const ConversationTopBar: FC<ConversationTopBarProps> = ({ conversation, onContactClick }) => {
   return (
     <PuiStack>
       <StyledTopBar>
-        <ConversationInfo conversation={conversation} />
+        <ConversationInfo conversation={conversation} onContactClick={onContactClick} />
         <PuiStack direction='row' gap='16px'>
           <StyledTopBarButton aria-label="Add participant" title="Add participant">
             <PuiSvgIcon width={20} height={20} icon={PuiIcon.UserPlus1} />

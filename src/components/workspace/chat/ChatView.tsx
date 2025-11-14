@@ -18,9 +18,10 @@ type ChatViewProps = {
   onSendMessage: (payload: { text: string; file?: File | null }) => Promise<void>;
   isSending: boolean;
   contactsMap: Map<string, Contact>;
+  onContactClick?: () => void;
 };
 
-export function ChatView({ user, conversation, messages, onSendMessage, isSending, contactsMap }: ChatViewProps) {
+export function ChatView({ user, conversation, messages, onSendMessage, isSending, contactsMap, onContactClick }: ChatViewProps) {
   const [composerValue, setComposerValue] = useState('');
   const [pendingFile, setPendingFile] = useState<File | null>(null);
 
@@ -71,7 +72,7 @@ export function ChatView({ user, conversation, messages, onSendMessage, isSendin
 
   return (
     <ChatAreaWrapper>
-      <ConversationTopBar conversation={conversation} />
+      <ConversationTopBar conversation={conversation} onContactClick={onContactClick} />
 
       <MessagesContainer>
         <MessageList

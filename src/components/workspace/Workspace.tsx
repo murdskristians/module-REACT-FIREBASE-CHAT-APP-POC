@@ -8,6 +8,7 @@ import { AppDock } from './AppDock';
 import { ConversationList } from './ConversationList';
 import { ChatView } from './chat/ChatView';
 import { AiPanel } from './ai/AiPanel';
+import { ContactCardView } from './contact/ContactCardView';
 import {
   ensureConversationExists,
   sendMessage,
@@ -66,6 +67,9 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
     null
   );
   const [isProfileLoading, setIsProfileLoading] = useState(true);
+  const [selectedContactId, setSelectedContactId] = useState<string | null>(
+    null
+  );
   const ensuredContactsRef = useRef<Set<string>>(new Set());
 
   const contactsMap = useMemo(() => {
@@ -256,6 +260,7 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
       conversation,
       messages: [],
     });
+    setSelectedContactId(null);
   };
 
   useEffect(() => {
@@ -271,6 +276,25 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
   const handleOpenProfile = () => {
     setActiveApp('profile');
   };
+
+  const handleContactClick = () => {
+    const conversation = activeConversationState.conversation;
+    if (conversation) {
+      setSelectedContactId(conversation.counterpartId);
+    }
+  };
+
+  const handleContactCardBack = () => {
+    setSelectedContactId(null);
+  };
+
+  const handleContactCardClose = () => {
+    setSelectedContactId(null);
+  };
+
+  const selectedContact = selectedContactId
+    ? contactsMap.get(selectedContactId)
+    : null;
 
   const handleSendMessage = async ({
     text,
@@ -352,8 +376,17 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
               onSendMessage={handleSendMessage}
               isSending={isSending}
               contactsMap={contactsMap}
+              onContactClick={handleContactClick}
             />
-            <AiPanel />
+            {selectedContact && selectedContactId ? (
+              <ContactCardView
+                contact={selectedContact}
+                onBack={handleContactCardBack}
+                onClose={handleContactCardClose}
+              />
+            ) : (
+              <AiPanel />
+            )}
           </>
         )}
       </div>
