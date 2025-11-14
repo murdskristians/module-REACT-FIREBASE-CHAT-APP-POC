@@ -582,9 +582,6 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
               searchTerm={searchTerm}
               selectedConversationId={selectedConversationId}
               onSelectConversation={handleConversationSelect}
-              onAddConversation={() => {
-                setShowUserSearchModal(true);
-              }}
               onPinToggle={handlePinToggle}
               onHideToggle={handleHideToggle}
             />
