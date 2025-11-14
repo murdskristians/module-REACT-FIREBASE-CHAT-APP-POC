@@ -289,7 +289,6 @@ export function CreateNewGroupPanel({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: '12px',
                     borderRadius: '8px',
                     cursor: 'pointer',
                     minHeight: '56px',
@@ -330,24 +329,36 @@ export function CreateNewGroupPanel({
                   <PuiSwitch
                     checked={isSelected}
                     sx={{
+                      '&.MuiSwitch-root': {
+                        width: '40px',
+                        height: '24px',
+                        padding: 0,
+                      },
                       '& .MuiSwitch-switchBase': {
+                        padding: '2px',
+                        top: '50%',
+                        transform: 'translateX(4px) translateY(-50%)',
                         '&.Mui-checked': {
-                          color: '#ffffff',
+                          transform: 'translateX(19px) translateY(-50%)',
                           '& + .MuiSwitch-track': {
                             backgroundColor: '#67D286',
                             opacity: 1,
+                            width: '40px',
+                            height: '24px',
                           },
                         },
                       },
                       '& .MuiSwitch-track': {
                         backgroundColor: '#DBDBDB',
                         opacity: 1,
+                        borderRadius: '12px',
+                        width: '40px !important',
+                        height: '24px !important',
                       },
                       '& .MuiSwitch-thumb': {
-                        backgroundColor: '#ffffff',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
                         width: '20px',
                         height: '20px',
+                        boxShadow: 'none',
                       },
                     }}
                   />
