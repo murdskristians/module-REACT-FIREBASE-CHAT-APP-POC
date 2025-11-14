@@ -24,7 +24,7 @@ const Message: React.FC<MessageProps> = ({
   return (
     <div className={`message ${!photoURL ? 'message-without-avatar' : ''}`}>
       {photoURL ? (
-        <img src={photoURL} alt="Avatar" className="message-avatar" />
+        <img src={photoURL} alt="Avatar" className="message-avatar" referrerPolicy="no-referrer" />
       ) : null}
       <div className="message-content">
         {displayName ? (

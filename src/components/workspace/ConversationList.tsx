@@ -13,9 +13,17 @@ type ConversationListProps = {
   onSelectConversation: (conversationId: string) => void;
   contactsMap: Map<string, Contact>;
   currentUserId: string;
+  onAddConversation?: () => void;
 };
 
-const avatarFallbackPalette = ['#FFD37D', '#A8D0FF', '#FFC8DD', '#B5EAEA', '#FFABAB', '#BDB2FF'];
+const avatarFallbackPalette = [
+  '#FFD37D',
+  '#A8D0FF',
+  '#FFC8DD',
+  '#B5EAEA',
+  '#FFABAB',
+  '#BDB2FF',
+];
 
 const formatTimestamp = (timestamp?: firebase.firestore.Timestamp | null) => {
   if (!timestamp) {
@@ -43,6 +51,7 @@ export function ConversationList({
   onSelectConversation,
   contactsMap,
   currentUserId,
+  onAddConversation,
 }: ConversationListProps) {
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     onSearchChange(event.target.value);
@@ -51,7 +60,11 @@ export function ConversationList({
   return (
     <section className="conversation-panel" aria-label="Conversation list">
       <label className="conversation-panel__search">
-        <button type="button" className="conversation-panel__search-button">
+        <button
+          type="button"
+          className="conversation-panel__search-button"
+          onClick={onAddConversation}
+        >
           ＋
         </button>
         <input
@@ -80,20 +93,29 @@ export function ConversationList({
 
           const lastMessageText =
             conversation.lastMessage?.type === 'image'
-              ? `${conversation.lastMessage.senderName ?? 'Someone'} sent a photo`
+              ? `${
+                  conversation.lastMessage.senderName ?? 'Someone'
+                } sent a photo`
               : conversation.lastMessage?.text ?? 'No messages yet';
 
           const fallbackColor =
             counterpart?.avatarColor ??
             conversation.avatarColor ??
             avatarFallbackPalette[index % avatarFallbackPalette.length];
-          const avatarUrl = counterpart?.avatarUrl ?? conversation.avatarUrl ?? null;
+
+          const avatarUrl =
+            conversation.displayAvatarUrl ??
+            conversation.avatarUrl ??
+            counterpart?.avatarUrl ??
+            null;
 
           return (
             <li key={conversation.id}>
               <button
                 type="button"
-                className={`conversation-panel__item ${isActive ? 'conversation-panel__item--active' : ''}`}
+                className={`conversation-panel__item ${
+                  isActive ? 'conversation-panel__item--active' : ''
+                }`}
                 onClick={() => onSelectConversation(conversation.id)}
               >
                 <span
@@ -103,7 +125,11 @@ export function ConversationList({
                   }}
                 >
                   {avatarUrl ? (
-                    <img src={avatarUrl} alt="" aria-hidden="true" />
+                    <img
+                      src={avatarUrl}
+                      alt={displayTitle}
+                      referrerPolicy="no-referrer"
+                    />
                   ) : (
                     displayTitle
                       .trim()
@@ -116,8 +142,12 @@ export function ConversationList({
                 </span>
                 <span className="conversation-panel__item-content">
                   <span className="conversation-panel__item-header">
-                    <span className="conversation-panel__item-title">{displayTitle}</span>
-                    <time className="conversation-panel__item-time">{formatTimestamp(conversation.updatedAt)}</time>
+                    <span className="conversation-panel__item-title">
+                      {displayTitle}
+                    </span>
+                    <time className="conversation-panel__item-time">
+                      {formatTimestamp(conversation.updatedAt)}
+                    </time>
                   </span>
                   <span className="conversation-panel__item-subtitle conversation-panel__item-subtitle--message">
                     {lastMessageText}
@@ -131,4 +161,3 @@ export function ConversationList({
     </section>
   );
 }
-

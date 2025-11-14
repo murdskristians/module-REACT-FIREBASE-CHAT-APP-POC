@@ -31,8 +31,8 @@ export const StyledTextContent = PuiStyled(PuiTypography)(({ theme }) => ({
 }));
 
 export const StyledMessageStatus = PuiStyled(PuiBox, {
-  shouldForwardProp: prop => prop !== 'isFileMessage',
-})<{ isFileMessage?: boolean }>(({ theme, isFileMessage }) => ({
+  shouldForwardProp: (prop) => prop !== 'isFileMessage',
+})<{ isFileMessage?: boolean }>(({ isFileMessage }) => ({
   height: '20px',
   position: 'relative',
   top: '8px',

@@ -376,9 +376,9 @@ export const ModalSubtitle = PuiStyled(PuiStack)(({ theme }) => ({
 }));
 
 export const StyledModal = PuiStyled(PuiModal)(({ theme }) => ({
-  '.MuiBox-root': { maxWidth: '482px' },
+  '& > .MuiBox-root': { maxWidth: '482px' },
   [theme.breakpoints.down('sm')]: {
-    '.MuiBox-root': { padding: '24px', gap: '24px' },
+    '& > .MuiBox-root': { padding: '24px', gap: '24px' },
     '.MuiDivider-root': { display: 'none' },
     '.MuiButton-root': { padding: '6.5px 16px' },
     '.modal-buttons': { gap: '16px', a: { marginLeft: 'auto' } },

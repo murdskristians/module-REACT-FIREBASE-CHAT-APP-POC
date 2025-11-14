@@ -1,4 +1,4 @@
-import { PuiBox, PuiDivider, PuiIconButton, PuiStack, PuiStyled, PuiTypography } from 'piche.ui';
+import { PuiBox, PuiIconButton, PuiStack, PuiStyled, PuiTypography } from 'piche.ui';
 
 export const ChatAreaWrapper = PuiStyled(PuiStack)(() => ({
   height: '100%',
@@ -71,10 +71,6 @@ export const StyledConversationTitle = PuiStyled(PuiTypography)(({ theme }) => (
   whiteSpace: 'nowrap',
 }));
 
-export const StyledDivider = PuiStyled(PuiDivider)(() => ({
-  width: '100%',
-}));
-
 export const StyledInputWrapper = PuiStyled(PuiStack)(() => ({
   margin: '0 32px 20px 32px',
   gap: '8px',
@@ -96,4 +92,31 @@ export const StyledInputBox = PuiStyled(PuiStack)(() => ({
   padding: '12px 16px',
   alignItems: 'center',
   justifyContent: 'space-between',
+}));
+
+export const StyledConversationAvatar = PuiStyled(PuiBox)(() => ({
+  width: '40px',
+  height: '40px',
+  borderRadius: '50%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontWeight: 600,
+  fontSize: '13px',
+  color: '#1f2131',
+  overflow: 'hidden',
+  flexShrink: 0,
+  '& img': {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  },
+}));
+
+export const StyledConversationSubtitle = PuiStyled(PuiTypography)(() => ({
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
+  fontSize: '12px',
+  fontWeight: 500,
+  lineHeight: 1.6,
 }));

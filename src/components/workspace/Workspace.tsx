@@ -1,5 +1,5 @@
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type firebaseCompat from 'firebase/compat/app';
 
 import './Workspace.css';
@@ -8,6 +8,8 @@ import { AppDock } from './AppDock';
 import { ConversationList } from './ConversationList';
 import { ChatView } from './chat/ChatView';
 import { AiPanel } from './ai/AiPanel';
+import { UserSearchModal } from './UserSearchModal';
+import { createViewConversationFromContact as createViewConversationFromContactUtil } from './utils';
 import {
   ensureConversationExists,
   sendMessage,
@@ -66,7 +68,8 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
     null
   );
   const [isProfileLoading, setIsProfileLoading] = useState(true);
-  const ensuredContactsRef = useRef<Set<string>>(new Set());
+  const [showUserSearchModal, setShowUserSearchModal] = useState(false);
+  const [pendingUser, setPendingUser] = useState<Contact | null>(null);
 
   const contactsMap = useMemo(() => {
     const map = new Map<string, Contact>();
@@ -77,6 +80,17 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
     }
     return map;
   }, [contacts, currentUserProfile]);
+
+  const createViewConversationFromContact = useCallback(
+    (contact: Contact, conversationId: string): ViewConversation => {
+      return createViewConversationFromContactUtil(
+        contact,
+        conversationId,
+        user.uid
+      );
+    },
+    [user.uid]
+  );
 
   const buildViewConversation = useCallback(
     (conversation: Conversation): ViewConversation => {
@@ -97,9 +111,9 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
         counterpart?.email ??
         'Last seen recently';
       const displayAvatarUrl =
-        counterpart?.avatarUrl ?? conversation.avatarUrl ?? null;
+        conversation.avatarUrl ?? counterpart?.avatarUrl ?? null;
       const displayAvatarColor =
-        counterpart?.avatarColor ?? conversation.avatarColor ?? '#A8D0FF';
+        conversation.avatarColor ?? counterpart?.avatarColor ?? '#A8D0FF';
 
       return {
         ...conversation,
@@ -126,15 +140,41 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
       return viewConversations;
     }
 
-    return viewConversations.filter((conversation) => {
+    // First, get existing conversations that match
+    const matchingConversations = viewConversations.filter((conversation) => {
       const lastMessageText = conversation.lastMessage?.text ?? '';
-
       return (
         conversation.displayTitle.toLowerCase().includes(term) ||
         lastMessageText.toLowerCase().includes(term)
       );
     });
-  }, [viewConversations, searchTerm]);
+
+    // Then, find contacts that match but don't have conversations
+    const conversationUserIds = new Set(
+      viewConversations.map((conv) => conv.counterpartId)
+    );
+
+    const matchingContactsWithoutConversations = contacts
+      .filter((contact) => {
+        // Skip if already has conversation
+        if (conversationUserIds.has(contact.id)) return false;
+
+        // Check if matches search
+        const displayName = (contact.displayName || '').toLowerCase();
+        const email = (contact.email || '').toLowerCase();
+        return displayName.includes(term) || email.includes(term);
+      })
+      .map((contact) =>
+        createViewConversationFromContact(contact, `new_${contact.id}`)
+      );
+
+    return [...matchingConversations, ...matchingContactsWithoutConversations];
+  }, [
+    viewConversations,
+    searchTerm,
+    contacts,
+    createViewConversationFromContact,
+  ]);
 
   useEffect(() => {
     const unsubscribe = subscribeToConversations(
@@ -173,44 +213,29 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
     return unsubscribe;
   }, [user.uid]);
 
+  // Removed auto-conversation creation to prevent clutter
+  // Conversations will now be created only when the first message is sent
+
   useEffect(() => {
-    if (!contacts.length) {
-      return;
+    // If we have a selected conversation ID but no conversations yet,
+    // subscribe to it directly (handles newly created conversations)
+    if (
+      selectedConversationId &&
+      !viewConversations.find((conv) => conv.id === selectedConversationId)
+    ) {
+      const unsubscribe = subscribeToConversationMessages(
+        selectedConversationId,
+        (messages) => {
+          // We'll update the conversation details when the subscription updates
+          setActiveConversationState((prev) => ({
+            ...prev,
+            messages,
+          }));
+        }
+      );
+      return unsubscribe;
     }
 
-    const ensureConversations = async () => {
-      await Promise.all(
-        contacts.map(async (contact) => {
-          if (!contact.id || ensuredContactsRef.current.has(contact.id)) {
-            return;
-          }
-
-          ensuredContactsRef.current.add(contact.id);
-
-          try {
-            const conversationId = await ensureConversationExists({
-              participants: [user.uid, contact.id],
-              title: contact.displayName ?? contact.email ?? 'Unknown user',
-              subtitle: contact.status ?? contact.email ?? null,
-              avatarColor: contact.avatarColor ?? '#A8D0FF',
-              avatarUrl: contact.avatarUrl ?? null,
-            });
-
-            if (!selectedConversationId) {
-              setSelectedConversationId(conversationId);
-            }
-          } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error('Failed to ensure conversation', error);
-          }
-        })
-      );
-    };
-
-    void ensureConversations();
-  }, [contacts, user.uid, selectedConversationId]);
-
-  useEffect(() => {
     if (!viewConversations.length) {
       setActiveConversationState({ conversation: null, messages: [] });
       return undefined;
@@ -232,8 +257,9 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
     const unsubscribe = subscribeToConversationMessages(
       conversation.id,
       (messages) => {
+        const viewConv = buildViewConversation(conversation);
         setActiveConversationState({
-          conversation: buildViewConversation(conversation),
+          conversation: viewConv,
           messages,
         });
       }
@@ -243,6 +269,21 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
   }, [viewConversations, selectedConversationId, buildViewConversation]);
 
   const handleConversationSelect = (conversationId: string) => {
+    // Check if this is a new user (not a real conversation)
+    if (conversationId.startsWith('new_')) {
+      const contactId = conversationId.replace('new_', '');
+      const contact = contacts.find((c) => c.id === contactId);
+      if (contact) {
+        setPendingUser(contact);
+        setSelectedConversationId(null);
+        setActiveConversationState({
+          conversation: null,
+          messages: [],
+        });
+      }
+      return;
+    }
+
     const conversation = viewConversations.find(
       (conv) => conv.id === conversationId
     );
@@ -252,6 +293,7 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
     }
 
     setSelectedConversationId(conversation.id);
+    setPendingUser(null);
     setActiveConversationState({
       conversation,
       messages: [],
@@ -272,6 +314,28 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
     setActiveApp('profile');
   };
 
+  const handleUserSelect = useCallback(
+    async (selectedUser: Contact) => {
+      // Check if conversation already exists
+      const existingConversation = conversations.find(
+        (conv) =>
+          conv.participants.includes(selectedUser.id) &&
+          conv.participants.includes(user.uid)
+      );
+
+      if (existingConversation) {
+        // Navigate to existing conversation
+        setSelectedConversationId(existingConversation.id);
+        setPendingUser(null);
+      } else {
+        // Set pending user for new conversation
+        setPendingUser(selectedUser);
+        setSelectedConversationId(null);
+      }
+    },
+    [conversations, user.uid]
+  );
+
   const handleSendMessage = async ({
     text,
     file,
@@ -283,7 +347,64 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
       return;
     }
 
-    const conversationToSend = activeConversationState.conversation;
+    // Check if this is a pending conversation
+    let conversationIdToUse = selectedConversationId;
+
+    if (!selectedConversationId && pendingUser) {
+      // First check if a conversation already exists
+      const existingConversation = conversations.find((conv) => {
+        const participants = conv.participants || [];
+        return (
+          participants.length === 2 &&
+          participants.includes(pendingUser.id) &&
+          participants.includes(user.uid)
+        );
+      });
+
+      if (existingConversation) {
+        conversationIdToUse = existingConversation.id;
+        // Update selected conversation
+        setSelectedConversationId(existingConversation.id);
+        setPendingUser(null);
+      } else {
+        // Create conversation
+        try {
+          conversationIdToUse = await ensureConversationExists({
+            participants: [user.uid, pendingUser.id],
+            title:
+              pendingUser.displayName ?? pendingUser.email ?? 'Unknown user',
+            subtitle: pendingUser.status ?? pendingUser.email ?? null,
+            avatarColor: pendingUser.avatarColor ?? '#A8D0FF',
+            avatarUrl: pendingUser.avatarUrl ?? null,
+          });
+
+          const newConversation = createViewConversationFromContact(
+            pendingUser,
+            conversationIdToUse
+          );
+
+          // Set the active conversation state immediately
+          setActiveConversationState({
+            conversation: newConversation,
+            messages: [],
+          });
+
+          // Set the new conversation ID and clear pending user
+          setSelectedConversationId(conversationIdToUse);
+          setPendingUser(null);
+
+          // Don't return - continue to send the message
+        } catch {
+          setIsSending(false);
+          return;
+        }
+      }
+    }
+
+    // Use the newly created conversation ID if it was just created, otherwise use the active conversation
+    const conversationToSend = conversationIdToUse
+      ? { id: conversationIdToUse }
+      : activeConversationState.conversation;
 
     if (!conversationToSend) {
       return;
@@ -310,6 +431,8 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
         text,
         file,
       });
+    } catch {
+      // Silently handle error
     } finally {
       setIsSending(false);
     }
@@ -344,6 +467,7 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
               onSelectConversation={handleConversationSelect}
               contactsMap={contactsMap}
               currentUserId={user.uid}
+              onAddConversation={() => setShowUserSearchModal(true)}
             />
             <ChatView
               user={user}
@@ -352,11 +476,23 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
               onSendMessage={handleSendMessage}
               isSending={isSending}
               contactsMap={contactsMap}
+              pendingUser={pendingUser}
             />
             <AiPanel />
           </>
         )}
       </div>
+
+      {/* User Search Modal */}
+      <UserSearchModal
+        showModal={showUserSearchModal}
+        setShowModal={setShowUserSearchModal}
+        contacts={contacts}
+        conversations={conversations}
+        currentUserId={user.uid}
+        onUserSelect={handleUserSelect}
+        isLoading={false}
+      />
     </MuiThemeProvider>
   );
 }
