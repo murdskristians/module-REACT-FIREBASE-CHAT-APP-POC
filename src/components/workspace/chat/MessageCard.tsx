@@ -24,15 +24,18 @@ export const MessageCard: FC<MessageCardProps> = ({
   senderAvatarColor,
   isGroup = false,
 }) => {
-  const time = new Date(message?.createdAt?.toDate() ?? '').toLocaleTimeString('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }) ?? '';
+  const time =
+    new Date(message?.createdAt?.toDate() ?? '').toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }) ?? '';
 
   return (
     <PuiStack
-      className={`message-wrapper ${isUserMessage ? 'user-message' : 'other-message'}`}
+      className={`message-wrapper ${
+        isUserMessage ? 'user-message' : 'other-message'
+      }`}
       sx={{
         width: '100%',
         flexDirection: 'row',
@@ -85,13 +88,17 @@ export const MessageCard: FC<MessageCardProps> = ({
 
         {/* Message bubble */}
         <PuiStack
-          className={`message-bubble ${isUserMessage ? 'user-message-bubble' : ''}`}
+          className={`message-bubble ${
+            isUserMessage ? 'user-message-bubble' : ''
+          }`}
           sx={{
             width: 'min-content',
             flexWrap: 'wrap',
             alignItems: 'end',
             gap: '8px',
-            borderRadius: isUserMessage ? '16px 0 16px 16px' : '0px 16px 16px 16px',
+            borderRadius: isUserMessage
+              ? '16px 0 16px 16px'
+              : '0px 16px 16px 16px',
             padding: '8px 16px',
             backgroundColor: isUserMessage ? '#E8F4FB' : '#ffffff',
             position: 'relative',
