@@ -57,7 +57,6 @@ export const AiMessageCard: FC<AiMessageCardProps> = ({ message }) => {
             AI Assistant
           </PuiTypography>
         )}
-
         <PuiStack
           sx={{
             flexDirection: 'row',

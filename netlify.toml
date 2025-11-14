@@ -1,0 +1,14 @@
+[build]
+  command = "pnpm run build"
+  publish = "build"
+
+# Disable secrets scanning for client-side environment variables
+# These values are intentionally included in the client bundle
+[build.environment]
+  SECRETS_SCAN_ENABLED = "false"
+
+# SPA redirect - serve index.html for all routes
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
