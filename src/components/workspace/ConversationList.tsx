@@ -1,6 +1,7 @@
 import { format, isToday, isYesterday } from 'date-fns';
 import type firebase from 'firebase/compat/app';
-import { ChangeEvent } from 'react';
+import { ChangeEvent, MouseEvent, useState } from 'react';
+import { PuiIcon, PuiSvgIcon } from 'piche.ui';
 
 import { Avatar } from './shared/Avatar';
 import type { ViewConversation } from './Workspace';
@@ -12,6 +13,7 @@ type ConversationListProps = {
   selectedConversationId: string | null;
   onSelectConversation: (conversationId: string) => void;
   onAddConversation?: () => void;
+  onPinToggle: (conversationId: string, isPinned: boolean) => void;
 };
 
 const formatTimestamp = (timestamp?: firebase.firestore.Timestamp | null) => {
@@ -39,9 +41,38 @@ export function ConversationList({
   selectedConversationId,
   onSelectConversation,
   onAddConversation,
+  onPinToggle,
 }: ConversationListProps) {
+  const [contextMenu, setContextMenu] = useState<{
+    conversationId: string;
+    x: number;
+    y: number;
+  } | null>(null);
+
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     onSearchChange(event.target.value);
+  };
+
+  const handleContextMenu = (
+    e: MouseEvent<HTMLButtonElement>,
+    conversationId: string
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setContextMenu({
+      conversationId,
+      x: e.clientX,
+      y: e.clientY,
+    });
+  };
+
+  const handleCloseContextMenu = () => {
+    setContextMenu(null);
+  };
+
+  const handlePinToggle = (conversationId: string, isPinned: boolean) => {
+    onPinToggle(conversationId, !isPinned);
+    handleCloseContextMenu();
   };
 
   return (
@@ -81,14 +112,22 @@ export function ConversationList({
 
           const avatarUrl = conversation.displayAvatarUrl ?? null;
 
+          const isPrivate = conversation.type === 'private';
+          const isPinned = isPrivate ? true : conversation.isPinned ?? false;
+
           return (
-            <li key={conversation.id}>
+            <li key={conversation.id} style={{ position: 'relative' }}>
               <button
                 type="button"
                 className={`conversation-panel__item ${
                   isActive ? 'conversation-panel__item--active' : ''
                 }`}
                 onClick={() => onSelectConversation(conversation.id)}
+                onContextMenu={(e) => {
+                  if (!isPrivate) {
+                    handleContextMenu(e, conversation.id);
+                  }
+                }}
               >
                 <Avatar
                   className="conversation-panel__avatar"
@@ -102,15 +141,65 @@ export function ConversationList({
                     <span className="conversation-panel__item-title">
                       {displayTitle}
                     </span>
-                    <time className="conversation-panel__item-time">
-                      {formatTimestamp(conversation.updatedAt)}
-                    </time>
+                    <span
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}
+                    >
+                      {isPinned && (
+                        <PuiSvgIcon
+                          width={14}
+                          height={14}
+                          icon={PuiIcon.Pin2}
+                          style={{ flexShrink: 0 }}
+                        />
+                      )}
+                      <time className="conversation-panel__item-time">
+                        {formatTimestamp(conversation.updatedAt)}
+                      </time>
+                    </span>
                   </span>
                   <span className="conversation-panel__item-subtitle conversation-panel__item-subtitle--message">
                     {lastMessageText}
                   </span>
                 </span>
               </button>
+              {contextMenu?.conversationId === conversation.id &&
+                !isPrivate && (
+                  <>
+                    <div
+                      className="popup-overlay"
+                      onClick={handleCloseContextMenu}
+                    />
+                    <div
+                      className="popup-menu"
+                      style={{
+                        position: 'fixed',
+                        top: `${contextMenu.y}px`,
+                        left: `${contextMenu.x}px`,
+                        bottom: 'auto',
+                        transform: 'translateY(-100%)',
+                      }}
+                    >
+                      <button
+                        type="button"
+                        className="popup-menu-item"
+                        onClick={() =>
+                          handlePinToggle(conversation.id, isPinned)
+                        }
+                      >
+                        <PuiSvgIcon
+                          width={16}
+                          height={16}
+                          icon={PuiIcon.Pin2}
+                        />
+                        <span>{isPinned ? 'Unpin' : 'Pin'}</span>
+                      </button>
+                    </div>
+                  </>
+                )}
             </li>
           );
         })}

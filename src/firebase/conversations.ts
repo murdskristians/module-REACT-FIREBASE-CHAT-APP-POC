@@ -13,6 +13,7 @@ export type Conversation = {
   avatarUrl?: string | null;
   participants: string[];
   type: 'private' | 'direct';
+  isPinned?: boolean;
   updatedAt?: firebase.firestore.Timestamp | null;
   lastMessage?: ConversationMessagePreview | null;
 };
@@ -57,6 +58,7 @@ export function subscribeToConversations(
             avatarUrl: data.avatarUrl ?? null,
             participants: data.participants ?? [],
             type: data.type ?? 'direct',
+            isPinned: data.isPinned ?? false,
             updatedAt: data.updatedAt ?? null,
             lastMessage: data.lastMessage ?? null,
           } satisfies Conversation;
@@ -222,6 +224,11 @@ export async function ensureSavedMessagesConversationExists(
   );
 
   if (existingPrivateConversation) {
+    // Ensure existing private conversation is pinned
+    const existingData = existingPrivateConversation.data();
+    if (!existingData.isPinned) {
+      await existingPrivateConversation.ref.update({ isPinned: true });
+    }
     return existingPrivateConversation.id;
   }
 
@@ -232,11 +239,36 @@ export async function ensureSavedMessagesConversationExists(
     avatarUrl: userAvatarUrl,
     participants: [userId],
     type: 'private',
+    isPinned: true, // Always pinned
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     lastMessage: null,
   });
 
   return conversationRef.id;
+}
+
+export async function togglePinConversation(
+  conversationId: string,
+  isPinned: boolean
+): Promise<void> {
+  const conversationDoc = await db
+    .collection(CONVERSATIONS_COLLECTION)
+    .doc(conversationId)
+    .get();
+
+  if (!conversationDoc.exists) {
+    throw new Error('Conversation not found');
+  }
+
+  const conversationData = conversationDoc.data();
+  if (conversationData?.type === 'private' && !isPinned) {
+    // Prevent unpinning private conversations (Saved Messages)
+    throw new Error('Cannot unpin private conversations');
+  }
+
+  await db.collection(CONVERSATIONS_COLLECTION).doc(conversationId).update({
+    isPinned,
+  });
 }
 

@@ -16,6 +16,7 @@ import {
   sendMessage,
   subscribeToConversationMessages,
   subscribeToConversations,
+  togglePinConversation,
   type Conversation,
   type ConversationMessage,
 } from '../../firebase/conversations';
@@ -111,6 +112,7 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
             conversation.avatarColor ??
             '#A8D0FF',
           counterpartId: user.uid,
+          isPinned: true, // Always pinned
         };
       }
 
@@ -180,11 +182,20 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
     return mapped.sort((a, b) => {
       const aIsPrivate = a.type === 'private';
       const bIsPrivate = b.type === 'private';
+      const aIsPinned = a.isPinned ?? false;
+      const bIsPinned = b.isPinned ?? false;
 
       if (aIsPrivate && !bIsPrivate) {
         return -1;
       }
       if (!aIsPrivate && bIsPrivate) {
+        return 1;
+      }
+
+      if (aIsPinned && !bIsPinned) {
+        return -1;
+      }
+      if (!aIsPinned && bIsPinned) {
         return 1;
       }
 
@@ -328,6 +339,17 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
 
     return unsubscribe;
   }, [viewConversations, selectedConversationId, buildViewConversation]);
+
+  const handlePinToggle = useCallback(
+    async (conversationId: string, isPinned: boolean) => {
+      try {
+        await togglePinConversation(conversationId, isPinned);
+      } catch (error) {
+        console.error('Failed to toggle pin:', error);
+      }
+    },
+    []
+  );
 
   const handleConversationSelect = (conversationId: string) => {
     // Check if this is a new user (not a real conversation)
@@ -547,6 +569,7 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
               onAddConversation={() => {
                 setShowUserSearchModal(true);
               }}
+              onPinToggle={handlePinToggle}
             />
             <ChatView
               user={user}
