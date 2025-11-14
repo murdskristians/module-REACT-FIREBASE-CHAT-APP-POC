@@ -236,7 +236,7 @@
   gap: 8px;
   padding: 10px 16px;
   border-radius: 8px;
-  background: #f6f8ff;
+  background: var(--palette-primary-light);
   border: 1px solid #f0f0f0;
   transition: border-color 0.2s ease;
   height: 40px;
@@ -244,7 +244,7 @@
 }
 
 .conversation-panel__search:focus-within {
-  border-color: #d0d0d0;
+  border-color: var(--palette-primary);
 }
 
 .conversation-panel__search input {
@@ -285,7 +285,7 @@
 
 .conversation-panel__search-button:hover {
   background-color: #f0f0f0 !important;
-  color: #3398DB !important;
+  color: var(--palette-primary) !important;
 }
 
 .conversation-panel__list {
@@ -326,11 +326,11 @@
 }
 
 .conversation-panel__item:hover {
-  background-color: #f6f8ff;
+  background-color: var(--palette-primary-light);
 }
 
 .conversation-panel__item--active {
-  background-color: #E8F4FB;
+  background-color: var(--palette-primary-light);
 }
 
 .conversation-panel__avatar {
@@ -517,16 +517,16 @@
 }
 
 .chat-panel__action:hover svg {
-  color: #3398DB;
+  color: var(--palette-primary);
 }
 
 .chat-panel__action--call {
-  background: linear-gradient(112deg, #3398DB -3.42%, #3375A0 98.18%);
+  background: var(--palette-gradient);
   color: #ffffff;
 }
 
 .chat-panel__action--call:hover {
-  background: linear-gradient(112deg, #3192D3 -3.42%, #235373 98.18%);
+  opacity: 0.9;
 }
 
 .chat-panel__action--call:hover svg {
@@ -567,20 +567,20 @@
 }
 
 .chat-messages__item--own .chat-messages__bubble {
-  background: linear-gradient(135deg, #7f66ff 0%, #5f4bff 100%);
+  background: var(--palette-gradient);
   color: #ffffff;
 }
 
 .chat-messages__avatar {
   width: 40px;
   height: 40px;
-  background: #f2f4ff;
+  background: var(--palette-primary-light);
   border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  color: #5f4bff;
+  color: var(--palette-primary-dark);
 }
 
 .chat-messages__bubble {
@@ -725,7 +725,7 @@
 }
 
 .chat-panel__composer-button:hover svg {
-  color: #3398DB;
+  color: var(--palette-primary);
 }
 
 .chat-panel__composer-input {
@@ -812,7 +812,7 @@
 
 .voice-input-chevron.active {
   background: #E2E2E2;
-  color: #3398DB;
+  color: var(--palette-primary);
 }
 
 /* Send Button - StyledSendInputButton */

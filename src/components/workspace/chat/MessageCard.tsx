@@ -92,7 +92,8 @@ export const MessageCard: FC<MessageCardProps> = ({
             gap: '8px',
             borderRadius: isUserMessage ? '16px 0 16px 16px' : '0px 16px 16px 16px',
             padding: '8px 16px',
-            backgroundColor: isUserMessage ? '#E8F4FB' : '#ffffff',
+            background: isUserMessage ? 'var(--palette-gradient)' : '#ffffff',
+            color: isUserMessage ? '#ffffff' : '#1f2131',
             position: 'relative',
             overflow: 'hidden',
             justifyContent: 'start',
@@ -115,7 +116,7 @@ export const MessageCard: FC<MessageCardProps> = ({
             </PuiTypography>
           )}
 
-          <TextMessage message={message} time={time} />
+          <TextMessage message={message} time={time} isUserMessage={isUserMessage} />
         </PuiStack>
       </PuiStack>
     </PuiStack>

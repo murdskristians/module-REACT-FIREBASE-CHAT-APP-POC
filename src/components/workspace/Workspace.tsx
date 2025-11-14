@@ -24,7 +24,6 @@ import {
   type Contact,
 } from '../../firebase/users';
 import { MainPanelWrapper } from '../../pages/user-info/MainPanelWrapper';
-import { PersonalInfo } from '../../pages/user-info/PersonalInfo';
 import type { ProfileContact } from '../../types/profile';
 import { theme } from '../../theme';
 
@@ -351,12 +350,11 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
 
         {activeApp === 'profile' ? (
           <section className="workspace__profile-view">
-            <MainPanelWrapper onSignOut={onSignOut}>
-              <PersonalInfo
-                profileContact={profileContact}
-                isLoading={isProfileLoading}
-              />
-            </MainPanelWrapper>
+            <MainPanelWrapper
+              onSignOut={onSignOut}
+              profileContact={profileContact}
+              isLoading={isProfileLoading}
+            />
           </section>
         ) : (
           <>

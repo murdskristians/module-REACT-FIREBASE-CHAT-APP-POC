@@ -36,13 +36,12 @@ export const StyledTopBarButton = PuiStyled(PuiIconButton)(({ theme }) => ({
     },
   },
   '&.contained': {
-    background: 'linear-gradient(112deg, #3398DB -3.42%, #3375A0 98.18%)',
+    background: 'var(--palette-gradient)',
     svg: {
       color: theme.palette.common.white,
     },
     '&:hover': {
-      backgroundColor: theme.palette.primary.dark,
-      background: 'linear-gradient(112deg, #1F74AD -3.42%, #175D8B 98.18%)',
+      opacity: 0.9,
     },
   },
 }));

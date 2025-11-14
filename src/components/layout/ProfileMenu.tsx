@@ -6,10 +6,20 @@ import { LogoutButton, ProfileMenuWrapper } from './StyledComponents';
 
 type ProfileMenuProps = {
   onSignOut: () => Promise<void> | void;
+  selectedPath?: string;
+  onPathChange?: (path: string) => void;
 };
 
-export const ProfileMenu = ({ onSignOut }: ProfileMenuProps) => {
-  const selectedItem = menuList.find((item) => item.enabled) ?? menuList[0];
+export const ProfileMenu = ({ onSignOut, selectedPath, onPathChange }: ProfileMenuProps) => {
+  const defaultPath = menuList.find((item) => item.enabled)?.path ?? menuList[0].path;
+  const currentPath = selectedPath ?? defaultPath;
+  
+  const handleItemClick = (path: string) => {
+    const item = menuList.find((i) => i.path === path);
+    if (item?.enabled && onPathChange) {
+      onPathChange(path);
+    }
+  };
 
   return (
     <ProfileMenuWrapper>
@@ -29,7 +39,8 @@ export const ProfileMenu = ({ onSignOut }: ProfileMenuProps) => {
           <ProfileMenuItem
             key={item.path}
             item={item}
-            isSelected={item.path === selectedItem.path}
+            isSelected={item.path === currentPath}
+            onClick={() => handleItemClick(item.path)}
           />
         ))}
       </PuiBox>

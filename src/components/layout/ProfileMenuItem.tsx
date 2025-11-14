@@ -6,9 +6,10 @@ import { ProfileMenuItemWrapper } from './StyledComponents';
 interface ProfileMenuItemProps {
   item: { title: string; path: string; icon: PuiIcon; enabled: boolean };
   isSelected: boolean;
+  onClick?: () => void;
 }
 
-export const ProfileMenuItem = ({ item, isSelected }: ProfileMenuItemProps) => {
+export const ProfileMenuItem = ({ item, isSelected, onClick }: ProfileMenuItemProps) => {
   const isDisabled = !item.enabled;
   const iconColor = isSelected ? Colors.blue.base : '#A7AEC3';
 
@@ -17,6 +18,8 @@ export const ProfileMenuItem = ({ item, isSelected }: ProfileMenuItemProps) => {
       className={`${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}`}
       role="menuitem"
       aria-disabled={isDisabled}
+      onClick={isDisabled ? undefined : onClick}
+      sx={{ cursor: isDisabled ? 'not-allowed' : 'pointer' }}
     >
       <PuiSvgIcon
         icon={item.icon}

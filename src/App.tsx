@@ -20,6 +20,10 @@ function App() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    // Initialize palette from localStorage
+    const savedPalette = localStorage.getItem('app-theme-palette') || 'default';
+    document.documentElement.setAttribute('data-palette', savedPalette);
+
     const unsubscribe = subscribeToAuthChanges((currentUser) => {
       setUser(currentUser);
       setIsLoading(false);
