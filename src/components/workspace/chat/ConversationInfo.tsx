@@ -6,9 +6,10 @@ import { ConversationInfoWrapper, StyledConversationTitle } from './StyledCompon
 
 interface ConversationInfoProps {
   conversation: ViewConversation;
+  onContactClick?: () => void;
 }
 
-export const ConversationInfo: FC<ConversationInfoProps> = ({ conversation }) => {
+export const ConversationInfo: FC<ConversationInfoProps> = ({ conversation, onContactClick }) => {
   const conversationInitials = conversation.displayTitle
     .split(' ')
     .map((part) => part[0])
@@ -17,7 +18,10 @@ export const ConversationInfo: FC<ConversationInfoProps> = ({ conversation }) =>
     .toUpperCase();
 
   return (
-    <ConversationInfoWrapper>
+    <ConversationInfoWrapper
+      onClick={onContactClick}
+      style={{ cursor: onContactClick ? 'pointer' : 'default' }}
+    >
       <PuiBox
         className="chat-panel__avatar"
         style={{
