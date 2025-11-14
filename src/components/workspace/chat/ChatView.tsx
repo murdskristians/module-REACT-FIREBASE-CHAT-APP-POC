@@ -101,7 +101,10 @@ export function ChatView({
 
   return (
     <ChatAreaWrapper>
-      <ConversationTopBar conversation={conversation as ViewConversation} onContactClick={onContactClick} />
+      <ConversationTopBar
+        conversation={displayConversation}
+        onContactClick={onContactClick}
+      />
 
       <MessagesContainer>
         {isPendingConversation ? (
