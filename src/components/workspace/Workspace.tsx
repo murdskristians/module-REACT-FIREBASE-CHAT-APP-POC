@@ -10,6 +10,7 @@ import { ChatView } from './chat/ChatView';
 import { AiPanel } from './ai/AiPanel';
 import { UserSearchModal } from './UserSearchModal';
 import { createViewConversationFromContact as createViewConversationFromContactUtil } from './utils';
+import { ContactCardView } from './contact/ContactCardView';
 import {
   ensureConversationExists,
   sendMessage,
@@ -70,6 +71,9 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
   const [isProfileLoading, setIsProfileLoading] = useState(true);
   const [showUserSearchModal, setShowUserSearchModal] = useState(false);
   const [pendingUser, setPendingUser] = useState<Contact | null>(null);
+  const [selectedContactId, setSelectedContactId] = useState<string | null>(
+    null
+  );
 
   const contactsMap = useMemo(() => {
     const map = new Map<string, Contact>();
@@ -298,6 +302,7 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
       conversation,
       messages: [],
     });
+    setSelectedContactId(null);
   };
 
   useEffect(() => {
@@ -335,6 +340,24 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
     },
     [conversations, user.uid]
   );
+  const handleContactClick = () => {
+    const conversation = activeConversationState.conversation;
+    if (conversation) {
+      setSelectedContactId(conversation.counterpartId);
+    }
+  };
+
+  const handleContactCardBack = () => {
+    setSelectedContactId(null);
+  };
+
+  const handleContactCardClose = () => {
+    setSelectedContactId(null);
+  };
+
+  const selectedContact = selectedContactId
+    ? contactsMap.get(selectedContactId)
+    : null;
 
   const handleSendMessage = async ({
     text,
@@ -477,8 +500,17 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
               isSending={isSending}
               contactsMap={contactsMap}
               pendingUser={pendingUser}
+              onContactClick={handleContactClick}
             />
-            <AiPanel />
+            {selectedContact && selectedContactId ? (
+              <ContactCardView
+                contact={selectedContact}
+                onBack={handleContactCardBack}
+                onClose={handleContactCardClose}
+              />
+            ) : (
+              <AiPanel />
+            )}
           </>
         )}
       </div>

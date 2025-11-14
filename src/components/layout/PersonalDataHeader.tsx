@@ -41,7 +41,7 @@ export const PersonalDataHeader = ({
           contact={{
             id: profileContact.id,
             name: profileContact.name,
-            email: profileContact.email ?? undefined,
+            email: (profileContact.email as string) ?? undefined,
             avatarUrl: profileContact.avatarUrl ?? undefined,
           }}
         />

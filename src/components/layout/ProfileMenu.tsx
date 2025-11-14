@@ -1,13 +1,4 @@
-import {
-  PuiBox,
-  PuiDivider,
-  PuiIcon,
-  PuiSvgIcon,
-  PuiTypography,
-} from 'piche.ui';
-import { useState } from 'react';
-
-import { LogoutModal } from './LogoutModal';
+import { PuiBox, PuiDivider, PuiIcon, PuiSvgIcon, PuiTypography } from 'piche.ui';
 import { IconSize, menuList } from '../../config';
 
 import { ProfileMenuItem } from './ProfileMenuItem';
@@ -18,16 +9,7 @@ type ProfileMenuProps = {
 };
 
 export const ProfileMenu = ({ onSignOut }: ProfileMenuProps) => {
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const selectedItem = menuList.find((item) => item.enabled) ?? menuList[0];
-
-  const handleLogout = async () => {
-    try {
-      await onSignOut();
-    } finally {
-      setShowLogoutModal(false);
-    }
-  };
 
   return (
     <ProfileMenuWrapper>
@@ -54,7 +36,7 @@ export const ProfileMenu = ({ onSignOut }: ProfileMenuProps) => {
 
       <PuiDivider orientation="horizontal" sx={{ marginBottom: '16px' }} />
       <LogoutButton
-        onClick={() => setShowLogoutModal(true)}
+        onClick={() => onSignOut()}
         startIcon={
           <>
             <svg
@@ -92,11 +74,6 @@ export const ProfileMenu = ({ onSignOut }: ProfileMenuProps) => {
       >
         Logout
       </LogoutButton>
-      <LogoutModal
-        showModal={showLogoutModal}
-        setShowModal={setShowLogoutModal}
-        onLogout={handleLogout}
-      />
     </ProfileMenuWrapper>
   );
 };

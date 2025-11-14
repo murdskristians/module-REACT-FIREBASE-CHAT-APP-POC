@@ -23,6 +23,7 @@ type ChatViewProps = {
   isSending: boolean;
   contactsMap: Map<string, Contact>;
   pendingUser?: Contact | null;
+  onContactClick?: () => void;
 };
 
 export function ChatView({
@@ -33,6 +34,7 @@ export function ChatView({
   isSending,
   contactsMap,
   pendingUser,
+  onContactClick,
 }: ChatViewProps) {
   const [composerValue, setComposerValue] = useState('');
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -99,7 +101,7 @@ export function ChatView({
 
   return (
     <ChatAreaWrapper>
-      <ConversationTopBar conversation={displayConversation} />
+      <ConversationTopBar conversation={conversation as ViewConversation} onContactClick={onContactClick} />
 
       <MessagesContainer>
         {isPendingConversation ? (

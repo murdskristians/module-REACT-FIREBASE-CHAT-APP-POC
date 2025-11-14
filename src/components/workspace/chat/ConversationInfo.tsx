@@ -1,4 +1,4 @@
-import { PuiStack } from 'piche.ui';
+import { PuiBox, PuiStack } from 'piche.ui';
 import { FC } from 'react';
 
 import type { ViewConversation } from '../Workspace';
@@ -11,11 +11,10 @@ import {
 
 interface ConversationInfoProps {
   conversation: ViewConversation;
+  onContactClick?: () => void;
 }
 
-export const ConversationInfo: FC<ConversationInfoProps> = ({
-  conversation,
-}) => {
+export const ConversationInfo: FC<ConversationInfoProps> = ({ conversation, onContactClick }) => {
   const conversationInitials = conversation.displayTitle
     .split(' ')
     .map((part) => part[0])
@@ -24,8 +23,11 @@ export const ConversationInfo: FC<ConversationInfoProps> = ({
     .toUpperCase();
 
   return (
-    <ConversationInfoWrapper>
-      <StyledConversationAvatar
+    <ConversationInfoWrapper
+      onClick={onContactClick}
+      style={{ cursor: onContactClick ? 'pointer' : 'default' }}
+    >
+      <PuiBox
         className="chat-panel__avatar"
         sx={{
           background: conversation.displayAvatarUrl
@@ -42,7 +44,7 @@ export const ConversationInfo: FC<ConversationInfoProps> = ({
         ) : (
           conversationInitials
         )}
-      </StyledConversationAvatar>
+      </PuiBox>
       <PuiStack gap="2px" sx={{ minWidth: 0 }}>
         <StyledConversationTitle variant="body-m-semibold">
           {conversation.displayTitle}
