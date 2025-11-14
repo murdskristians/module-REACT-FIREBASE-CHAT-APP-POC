@@ -11,6 +11,7 @@
     "date-fns": "^2.30.0",
     "emoji-picker-react": "^4.15.1",
     "firebase": "^12.5.0",
+    "openai": "^6.9.0",
     "piche.ui": "^1.1.461",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

@@ -983,13 +983,13 @@
   border-left: 1px solid #f0f0f0;
   display: flex;
   flex-direction: column;
-  padding: 32px 0 0 0;
   overflow: hidden;
   height: 100%;
 }
 
 .ai-panel__header {
   margin: 0 32px 24px 32px;
+  height: 64px;
 }
 
 .ai-panel__header h2 {
