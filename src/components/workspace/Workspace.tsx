@@ -12,6 +12,7 @@ import { UserSearchModal } from './UserSearchModal';
 import { createViewConversationFromContact as createViewConversationFromContactUtil } from './utils';
 import { ContactCardView } from './contact/ContactCardView';
 import { CreateNewGroupPanel } from './group/CreateNewGroupPanel';
+import { CallManager } from './calls/CallManager';
 import {
   ensureConversationExists,
   sendMessage,
@@ -675,6 +676,15 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
         onUserSelect={handleUserSelect}
         isLoading={false}
       />
+
+      {/* Call Manager */}
+      {currentUserProfile && (
+        <CallManager
+          userId={user.uid}
+          userName={currentUserProfile.displayName || 'User'}
+          userAvatar={currentUserProfile.avatarUrl}
+        />
+      )}
     </MuiThemeProvider>
   );
 }
