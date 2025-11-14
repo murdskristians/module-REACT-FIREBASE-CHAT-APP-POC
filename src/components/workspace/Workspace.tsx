@@ -17,6 +17,7 @@ import {
   subscribeToConversationMessages,
   subscribeToConversations,
   togglePinConversation,
+  toggleHideConversation,
   type Conversation,
   type ConversationMessage,
 } from '../../firebase/conversations';
@@ -209,10 +210,14 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
     const term = searchTerm.trim().toLowerCase();
 
     if (!term) {
-      return viewConversations;
+      // Filter out hidden conversations from main list
+      return viewConversations.filter(
+        (conversation) => !(conversation.isHidden ?? false)
+      );
     }
 
-    // First, get existing conversations that match
+    // When searching, include hidden conversations
+    // First, get existing conversations that match (including hidden ones)
     const matchingConversations = viewConversations.filter((conversation) => {
       const lastMessageText = conversation.lastMessage?.text ?? '';
       return (
@@ -346,6 +351,17 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
         await togglePinConversation(conversationId, isPinned);
       } catch (error) {
         console.error('Failed to toggle pin:', error);
+      }
+    },
+    []
+  );
+
+  const handleHideToggle = useCallback(
+    async (conversationId: string, isHidden: boolean) => {
+      try {
+        await toggleHideConversation(conversationId, isHidden);
+      } catch (error) {
+        console.error('Failed to toggle hide:', error);
       }
     },
     []
@@ -570,6 +586,7 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
                 setShowUserSearchModal(true);
               }}
               onPinToggle={handlePinToggle}
+              onHideToggle={handleHideToggle}
             />
             <ChatView
               user={user}
