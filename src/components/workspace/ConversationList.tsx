@@ -14,6 +14,7 @@ type ConversationListProps = {
   onSelectConversation: (conversationId: string) => void;
   onAddConversation?: () => void;
   onPinToggle: (conversationId: string, isPinned: boolean) => void;
+  onHideToggle: (conversationId: string, isHidden: boolean) => void;
 };
 
 const formatTimestamp = (timestamp?: firebase.firestore.Timestamp | null) => {
@@ -42,6 +43,7 @@ export function ConversationList({
   onSelectConversation,
   onAddConversation,
   onPinToggle,
+  onHideToggle,
 }: ConversationListProps) {
   const [contextMenu, setContextMenu] = useState<{
     conversationId: string;
@@ -72,6 +74,11 @@ export function ConversationList({
 
   const handlePinToggle = (conversationId: string, isPinned: boolean) => {
     onPinToggle(conversationId, !isPinned);
+    handleCloseContextMenu();
+  };
+
+  const handleHideToggle = (conversationId: string, isHidden: boolean) => {
+    onHideToggle(conversationId, !isHidden);
     handleCloseContextMenu();
   };
 
@@ -114,6 +121,7 @@ export function ConversationList({
 
           const isPrivate = conversation.type === 'private';
           const isPinned = isPrivate ? true : conversation.isPinned ?? false;
+          const isHidden = conversation.isHidden ?? false;
 
           return (
             <li key={conversation.id} style={{ position: 'relative' }}>
@@ -196,6 +204,20 @@ export function ConversationList({
                           icon={PuiIcon.Pin2}
                         />
                         <span>{isPinned ? 'Unpin' : 'Pin'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="popup-menu-item"
+                        onClick={() =>
+                          handleHideToggle(conversation.id, isHidden)
+                        }
+                      >
+                        <PuiSvgIcon
+                          width={16}
+                          height={16}
+                          icon={isHidden ? PuiIcon.Eye : PuiIcon.EyeOff}
+                        />
+                        <span>{isHidden ? 'Unhide' : 'Hide'}</span>
                       </button>
                     </div>
                   </>

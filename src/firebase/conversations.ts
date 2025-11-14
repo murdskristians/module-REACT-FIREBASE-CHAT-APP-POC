@@ -14,6 +14,7 @@ export type Conversation = {
   participants: string[];
   type: 'private' | 'direct';
   isPinned?: boolean;
+  isHidden?: boolean;
   updatedAt?: firebase.firestore.Timestamp | null;
   lastMessage?: ConversationMessagePreview | null;
 };
@@ -59,6 +60,7 @@ export function subscribeToConversations(
             participants: data.participants ?? [],
             type: data.type ?? 'direct',
             isPinned: data.isPinned ?? false,
+            isHidden: data.isHidden ?? false,
             updatedAt: data.updatedAt ?? null,
             lastMessage: data.lastMessage ?? null,
           } satisfies Conversation;
@@ -158,6 +160,7 @@ export async function sendMessage({
         type: messageType,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       },
+      isHidden: false, // Automatically unhide when sending/receiving messages
     },
     { merge: true }
   );
@@ -269,6 +272,30 @@ export async function togglePinConversation(
 
   await db.collection(CONVERSATIONS_COLLECTION).doc(conversationId).update({
     isPinned,
+  });
+}
+
+export async function toggleHideConversation(
+  conversationId: string,
+  isHidden: boolean
+): Promise<void> {
+  const conversationDoc = await db
+    .collection(CONVERSATIONS_COLLECTION)
+    .doc(conversationId)
+    .get();
+
+  if (!conversationDoc.exists) {
+    throw new Error('Conversation not found');
+  }
+
+  const conversationData = conversationDoc.data();
+  if (conversationData?.type === 'private') {
+    // Prevent hiding private conversations (Saved Messages)
+    throw new Error('Cannot hide private conversations');
+  }
+
+  await db.collection(CONVERSATIONS_COLLECTION).doc(conversationId).update({
+    isHidden,
   });
 }
 
