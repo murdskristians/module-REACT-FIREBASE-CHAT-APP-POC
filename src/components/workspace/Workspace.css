@@ -540,14 +540,6 @@
   color: #ffffff;
 }
 
-.chat-panel__action--call:hover {
-  opacity: 0.9;
-}
-
-.chat-panel__action--call:hover svg {
-  color: #ffffff;
-}
-
 .chat-panel__messages {
   flex: 1;
   overflow: hidden;

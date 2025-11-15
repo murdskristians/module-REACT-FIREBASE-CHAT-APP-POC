@@ -118,21 +118,13 @@ export const StyledMessagePopupListItem = PuiStyled(PuiListItemButton)(({ theme 
 export const StyledIconWrapper = PuiStyled(PuiSvgIcon, {
   shouldForwardProp: propName => propName !== 'isContextMenuOpened',
 })<{ isContextMenuOpened: boolean }>(({ isContextMenuOpened, theme }) => ({
-  position: 'absolute',
-  right: 16,
-  top: 4,
+  flexShrink: 0,
+  alignSelf: 'flex-start',
+  marginTop: '4px',
   stroke: isContextMenuOpened ? theme.palette.primary.main : theme.palette.grey[600],
   cursor: 'pointer',
   transition: 'opacity 0.2s ease',
   opacity: 0,
-}));
-
-export const StyledMessageCardWrapper = PuiStyled(PuiBox)(() => ({
-  position: 'relative',
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'flex-end',
-  gap: '8px',
 }));
 
 export const StyledConversationMessageWrapper = PuiStyled(PuiBox, {
@@ -140,8 +132,18 @@ export const StyledConversationMessageWrapper = PuiStyled(PuiBox, {
 })<{ isUserMessage?: boolean }>(({ isUserMessage }) => ({
   width: '100%',
   position: 'relative',
-  padding: isUserMessage ? '4px 0 4px 32px' : '4px 32px 4px 0',
+  display: 'flex',
+  justifyContent: isUserMessage ? 'flex-end' : 'flex-start',
+  padding: '4px 0',
   transition: 'padding-left 0.2s ease-out',
+}));
+
+export const StyledMessageCardWrapper = PuiStyled(PuiBox)(() => ({
+  position: 'relative',
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'flex-start',
+  gap: '8px',
   '&:hover .message-dots-menu': {
     opacity: 1,
   },
@@ -154,7 +156,7 @@ export const StyledConversationMessageContent = PuiStyled(PuiBox)(() => ({
   alignItems: 'flex-start',
   transition: 'min-height 0.3s ease-in-out, height 0.3s ease-in-out',
   minHeight: 'auto',
-  maxWidth: '814px',
+  maxWidth: 'calc(100% - 64px)',
   width: '100%',
   position: 'relative',
 }));

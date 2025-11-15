@@ -1,4 +1,10 @@
-import { PuiBox, PuiDivider, PuiIcon, PuiSvgIcon, PuiTypography } from 'piche.ui';
+import {
+  PuiBox,
+  PuiDivider,
+  PuiIcon,
+  PuiSvgIcon,
+  PuiTypography,
+} from 'piche.ui';
 import { IconSize, menuList } from '../../config';
 
 import { ProfileMenuItem } from './ProfileMenuItem';
@@ -10,10 +16,15 @@ type ProfileMenuProps = {
   onPathChange?: (path: string) => void;
 };
 
-export const ProfileMenu = ({ onSignOut, selectedPath, onPathChange }: ProfileMenuProps) => {
-  const defaultPath = menuList.find((item) => item.enabled)?.path ?? menuList[0].path;
+export const ProfileMenu = ({
+  onSignOut,
+  selectedPath,
+  onPathChange,
+}: ProfileMenuProps) => {
+  const defaultPath =
+    menuList.find((item) => item.enabled)?.path ?? menuList[0].path;
   const currentPath = selectedPath ?? defaultPath;
-  
+
   const handleItemClick = (path: string) => {
     const item = menuList.find((i) => i.path === path);
     if (item?.enabled && onPathChange) {

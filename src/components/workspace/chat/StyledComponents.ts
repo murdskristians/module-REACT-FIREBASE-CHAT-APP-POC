@@ -40,8 +40,11 @@ export const StyledTopBarButton = PuiStyled(PuiIconButton)(({ theme }) => ({
     svg: {
       color: theme.palette.common.white,
     },
-    '&:hover': {
-      opacity: 0.9,
+    '&.MuiButtonBase-root:hover': {
+      backgroundColor: 'var(--palette-call-button)',
+      svg: {
+        color: theme.palette.common.white,
+      },
     },
   },
 }));

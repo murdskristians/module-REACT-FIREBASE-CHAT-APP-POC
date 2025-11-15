@@ -21,6 +21,8 @@ interface MessageCardProps {
   senderAvatar?: string;
   senderAvatarColor?: string;
   isGroup?: boolean;
+  conversationId: string;
+  onMessageDeleted?: () => void;
 }
 
 const initialPositionState = { top: 0, left: 0 };
@@ -38,6 +40,8 @@ export const MessageCard: FC<MessageCardProps> = ({
   senderAvatar,
   senderAvatarColor,
   isGroup = false,
+  conversationId,
+  onMessageDeleted,
 }) => {
   const [isContextMenuOpened, setIsContextMenuOpened] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState<{ top: number; left: number }>(initialPositionState);
@@ -78,8 +82,6 @@ export const MessageCard: FC<MessageCardProps> = ({
         ref={wrapperRef}
         isUserMessage={isUserMessage}
         sx={{
-          justifyContent: isUserMessage ? 'flex-end' : 'flex-start',
-          paddingLeft: !isUserMessage ? '40px' : '0',
           marginTop: sequenceStarted ? '34px' : '0',
         }}
       >
@@ -137,17 +139,16 @@ export const MessageCard: FC<MessageCardProps> = ({
 
               <TextMessage message={message} time={time} isUserMessage={isUserMessage} />
             </PuiStack>
+            <StyledIconWrapper
+              className="message-dots-menu"
+              isContextMenuOpened={isContextMenuOpened}
+              width={16}
+              height={16}
+              icon={PuiIcon.DotsVertical}
+              onClick={handleOpenContextMenuFromDots}
+            />
           </StyledMessageCardWrapper>
         </StyledConversationMessageContent>
-
-        <StyledIconWrapper
-          className="message-dots-menu"
-          isContextMenuOpened={isContextMenuOpened}
-          width={16}
-          height={16}
-          icon={PuiIcon.DotsVertical}
-          onClick={handleOpenContextMenuFromDots}
-        />
       </StyledConversationMessageWrapper>
 
       <ConversationMessagePopup
@@ -155,7 +156,11 @@ export const MessageCard: FC<MessageCardProps> = ({
         position={contextMenuPosition}
         anchorEl={menuAnchorEl as HTMLDivElement}
         messageId={message.id}
+        messageText={message.text}
+        conversationId={conversationId}
+        senderId={message.senderId}
         onClose={handleCloseContextMenu}
+        onMessageDeleted={onMessageDeleted}
         isOpenedFromRightClick={isOpenedFromRightClick}
       />
     </>
