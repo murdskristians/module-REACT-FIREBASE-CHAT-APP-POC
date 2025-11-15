@@ -1,18 +1,15 @@
 import {
-  PuiAvatar,
   PuiBox,
   PuiIcon,
   PuiIconButton,
   PuiLoadingButton,
-  PuiStack,
   PuiSvgIcon,
-  PuiSwitch,
   PuiTypography,
   PuiStyled,
 } from 'piche.ui';
-import { useState, type FC, useMemo } from 'react';
-import { styled } from '@mui/material/styles';
+import { ChangeEvent, useState, type FC, useMemo } from 'react';
 
+import { Avatar } from '../shared/Avatar';
 import type { Contact } from '../../../firebase/users';
 import type { Conversation, ConversationMessage } from '../../../firebase/conversations';
 import { Reply } from './message-card/reply/Reply';
@@ -49,71 +46,29 @@ const StyledButtonWrapper = PuiStyled(PuiBox)(() => ({
   marginTop: 'auto',
 }));
 
-const SearchInputWrapper = styled(PuiBox)(({ theme }) => ({
-  padding: '24px 32px 16px 32px',
+const StyledToggle = PuiStyled(PuiBox)<{ checked: boolean }>(({ checked }) => ({
+  width: '40px',
+  height: '24px',
+  borderRadius: '12px',
+  backgroundColor: checked ? '#67D286' : '#DBDBDB',
   position: 'relative',
-  zIndex: 10,
-}));
-
-const ConversationListContainer = styled(PuiBox)(({ theme }) => ({
-  flexGrow: 1,
-  paddingBottom: '8px',
-  overflowY: 'auto',
-  paddingLeft: '32px',
-  paddingRight: '32px',
-  '&::-webkit-scrollbar': {
-    width: '8px',
-  },
-  '&::-webkit-scrollbar-track': {
-    background: 'transparent',
-  },
-  '&::-webkit-scrollbar-thumb': {
-    background: 'transparent',
-    borderRadius: '4px',
-  },
-  '&:hover::-webkit-scrollbar-thumb': {
-    background: '#d0d0d0',
-  },
-}));
-
-const ConversationListItem = styled(PuiBox)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '12px 24px',
   cursor: 'pointer',
   transition: 'background-color 0.2s ease',
-  '&:hover': {
-    backgroundColor: theme.palette.grey[100],
+  flexShrink: 0,
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    width: '20px',
+    height: '20px',
+    borderRadius: '50%',
+    backgroundColor: '#ffffff',
+    top: '2px',
+    left: checked ? '18px' : '2px',
+    transition: 'left 0.2s ease',
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
   },
 }));
 
-const ConversationInfo = styled(PuiBox)(() => ({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '12px',
-  flex: 1,
-  minWidth: 0,
-}));
-
-const EmptyState = styled(PuiBox)(({ theme }) => ({
-  padding: '32px',
-  textAlign: 'center',
-  color: theme.palette.grey[600],
-}));
-
-const MessagePreviewWrapper = styled(PuiBox)(({ theme }) => ({
-  padding: '12px',
-  backgroundColor: theme.palette.background.default,
-  borderRadius: '8px',
-  marginBottom: '12px',
-}));
-
-const ForwardInputWrapper = styled(PuiBox)(({ theme }) => ({
-  padding: '0 32px 16px 32px',
-  position: 'relative',
-  zIndex: 10,
-}));
 
 interface ForwardMessageModalProps {
   open: boolean;
@@ -140,42 +95,51 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
   const [selectedConversationIds, setSelectedConversationIds] = useState<string[]>([]);
   const [forwardText, setForwardText] = useState('');
 
-  // Filter conversations and contacts based on search
-  const filteredData = useMemo(() => {
-    if (!message) {
-      return { filteredConversations: [], filteredContacts: [] };
-    }
-    const query = searchQuery.toLowerCase().trim();
+  // Get all available contacts (excluding current user)
+  const availableContacts = useMemo(() => {
+    return contacts.filter((contact) => contact.id !== currentUserId);
+  }, [contacts, currentUserId]);
 
-    // Filter out any null/undefined conversations
-    const validConversations = (conversations || []).filter((conv) => conv != null);
-    const filteredConversations = validConversations.filter((conv) => {
-      if (!query) return true;
-      const title = (conv.title || '').toLowerCase();
-      return title.includes(query);
+  // Map conversations to contacts for selection
+  // For direct conversations, use the other participant
+  // For group conversations, we'll need to handle them differently
+  const contactsFromConversations = useMemo(() => {
+    const contactMap = new Map<string, Contact>();
+    
+    // Add all contacts
+    availableContacts.forEach((contact) => {
+      contactMap.set(contact.id, contact);
     });
 
-    // Filter out any null/undefined contacts
-    const validContacts = (contacts || []).filter((contact) => contact != null && contact.id);
-    const filteredContacts = validContacts.filter((contact) => {
-      if (contact.id === currentUserId) return false;
-      if (!query) return true;
+    // Add contacts from direct conversations
+    conversations.forEach((conv) => {
+      if (conv.type === 'direct') {
+        const otherParticipantId = conv.participants.find((id) => id !== currentUserId);
+        if (otherParticipantId) {
+          const contact = contacts.find((c) => c.id === otherParticipantId);
+          if (contact && !contactMap.has(contact.id)) {
+            contactMap.set(contact.id, contact);
+          }
+        }
+      }
+    });
+
+    return Array.from(contactMap.values());
+  }, [conversations, contacts, currentUserId, availableContacts]);
+
+  // Filter contacts from conversations based on search
+  const filteredContactsFromConversations = useMemo(() => {
+    const term = searchQuery.trim().toLowerCase();
+    if (!term) {
+      return contactsFromConversations;
+    }
+
+    return contactsFromConversations.filter((contact) => {
       const displayName = (contact.displayName || '').toLowerCase();
       const email = (contact.email || '').toLowerCase();
-      return displayName.includes(query) || email.includes(query);
+      return displayName.includes(term) || email.includes(term);
     });
-
-    return { filteredConversations, filteredContacts };
-  }, [searchQuery, conversations, contacts, currentUserId, message]);
-
-  const handleToggleConversation = (conversationId: string) => {
-    setSelectedConversationIds((prev) => {
-      if (prev.includes(conversationId)) {
-        return prev.filter((id) => id !== conversationId);
-      }
-      return [...prev, conversationId];
-    });
-  };
+  }, [contactsFromConversations, searchQuery]);
 
   const handleToggleContact = (contactId: string) => {
     setSelectedConversationIds((prev) => {
@@ -215,26 +179,6 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
     };
   }, [message]);
 
-  // Sort conversations: selected first, then by type (direct before group), then alphabetically
-  const sortedConversations = [...filteredData.filteredConversations].sort((a, b) => {
-    const aSelected = selectedConversationIds.includes(a.id) ? -1 : 1;
-    const bSelected = selectedConversationIds.includes(b.id) ? -1 : 1;
-    if (aSelected !== bSelected) return aSelected - bSelected;
-
-    const aDirect = a.type === 'direct' ? -1 : 1;
-    const bDirect = b.type === 'direct' ? -1 : 1;
-    if (aDirect !== bDirect) return aDirect - bDirect;
-
-    return (a.title || '').localeCompare(b.title || '');
-  });
-
-  // Filter out contacts that already have conversations
-  const existingContactIds = new Set(
-    (conversations || [])
-      .filter((conv) => conv != null && conv.participants)
-      .flatMap((conv) => (conv.participants || []).filter((id) => id && id !== currentUserId))
-  );
-  const newContacts = filteredData.filteredContacts.filter((contact) => contact && contact.id && !existingContactIds.has(contact.id));
 
   // Guard against missing message or closed panel
   if (!message || !open) {
@@ -291,12 +235,16 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
           Select conversations or contacts to forward this message
         </PuiTypography>
       </PuiBox>
-      <SearchInputWrapper>
+      <PuiBox
+        sx={{ padding: '0 32px 16px 32px', position: 'relative', zIndex: 1000 }}
+      >
         <input
           type="search"
-          placeholder="Search conversations or contacts..."
+          placeholder="Search contacts"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setSearchQuery(e.target.value)
+          }
           onClick={(e) => {
             e.stopPropagation();
             e.currentTarget.focus();
@@ -307,7 +255,6 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
           disabled={false}
           readOnly={false}
           tabIndex={0}
-          autoFocus={false}
           style={{
             width: '100%',
             border: '1px solid #f0f0f0',
@@ -331,134 +278,127 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
             e.target.style.borderColor = '#f0f0f0';
           }}
         />
-      </SearchInputWrapper>
+      </PuiBox>
 
-      <ConversationListContainer>
-        {sortedConversations.length === 0 && newContacts.length === 0 ? (
-          <EmptyState>
-            <PuiTypography variant="body-m-regular">
-              {searchQuery ? 'No results found' : 'No conversations or contacts available'}
-            </PuiTypography>
-          </EmptyState>
-        ) : (
-          <>
-            {sortedConversations
-              .filter((conv) => conv != null && conv.id)
-              .map((conversation) => {
-                const otherParticipants = (conversation.participants || []).filter((id) => id && id !== currentUserId);
-                const isSelected = selectedConversationIds.includes(conversation.id);
-
-                // Get display info
-                let displayName = conversation.title || 'Untitled';
-                let avatarUrl: string | null = null;
-                let avatarColor = conversation.avatarColor || '#A8D0FF';
-
-                if (conversation.type === 'direct' && otherParticipants.length > 0) {
-                  const contactId = otherParticipants[0];
-                  const contact = contacts.find((c) => c && c.id === contactId);
-                  if (contact && contact.id) {
-                    displayName = contact.displayName || contact.email || 'Unknown';
-                    avatarUrl = contact.avatarUrl ?? null;
-                    avatarColor = contact.avatarColor ?? avatarColor;
-                  }
-                } else if (conversation.type === 'group') {
-                  avatarUrl = conversation.avatarUrl ?? null;
-                }
+      <PuiBox
+        sx={{
+          flexGrow: 1,
+          paddingBottom: '8px',
+          overflowY: 'auto',
+          paddingLeft: '32px',
+          paddingRight: '32px',
+        }}
+        className="scrollbar-hover"
+      >
+        {filteredContactsFromConversations.length > 0 ? (
+          <PuiBox sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {filteredContactsFromConversations.map((contact) => {
+              const isSelected = selectedConversationIds.includes(contact.id);
+              const displayName =
+                contact.displayName ?? contact.email ?? 'Unknown User';
 
               return (
-                <ConversationListItem
-                  key={conversation.id}
-                  onClick={() => handleToggleConversation(conversation.id)}
+                <PuiBox
+                  key={contact.id}
+                  onClick={() => handleToggleContact(contact.id)}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    minHeight: '56px',
+                    '&:hover': {
+                      backgroundColor: '#f6f8ff',
+                    },
+                  }}
                 >
-                  <ConversationInfo>
-                    <PuiAvatar
-                      contact={{
-                        id: conversation.id,
-                        name: displayName,
-                        email: '',
-                        avatarUrl: avatarUrl || undefined,
-                      }}
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        bgcolor: avatarColor,
-                      }}
+                  <PuiBox
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      flex: 1,
+                      minWidth: 0,
+                    }}
+                  >
+                    <Avatar
+                      avatarUrl={contact.avatarUrl ?? null}
+                      name={displayName}
+                      avatarColor={contact.avatarColor ?? '#A8D0FF'}
+                      size={40}
                     />
-                    <PuiStack spacing="2px" sx={{ flex: 1, minWidth: 0 }}>
-                      <PuiTypography variant="body-m-semibold" noWrap>
-                        {displayName}
-                      </PuiTypography>
-                      {conversation.type === 'group' && (
-                        <PuiTypography variant="body-s-regular" color="textSecondary">
-                          {conversation.participants.length} members
-                        </PuiTypography>
-                      )}
-                    </PuiStack>
-                  </ConversationInfo>
-                  <PuiSwitch checked={isSelected} />
-                </ConversationListItem>
+                    <PuiTypography
+                      variant="body-m-medium"
+                      sx={{
+                        fontSize: '14px',
+                        fontFamily: "'Poppins', 'Inter', sans-serif",
+                        color: '#272727',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {displayName}
+                    </PuiTypography>
+                  </PuiBox>
+                  <StyledToggle checked={isSelected} />
+                </PuiBox>
               );
             })}
-
-            {newContacts
-              .filter((contact) => contact != null && contact.id)
-              .map((contact) => {
-                if (!contact || !contact.id) return null;
-                const isSelected = selectedConversationIds.includes(contact.id);
-                const avatarUrl = contact.avatarUrl ?? null;
-                const avatarColor = contact.avatarColor ?? '#A8D0FF';
-                const displayName = contact.displayName || 'Unknown User';
-                const email = contact.email || '';
-                
-                return (
-                  <ConversationListItem
-                    key={contact.id}
-                    onClick={() => handleToggleContact(contact.id)}
-                  >
-                    <ConversationInfo>
-                      <PuiAvatar
-                        contact={{
-                          id: contact.id,
-                          name: displayName,
-                          email: email || undefined,
-                          avatarUrl: avatarUrl || undefined,
-                        }}
-                        sx={{
-                          width: 40,
-                          height: 40,
-                          bgcolor: avatarColor,
-                        }}
-                      />
-                    <PuiStack spacing="2px" sx={{ flex: 1, minWidth: 0 }}>
-                      <PuiTypography variant="body-m-semibold" noWrap>
-                        {displayName}
-                      </PuiTypography>
-                      {email && (
-                        <PuiTypography variant="body-s-regular" color="textSecondary">
-                          {email}
-                        </PuiTypography>
-                      )}
-                    </PuiStack>
-                  </ConversationInfo>
-                  <PuiSwitch checked={isSelected} />
-                </ConversationListItem>
-              );
-              })
-              .filter((item) => item != null)}
-          </>
+          </PuiBox>
+        ) : (
+          <PuiTypography
+            variant="body-sm-medium"
+            sx={{
+              textAlign: 'center',
+              color: '#939393',
+              padding: '24px',
+              fontSize: '13px',
+              fontFamily: "'Poppins', 'Inter', sans-serif",
+            }}
+          >
+            {searchQuery.trim() ? 'No contacts found' : 'No contacts available'}
+          </PuiTypography>
         )}
-      </ConversationListContainer>
+      </PuiBox>
 
       {replyData && (
-        <MessagePreviewWrapper>
-          <PuiTypography variant="body-sm-medium" sx={{ marginBottom: '8px' }}>
+        <PuiBox
+          sx={{
+            padding: '4px 32px 4px 32px',
+          }}
+        >
+          <PuiTypography
+            variant="body-sm-medium"
+            sx={{
+              marginBottom: '8px',
+              fontSize: '13px',
+              fontFamily: "'Poppins', 'Inter', sans-serif",
+              color: '#272727',
+            }}
+          >
             Message Preview:
           </PuiTypography>
-          <Reply replyTo={replyData} />
-        </MessagePreviewWrapper>
+          <PuiBox
+            sx={{
+              padding: '8px 12px',
+              backgroundColor: '#f6f8ff',
+              borderRadius: '8px',
+            }}
+          >
+            <Reply replyTo={replyData} />
+          </PuiBox>
+        </PuiBox>
       )}
 
-      <ForwardInputWrapper>
+      <PuiBox
+        sx={{
+          padding: '0 32px 16px 32px',
+          position: 'relative',
+          zIndex: 10,
+        }}
+      >
         <textarea
           placeholder="Add a comment (optional)..."
           value={forwardText}
@@ -499,7 +439,7 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
             e.target.style.borderColor = '#f0f0f0';
           }}
         />
-      </ForwardInputWrapper>
+      </PuiBox>
 
       <StyledButtonWrapper>
         <PuiLoadingButton
