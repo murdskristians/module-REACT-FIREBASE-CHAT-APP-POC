@@ -1,4 +1,4 @@
-import { PuiBox, PuiIcon, PuiSvgIcon, useTheme } from 'piche.ui';
+import { PuiBox, PuiIcon, PuiSvgIcon, PuiTypography, useTheme } from 'piche.ui';
 import { FormEvent, useState } from 'react';
 
 import type { MessageReply } from '../../../firebase/conversations';
@@ -10,15 +10,26 @@ import { StyledConversationInput, StyledInputBox, StyledInputWrapper } from './S
 import { VoiceInput } from './VoiceInput';
 import { FilesInputArea, FilePreviewItem } from './file-preview/FilesInputArea';
 
+interface PendingAudio {
+  id: string;
+  blob: Blob;
+  duration: number;
+  volumeLevels: number[];
+  url: string;
+}
+
 interface ConversationInputProps {
   conversationTitle: string;
   composerValue: string;
   setComposerValue: (value: string) => void;
   pendingFiles: FilePreviewItem[];
   setPendingFiles: (files: FilePreviewItem[]) => void;
+  pendingAudio?: PendingAudio | null;
+  onRecordingComplete?: (audioBlob: Blob, duration: number, volumeLevels: number[]) => void;
+  onRemoveAudio?: () => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>;
   isSending: boolean;
-  onSendMessage: (payload: { text: string; files?: File[] }) => Promise<void>;
+  onSendMessage: (payload: { text: string; files?: File[]; audio?: { blob: Blob; duration: number; volumeLevels: number[] } }) => Promise<void>;
   replyTo?: MessageReply | null;
   onReplyToChange?: (replyTo: MessageReply | null) => void;
 }
@@ -29,6 +40,9 @@ export function ConversationInput({
   setComposerValue,
   pendingFiles,
   setPendingFiles,
+  pendingAudio,
+  onRecordingComplete,
+  onRemoveAudio,
   onSubmit,
   isSending,
   onSendMessage,
@@ -61,13 +75,31 @@ export function ConversationInput({
     setPendingFiles([...pendingFiles, newFile]);
   };
 
+  const handleRemoveAudio = () => {
+    if (onRemoveAudio) {
+      onRemoveAudio();
+    }
+  };
+
+  const formatDuration = (ms: number): string => {
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   const handleSend = async () => {
     const text = composerValue.trim();
-    if (!text && pendingFiles.length === 0) return;
+    if (!text && pendingFiles.length === 0 && !pendingAudio) return;
     const files = pendingFiles.map(f => f.file);
-    await onSendMessage({ text, files: files.length > 0 ? files : undefined });
+    await onSendMessage({ 
+      text, 
+      files: files.length > 0 ? files : undefined,
+      audio: pendingAudio ? { blob: pendingAudio.blob, duration: pendingAudio.duration, volumeLevels: pendingAudio.volumeLevels } : undefined,
+    });
     setComposerValue('');
     setPendingFiles([]);
+    // Audio cleanup is handled by parent component
   };
 
   return (
@@ -111,6 +143,58 @@ export function ConversationInput({
           )}
         </PuiBox>
       )}
+      {pendingAudio && (
+        <PuiBox
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 12px',
+            borderRadius: '8px',
+            background: theme.palette.grey[50],
+            marginBottom: '8px',
+            position: 'relative',
+          }}
+        >
+          <PuiBox
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              flex: 1,
+            }}
+          >
+            <PuiSvgIcon
+              icon={PuiIcon.PlayFilled}
+              width={20}
+              height={20}
+              stroke={theme.palette.primary.main}
+            />
+            <PuiTypography variant="body-sm-regular" sx={{ fontSize: '13px' }}>
+              Voice message {formatDuration(pendingAudio.duration)}
+            </PuiTypography>
+          </PuiBox>
+          <PuiBox
+            onClick={handleRemoveAudio}
+            sx={{
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '20px',
+              height: '20px',
+              flexShrink: 0,
+            }}
+          >
+            <PuiSvgIcon
+              icon={PuiIcon.XClose}
+              width={16}
+              height={16}
+              stroke={theme.palette.grey[300]}
+            />
+          </PuiBox>
+        </PuiBox>
+      )}
       <FilesInputArea files={pendingFiles} onRemoveFile={handleRemoveFile}>
         <StyledConversationInput
           className={isInputActive ? 'active' : ''}
@@ -138,8 +222,8 @@ export function ConversationInput({
                 color: '#272727',
               }}
             />
-            <VoiceInput />
-            {(composerValue.trim() || pendingFiles.length > 0) && (
+            <VoiceInput onRecordingComplete={onRecordingComplete} />
+            {(composerValue.trim() || pendingFiles.length > 0 || pendingAudio) && (
               <>
                 <div
                   style={{

@@ -65,7 +65,10 @@ export type ConversationMessage = {
   text?: string | null;
   imageUrl?: string | null;
   fileUrls?: string[] | null;
-  type: 'text' | 'image' | 'file';
+  audioUrl?: string | null;
+  audioDuration?: number | null;
+  audioVolumeLevels?: number[] | null;
+  type: 'text' | 'image' | 'file' | 'audio';
   createdAt?: firebase.firestore.Timestamp | null;
   isPinned?: boolean;
   pinnedBy?: string | null;
@@ -132,6 +135,9 @@ export function subscribeToConversationMessages(
           text: data.text ?? null,
           imageUrl: data.imageUrl ?? null,
           fileUrls: data.fileUrls ?? null,
+          audioUrl: data.audioUrl ?? null,
+          audioDuration: data.audioDuration ?? null,
+          audioVolumeLevels: data.audioVolumeLevels ?? null,
           type: data.type ?? 'text',
           createdAt: data.createdAt ?? null,
           isPinned: data.isPinned ?? false,
@@ -178,6 +184,7 @@ type SendMessageOptions = {
   text?: string;
   file?: File | null;
   files?: File[];
+  audio?: { blob: Blob; duration: number; volumeLevels: number[] };
   replyTo?: MessageReply | null;
   forwardedFrom?: MessageForward | null;
 };
@@ -191,6 +198,7 @@ export async function sendMessage({
   text,
   file,
   files,
+  audio,
   replyTo,
   forwardedFrom,
 }: SendMessageOptions): Promise<void> {
@@ -201,7 +209,8 @@ export async function sendMessage({
 
   let uploadedImageUrl: string | undefined;
   let uploadedFileUrls: string[] = [];
-  let messageType: 'text' | 'image' | 'file' = 'text';
+  let uploadedAudioUrl: string | undefined;
+  let messageType: 'text' | 'image' | 'file' | 'audio' = 'text';
 
   // Support legacy single file parameter
   const filesToUpload = files || (file ? [file] : []);
@@ -222,6 +231,13 @@ export async function sendMessage({
     }
   }
 
+  // Upload audio if present
+  if (audio) {
+    const audioFile = new File([audio.blob], `voice-${Date.now()}.webm`, { type: 'audio/webm' });
+    uploadedAudioUrl = await uploadConversationAttachment(conversationId, messageRef.id, audioFile);
+    messageType = 'audio';
+  }
+
   const trimmedText = text?.trim();
 
   await messageRef.set({
@@ -232,6 +248,9 @@ export async function sendMessage({
     text: trimmedText ?? null,
     imageUrl: uploadedImageUrl ?? null,
     fileUrls: uploadedFileUrls.length > 0 ? uploadedFileUrls : null,
+    audioUrl: uploadedAudioUrl ?? null,
+    audioDuration: audio?.duration ?? null,
+    audioVolumeLevels: audio?.volumeLevels ?? null,
     type: messageType,
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     replyTo: replyTo ? {

@@ -511,10 +511,12 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
   const handleSendMessage = async ({
     text,
     files,
+    audio,
     replyTo,
   }: {
     text: string;
     files?: File[];
+    audio?: { blob: Blob; duration: number; volumeLevels: number[] };
     replyTo?: MessageReply | null;
   }) => {
     if (isSending) {
@@ -584,7 +586,7 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
       return;
     }
 
-    if (!text.trim() && (!files || files.length === 0)) {
+    if (!text.trim() && (!files || files.length === 0) && !audio) {
       return;
     }
 
@@ -604,6 +606,7 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
         senderAvatarColor: userProfile?.avatarColor ?? '#A8D0FF',
         text,
         files,
+        audio,
         replyTo,
       });
     } catch {
