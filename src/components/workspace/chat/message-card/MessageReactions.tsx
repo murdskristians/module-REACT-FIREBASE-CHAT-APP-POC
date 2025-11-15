@@ -1,5 +1,5 @@
 import { Emoji } from 'emoji-picker-react';
-import { PuiBox, PuiTypography, useTheme } from 'piche.ui';
+import { PuiTypography, useTheme } from 'piche.ui';
 import type { FC } from 'react';
 
 import type { MessageReaction } from '../../../../firebase/conversations';
