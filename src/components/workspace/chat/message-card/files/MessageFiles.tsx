@@ -25,11 +25,10 @@ const isImageFile = (url: string, fileName?: string): boolean => {
 };
 
 export const MessageFiles: FC<MessageFilesProps> = ({ message, onFileClick }) => {
-  const fileUrls = message.fileUrls || [];
-  const imageUrl = message.imageUrl;
-
   // Combine imageUrl (legacy) and fileUrls
   const allFiles = useMemo(() => {
+    const fileUrls = message.fileUrls || [];
+    const imageUrl = message.imageUrl;
     const files: Array<{ url: string; name: string; isImage: boolean }> = [];
     
     // Add legacy imageUrl if exists and not in fileUrls
@@ -48,7 +47,7 @@ export const MessageFiles: FC<MessageFilesProps> = ({ message, onFileClick }) =>
     });
     
     return files;
-  }, [fileUrls, imageUrl]);
+  }, [message.fileUrls, message.imageUrl]);
 
   if (allFiles.length === 0) {
     return null;

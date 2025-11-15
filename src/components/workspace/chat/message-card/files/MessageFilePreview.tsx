@@ -1,5 +1,5 @@
 import { PuiBox, PuiIcon, PuiSvgIcon, PuiStack, PuiTypography, useTheme } from 'piche.ui';
-import { FC, useMemo } from 'react';
+import { FC } from 'react';
 
 interface MessageFilePreviewProps {
   fileUrl: string;
@@ -7,26 +7,8 @@ interface MessageFilePreviewProps {
   onClick?: () => void;
 }
 
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-};
-
-const getFileTypeFromName = (fileName: string): 'image' | 'pdf' | 'doc' | 'video' | 'general' => {
-  const lowerName = fileName.toLowerCase();
-  if (lowerName.match(/\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)$/)) return 'image';
-  if (lowerName.match(/\.(pdf)$/)) return 'pdf';
-  if (lowerName.match(/\.(doc|docx)$/)) return 'doc';
-  if (lowerName.match(/\.(mp4|webm|ogg|mov)$/)) return 'video';
-  return 'general';
-};
-
 export const MessageFilePreview: FC<MessageFilePreviewProps> = ({ fileUrl, fileName, onClick }) => {
   const theme = useTheme();
-  const fileType = useMemo(() => getFileTypeFromName(fileName), [fileName]);
 
   const handleClick = () => {
     if (onClick) {
