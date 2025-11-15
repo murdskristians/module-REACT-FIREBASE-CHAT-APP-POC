@@ -1,11 +1,21 @@
 import { PuiDivider, PuiFade, PuiIcon, PuiStack } from 'piche.ui';
-import type { FC, MouseEvent } from 'react';
+import type { FC } from 'react';
 import React, { useState } from 'react';
 
+import {
+  useNotification,
+  NotificationType,
+} from '../../../notifications/NotificationProvider';
+import { deleteMessage } from '../../../../firebase/conversations';
+import { getCurrentUser } from '../../../../firebase/auth';
 import { MessageReactionsWrapper } from './MessageReactionsWrapper';
 import { ConversationMessagePopupItem } from './ConversationMessagePopupItem';
 import { PopupChildren } from './PopupChildren';
-import { StyledMessagePopup, StyledMessagePopupList, StyledMessagePopupListWrapper } from './StyledComponents';
+import {
+  StyledMessagePopup,
+  StyledMessagePopupList,
+  StyledMessagePopupListWrapper,
+} from './StyledComponents';
 import type { MessagePopupItemType } from './types';
 
 interface ConversationMessagePopupProps {
@@ -13,37 +23,127 @@ interface ConversationMessagePopupProps {
   position: { top: number; left: number };
   anchorEl: null | HTMLDivElement;
   messageId: string;
+  messageText?: string | null;
+  conversationId: string;
+  senderId: string;
   onClose: () => void;
+  onMessageDeleted?: () => void;
   isOpenedFromRightClick: boolean;
 }
-
-// Mock popup options - no logic, matching the order from the photo: Reply, Pin, Copy text, Forward, Delete, Select
-const mockPopupOptions: MessagePopupItemType[] = [
-  { label: 'Reply', icon: PuiIcon.CornerUpRight, onClick: () => {} },
-  { label: 'Pin', icon: PuiIcon.Pin2, onClick: () => {} },
-  { label: 'Copy text', icon: PuiIcon.Copy, onClick: () => {} },
-  { label: 'Forward', icon: PuiIcon.FlipBackward, onClick: () => {} },
-  { label: 'Delete', icon: PuiIcon.Trash, onClick: () => {}, className: 'delete' },
-  { label: 'Select', icon: PuiIcon.CheckCircle, onClick: () => {} },
-];
 
 export const ConversationMessagePopup: FC<ConversationMessagePopupProps> = ({
   isOpened,
   position,
   anchorEl,
   messageId,
+  messageText,
+  conversationId,
+  senderId,
   onClose,
+  onMessageDeleted,
   isOpenedFromRightClick,
 }) => {
-  const [activeOption, setActiveOption] = useState<MessagePopupItemType | null>(null);
+  const [activeOption, setActiveOption] = useState<MessagePopupItemType | null>(
+    null
+  );
+  const { showNotification } = useNotification();
+  const currentUser = getCurrentUser();
+  const isUserMessage = currentUser?.uid === senderId;
 
-  const handleClose = (e: MouseEvent<HTMLElement>) => {
+  const handleCopyText = async () => {
+    if (messageText) {
+      try {
+        await navigator.clipboard.writeText(messageText);
+        showNotification({
+          message: 'Text copied to clipboard',
+          type: NotificationType.Info,
+        });
+        onClose();
+      } catch (error) {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = messageText;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          showNotification({
+            message: 'Text copied to clipboard',
+            type: NotificationType.Info,
+          });
+          onClose();
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.error('Failed to copy text:', err);
+          showNotification({
+            message: 'Failed to copy text',
+            type: NotificationType.Error,
+          });
+        }
+        document.body.removeChild(textArea);
+      }
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!currentUser) {
+      showNotification({
+        message: 'You must be logged in to delete messages',
+        type: NotificationType.Error,
+      });
+      return;
+    }
+
+    try {
+      await deleteMessage(conversationId, messageId, currentUser.uid);
+      showNotification({
+        message: 'Message deleted',
+        type: NotificationType.Success,
+      });
+      onMessageDeleted?.();
+      onClose();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to delete message:', error);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to delete message';
+      showNotification({
+        message: errorMessage,
+        type: NotificationType.Error,
+      });
+    }
+  };
+
+  const handleClose = () => {
     onClose();
   };
 
+  // Popup options with real functionality
+  const popupOptions: MessagePopupItemType[] = [
+    { label: 'Reply', icon: PuiIcon.CornerUpRight, onClick: () => {} },
+    { label: 'Pin', icon: PuiIcon.Pin2, onClick: () => {} },
+    {
+      label: 'Copy text',
+      icon: PuiIcon.Copy,
+      onClick: handleCopyText,
+      disabled: !messageText,
+    },
+    { label: 'Forward', icon: PuiIcon.FlipBackward, onClick: () => {} },
+    {
+      label: 'Delete',
+      icon: PuiIcon.Trash,
+      onClick: handleDelete,
+      className: 'delete',
+      disabled: !isUserMessage,
+    },
+    { label: 'Select', icon: PuiIcon.CheckCircle, onClick: () => {} },
+  ];
+
   return (
     <StyledMessagePopup
-      id='conversation-menu'
+      id="conversation-menu"
       elevation={0}
       anchorReference={isOpenedFromRightClick ? 'anchorPosition' : 'anchorEl'}
       anchorPosition={position}
@@ -62,7 +162,7 @@ export const ConversationMessagePopup: FC<ConversationMessagePopupProps> = ({
       onTransitionExited={() => setActiveOption(null)}
       aria-hidden={false}
     >
-      <PuiStack gap='4px'>
+      <PuiStack gap="4px">
         <MessageReactionsWrapper
           messageId={messageId}
           handleClose={handleClose}
@@ -75,8 +175,10 @@ export const ConversationMessagePopup: FC<ConversationMessagePopupProps> = ({
             />
           ) : (
             <StyledMessagePopupList>
-              {mockPopupOptions.map((item, index) => {
-                const handleClick = item.children ? () => setActiveOption(item) : item.onClick;
+              {popupOptions.map((item, index) => {
+                const handleClick = item.children
+                  ? () => setActiveOption(item)
+                  : item.onClick ?? (() => {});
 
                 return (
                   <React.Fragment key={item.label}>
@@ -84,7 +186,9 @@ export const ConversationMessagePopup: FC<ConversationMessagePopupProps> = ({
                       option={item}
                       onClick={handleClick}
                     />
-                    {index === mockPopupOptions.length - 2 && <PuiDivider sx={{ margin: '6px 0' }} />}
+                    {index === popupOptions.length - 2 && (
+                      <PuiDivider sx={{ margin: '6px 0' }} />
+                    )}
                   </React.Fragment>
                 );
               })}
@@ -95,4 +199,3 @@ export const ConversationMessagePopup: FC<ConversationMessagePopupProps> = ({
     </StyledMessagePopup>
   );
 };
-

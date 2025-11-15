@@ -11,7 +11,7 @@ export const PersonalDataItem = ({ title, value }: PersonalDataItemProps) => {
   return (
     <PuiBox sx={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
       <PuiTypography
-        variant='body-xxs-medium'
+        variant="body-xs-medium"
         sx={{
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
@@ -21,7 +21,10 @@ export const PersonalDataItem = ({ title, value }: PersonalDataItemProps) => {
       >
         {title}
       </PuiTypography>
-      <PuiTypography variant='body-sm-medium' sx={{ color: '#20243B', fontSize: '14px' }}>
+      <PuiTypography
+        variant="body-sm-medium"
+        sx={{ color: '#20243B', fontSize: '14px' }}
+      >
         {displayValue}
       </PuiTypography>
     </PuiBox>

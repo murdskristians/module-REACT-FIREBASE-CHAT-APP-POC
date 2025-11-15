@@ -12,6 +12,8 @@ interface MessageListProps {
   contactsMap: Map<string, Contact>;
   conversationAvatarColor?: string | null;
   counterpartId?: string;
+  conversationId: string;
+  onMessageDeleted?: () => void;
 }
 
 export const MessageList: FC<MessageListProps> = ({
@@ -21,6 +23,8 @@ export const MessageList: FC<MessageListProps> = ({
   contactsMap,
   conversationAvatarColor,
   counterpartId,
+  conversationId,
+  onMessageDeleted,
 }) => {
   const listRef = useRef<HTMLDivElement | null>(null);
 
@@ -45,9 +49,8 @@ export const MessageList: FC<MessageListProps> = ({
       <PuiStack
         sx={{
           width: '100%',
-          maxWidth: '1040px',
-          margin: 'auto',
           gap: '4px',
+          padding: '0 32px',
         }}
       >
         {messages.length === 0 ? (
@@ -104,6 +107,8 @@ export const MessageList: FC<MessageListProps> = ({
                 senderAvatar={!isUserMessage ? senderProfile?.avatarUrl : undefined}
                 senderAvatarColor={!isUserMessage ? avatarColor : undefined}
                 isGroup={isGroup}
+                conversationId={conversationId}
+                onMessageDeleted={onMessageDeleted}
               />
             );
           })

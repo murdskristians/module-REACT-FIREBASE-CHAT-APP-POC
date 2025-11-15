@@ -130,6 +130,10 @@ export function ChatView({
             contactsMap={contactsMap}
             conversationAvatarColor={displayConversation.displayAvatarColor}
             counterpartId={displayConversation.counterpartId}
+            conversationId={displayConversation.id}
+            onMessageDeleted={() => {
+              // Messages will automatically update via Firestore subscription
+            }}
           />
         )}
       </MessagesContainer>

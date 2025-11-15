@@ -5,6 +5,7 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import ResetPassword from './pages/auth/ResetPassword';
 import { Workspace } from './components/workspace/Workspace';
+import { NotificationProvider } from './components/notifications/NotificationProvider';
 
 import './App.css';
 
@@ -46,8 +47,9 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
+    <NotificationProvider>
+      <BrowserRouter>
+        <Routes>
         {/* Auth routes */}
         <Route
           path="/auth/login"
@@ -69,6 +71,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
+    </NotificationProvider>
   );
 }
 

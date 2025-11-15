@@ -334,3 +334,74 @@ export async function createGroupConversation({
   return conversationRef.id;
 }
 
+export async function deleteMessage(
+  conversationId: string,
+  messageId: string,
+  currentUserId: string
+): Promise<void> {
+  const conversationRef = db.collection(CONVERSATIONS_COLLECTION).doc(conversationId);
+  const messageRef = conversationRef.collection(MESSAGES_SUBCOLLECTION).doc(messageId);
+
+  // Get the message before deleting to check if it's the last message
+  const messageDoc = await messageRef.get();
+  const messageData = messageDoc.data();
+
+  // Check if message exists
+  if (!messageDoc.exists || !messageData) {
+    throw new Error('Message not found');
+  }
+
+  // Check if current user is the sender of the message
+  if (messageData.senderId !== currentUserId) {
+    throw new Error('You can only delete your own messages');
+  }
+
+  // Delete the message
+  await messageRef.delete();
+
+  // Check if the deleted message was the last message
+  if (messageData) {
+    const conversationDoc = await conversationRef.get();
+    const conversationData = conversationDoc.data();
+    const lastMessage = conversationData?.lastMessage;
+
+    // If the deleted message matches the last message, update lastMessage
+    if (
+      lastMessage &&
+      lastMessage.senderId === messageData.senderId &&
+      lastMessage.text === messageData.text &&
+      lastMessage.imageUrl === messageData.imageUrl
+    ) {
+      // Get the new last message
+      const messagesSnapshot = await conversationRef
+        .collection(MESSAGES_SUBCOLLECTION)
+        .orderBy('createdAt', 'desc')
+        .limit(1)
+        .get();
+
+      if (messagesSnapshot.empty) {
+        // No messages left, set lastMessage to null
+        await conversationRef.update({
+          lastMessage: null,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+      } else {
+        // Update lastMessage to the new last message
+        const newLastMessageDoc = messagesSnapshot.docs[0];
+        const newLastMessageData = newLastMessageDoc.data();
+        await conversationRef.update({
+          lastMessage: {
+            senderId: newLastMessageData.senderId,
+            senderName: newLastMessageData.senderName ?? null,
+            text: newLastMessageData.text ?? null,
+            imageUrl: newLastMessageData.imageUrl ?? null,
+            type: newLastMessageData.type ?? 'text',
+            createdAt: newLastMessageData.createdAt ?? null,
+          },
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+      }
+    }
+  }
+}
+
