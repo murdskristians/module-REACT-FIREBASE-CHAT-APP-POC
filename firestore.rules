@@ -23,7 +23,14 @@ service cloud.firestore {
       let changedKeys = request.resource.data.diff(resource.data).affectedKeys();
       // Check that critical fields are not being changed
       // Only pin-related fields (isPinned, pinnedBy, pinnedAt) should be allowed
-      return !changedKeys.hasAny(['senderId', 'senderName', 'senderAvatarUrl', 'senderAvatarColor', 'text', 'imageUrl', 'type', 'createdAt']);
+      return !changedKeys.hasAny(['senderId', 'senderName', 'senderAvatarUrl', 'senderAvatarColor', 'text', 'imageUrl', 'type', 'createdAt', 'reactions']);
+    }
+
+    // Helper function to check if only reactions field is being updated
+    function isOnlyReactionsUpdate() {
+      let changedKeys = request.resource.data.diff(resource.data).affectedKeys();
+      // Check that only reactions field is being changed
+      return changedKeys.hasOnly(['reactions']) || (changedKeys.hasAny(['reactions']) && changedKeys.size() == 1);
     }
 
     // Users collection
@@ -45,9 +52,11 @@ service cloud.firestore {
         allow create: if isAuthenticated();
         // Allow update if:
         // 1. User is updating only pin fields AND is a conversation participant, OR
-        // 2. User is the sender of the message (can update any fields)
+        // 2. User is updating only reactions field AND is a conversation participant, OR
+        // 3. User is the sender of the message (can update any fields)
         allow update: if isAuthenticated() && (
           (isOnlyPinFieldsUpdate() && isConversationParticipant(conversationId)) ||
+          (isOnlyReactionsUpdate() && isConversationParticipant(conversationId)) ||
           request.auth.uid == resource.data.senderId
         );
         // Allow delete only if user is the sender

@@ -3,8 +3,10 @@ import type { FC, MouseEvent } from 'react';
 import { useRef, useState } from 'react';
 
 import type { ConversationMessage } from '../../../firebase/conversations';
+import { getCurrentUser } from '../../../firebase/auth';
 import { Avatar } from '../shared/Avatar';
 import { ConversationMessagePopup } from './message-card/ConversationMessagePopup';
+import { MessageReactions } from './message-card/MessageReactions';
 import {
   StyledConversationMessageContent,
   StyledConversationMessageWrapper,
@@ -144,6 +146,15 @@ export const MessageCard: FC<MessageCardProps> = ({
               )}
 
               <TextMessage message={message} time={time} isUserMessage={isUserMessage} />
+              {message.reactions && message.reactions.length > 0 && (
+                <MessageReactions
+                  reactions={message.reactions}
+                  messageId={message.id}
+                  conversationId={conversationId}
+                  isUserMessage={isUserMessage}
+                  currentUserId={getCurrentUser()?.uid || ''}
+                />
+              )}
             </PuiStack>
             <StyledIconWrapper
               className="message-dots-menu"
