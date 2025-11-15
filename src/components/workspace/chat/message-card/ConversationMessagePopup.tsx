@@ -6,8 +6,9 @@ import {
   useNotification,
   NotificationType,
 } from '../../../notifications/NotificationProvider';
-import { deleteMessage } from '../../../../firebase/conversations';
+import { deleteMessage, pinMessage, unpinMessage } from '../../../../firebase/conversations';
 import { getCurrentUser } from '../../../../firebase/auth';
+import type { ConversationMessage } from '../../../../firebase/conversations';
 import { MessageReactionsWrapper } from './MessageReactionsWrapper';
 import { ConversationMessagePopupItem } from './ConversationMessagePopupItem';
 import { PopupChildren } from './PopupChildren';
@@ -26,6 +27,7 @@ interface ConversationMessagePopupProps {
   messageText?: string | null;
   conversationId: string;
   senderId: string;
+  message?: ConversationMessage;
   onClose: () => void;
   onMessageDeleted?: () => void;
   isOpenedFromRightClick: boolean;
@@ -39,6 +41,7 @@ export const ConversationMessagePopup: FC<ConversationMessagePopupProps> = ({
   messageText,
   conversationId,
   senderId,
+  message,
   onClose,
   onMessageDeleted,
   isOpenedFromRightClick,
@@ -49,6 +52,7 @@ export const ConversationMessagePopup: FC<ConversationMessagePopupProps> = ({
   const { showNotification } = useNotification();
   const currentUser = getCurrentUser();
   const isUserMessage = currentUser?.uid === senderId;
+  const isPinned = message?.isPinned ?? false;
 
   const handleCopyText = async () => {
     if (messageText) {
@@ -116,6 +120,42 @@ export const ConversationMessagePopup: FC<ConversationMessagePopupProps> = ({
     }
   };
 
+  const handlePin = async () => {
+    if (!currentUser) {
+      showNotification({
+        message: 'You must be logged in to pin messages',
+        type: NotificationType.Error,
+      });
+      return;
+    }
+
+    try {
+      if (isPinned) {
+        await unpinMessage(conversationId, messageId, currentUser.uid);
+        showNotification({
+          message: 'Message unpinned',
+          type: NotificationType.Success,
+        });
+      } else {
+        await pinMessage(conversationId, messageId, currentUser.uid);
+        showNotification({
+          message: 'Message pinned',
+          type: NotificationType.Success,
+        });
+      }
+      onClose();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to pin/unpin message:', error);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to pin/unpin message';
+      showNotification({
+        message: errorMessage,
+        type: NotificationType.Error,
+      });
+    }
+  };
+
   const handleClose = () => {
     onClose();
   };
@@ -123,7 +163,11 @@ export const ConversationMessagePopup: FC<ConversationMessagePopupProps> = ({
   // Popup options with real functionality
   const popupOptions: MessagePopupItemType[] = [
     { label: 'Reply', icon: PuiIcon.CornerUpRight, onClick: () => {} },
-    { label: 'Pin', icon: PuiIcon.Pin2, onClick: () => {} },
+    {
+      label: isPinned ? 'Unpin' : 'Pin',
+      icon: PuiIcon.Pin2,
+      onClick: handlePin,
+    },
     {
       label: 'Copy text',
       icon: PuiIcon.Copy,

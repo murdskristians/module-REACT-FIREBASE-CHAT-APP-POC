@@ -68,10 +68,12 @@ export const MessageList: FC<MessageListProps> = ({
           messages.map((message, index) => {
             const prevMessage = messages[index - 1];
             const isUserMessage = message.senderId === currentUserId;
+            const messageTime = message.createdAt?.toMillis?.() ?? message.createdAt?.toDate?.()?.getTime() ?? 0;
+            const prevMessageTime = prevMessage?.createdAt?.toMillis?.() ?? prevMessage?.createdAt?.toDate?.()?.getTime() ?? 0;
             const sequenceStarted =
               !prevMessage ||
               prevMessage.senderId !== message.senderId ||
-              new Date(message.createdAt).getTime() - new Date(prevMessage.createdAt).getTime() >
+              messageTime - prevMessageTime >
                 5 * 60 * 1000; // 5 minutes
 
             const senderProfile = contactsMap.get(message.senderId);

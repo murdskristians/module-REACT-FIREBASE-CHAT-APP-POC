@@ -81,6 +81,7 @@ export const MessageCard: FC<MessageCardProps> = ({
       <StyledConversationMessageWrapper
         ref={wrapperRef}
         isUserMessage={isUserMessage}
+        data-message-id={message.id}
         sx={{
           marginTop: sequenceStarted ? '34px' : '0',
         }}
@@ -159,6 +160,7 @@ export const MessageCard: FC<MessageCardProps> = ({
         messageText={message.text}
         conversationId={conversationId}
         senderId={message.senderId}
+        message={message}
         onClose={handleCloseContextMenu}
         onMessageDeleted={onMessageDeleted}
         isOpenedFromRightClick={isOpenedFromRightClick}

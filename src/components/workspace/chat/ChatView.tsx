@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import type firebaseCompat from 'firebase/compat/app';
 
 import { PuiStack, PuiTypography } from 'piche.ui';
@@ -10,6 +10,7 @@ import { createViewConversationFromContact } from '../utils';
 import { ConversationInput } from './ConversationInput';
 import { ConversationTopBar } from './ConversationTopBar';
 import { MessageList } from './MessageList';
+import { PinnedMessages } from './PinnedMessages';
 import { ChatAreaWrapper, MessagesContainer } from './StyledComponents';
 
 type ChatViewProps = {
@@ -77,6 +78,15 @@ export function ChatView({
       ? createViewConversationFromContact(pendingUser, 'pending', user.uid)
       : null);
 
+  // Show empty state for pending conversations
+  const isPendingConversation = displayConversation?.id === 'pending';
+  const displayMessages = isPendingConversation ? [] : messages;
+
+  // All hooks must be called before any early return
+  const pinnedMessages = useMemo(() => {
+    return displayMessages.filter(msg => msg.isPinned);
+  }, [displayMessages]);
+
   if (!displayConversation) {
     return (
       <PuiStack
@@ -95,9 +105,13 @@ export function ChatView({
     );
   }
 
-  // Show empty state for pending conversations
-  const isPendingConversation = displayConversation.id === 'pending';
-  const displayMessages = isPendingConversation ? [] : messages;
+  const handlePinnedMessageClick = (messageId: string) => {
+    // Scroll to the pinned message
+    const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (messageElement) {
+      messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
 
   return (
     <ChatAreaWrapper>
@@ -105,8 +119,16 @@ export function ChatView({
         conversation={displayConversation}
         onContactClick={onContactClick}
       />
+      {!isPendingConversation && (
+        <PinnedMessages
+          messages={displayMessages}
+          contactsMap={contactsMap}
+          currentUserId={user.uid}
+          onMessageClick={handlePinnedMessageClick}
+        />
+      )}
 
-      <MessagesContainer>
+      <MessagesContainer sx={{ paddingTop: pinnedMessages.length > 0 ? '44px' : 0 }}>
         {isPendingConversation ? (
           <PuiStack
             height="100%"

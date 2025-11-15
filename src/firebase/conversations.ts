@@ -38,6 +38,9 @@ export type ConversationMessage = {
   imageUrl?: string | null;
   type: 'text' | 'image';
   createdAt?: firebase.firestore.Timestamp | null;
+  isPinned?: boolean;
+  pinnedBy?: string | null;
+  pinnedAt?: firebase.firestore.Timestamp | null;
 };
 
 export function subscribeToConversations(
@@ -84,7 +87,7 @@ export function subscribeToConversationMessages(
     .doc(conversationId)
     .collection(MESSAGES_SUBCOLLECTION)
     .orderBy('createdAt', 'asc')
-    .onSnapshot((snapshot) => {
+      .onSnapshot((snapshot) => {
       const messages = snapshot.docs.map((doc) => {
         const data = doc.data();
         return {
@@ -97,6 +100,9 @@ export function subscribeToConversationMessages(
           imageUrl: data.imageUrl ?? null,
           type: data.type ?? 'text',
           createdAt: data.createdAt ?? null,
+          isPinned: data.isPinned ?? false,
+          pinnedBy: data.pinnedBy ?? null,
+          pinnedAt: data.pinnedAt ?? null,
         } satisfies ConversationMessage;
       });
 
@@ -332,6 +338,51 @@ export async function createGroupConversation({
   });
 
   return conversationRef.id;
+}
+
+export async function pinMessage(
+  conversationId: string,
+  messageId: string,
+  currentUserId: string
+): Promise<void> {
+  const conversationRef = db.collection(CONVERSATIONS_COLLECTION).doc(conversationId);
+  const messageRef = conversationRef.collection(MESSAGES_SUBCOLLECTION).doc(messageId);
+
+  const messageDoc = await messageRef.get();
+  if (!messageDoc.exists) {
+    throw new Error('Message not found');
+  }
+
+  await messageRef.update({
+    isPinned: true,
+    pinnedBy: currentUserId,
+    pinnedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  });
+}
+
+export async function unpinMessage(
+  conversationId: string,
+  messageId: string,
+  currentUserId: string
+): Promise<void> {
+  const conversationRef = db.collection(CONVERSATIONS_COLLECTION).doc(conversationId);
+  const messageRef = conversationRef.collection(MESSAGES_SUBCOLLECTION).doc(messageId);
+
+  const messageDoc = await messageRef.get();
+  if (!messageDoc.exists) {
+    throw new Error('Message not found');
+  }
+
+  const messageData = messageDoc.data();
+  // Allow unpinning if user is the one who pinned it or if it's pinned by anyone (for simplicity)
+  // In a real app, you might want to check permissions here
+  if (messageData?.isPinned) {
+    await messageRef.update({
+      isPinned: false,
+      pinnedBy: null,
+      pinnedAt: null,
+    });
+  }
 }
 
 export async function deleteMessage(
