@@ -36,7 +36,10 @@ export function AddMedia({ onFileSelect }: AddMediaProps) {
       if (!files || files.length === 0) {
         return;
       }
-      onFileSelect(files[0]);
+      // Call onFileSelect for each file
+      Array.from(files).forEach(file => {
+        onFileSelect(file);
+      });
       e.target.value = '';
     },
     [onFileSelect]
@@ -82,7 +85,8 @@ export function AddMedia({ onFileSelect }: AddMediaProps) {
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar"
+        multiple
         style={{ display: 'none' }}
         onChange={handleFilesSelected}
       />

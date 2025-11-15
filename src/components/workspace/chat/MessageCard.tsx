@@ -15,6 +15,8 @@ import {
   StyledIconWrapper,
   StyledMessageCardWrapper,
 } from './message-card/StyledComponents';
+import { MessageFiles } from './message-card/files/MessageFiles';
+import { VoiceMessage } from './message-card/VoiceMessage';
 import { TextMessage } from './TextMessage';
 
 interface MessageCardProps {
@@ -191,16 +193,46 @@ export const MessageCard: FC<MessageCardProps> = ({
                 );
               })()}
 
-              <TextMessage 
-                message={message.forwardedFrom ? {
-                  ...message,
-                  text: message.forwardedFrom.originalText,
-                  imageUrl: message.forwardedFrom.originalImageUrl,
-                  type: message.forwardedFrom.originalType,
-                } : message} 
-                time={time} 
-                isUserMessage={isUserMessage} 
-              />
+              {/* Display audio message */}
+              {message.type === 'audio' && message.audioUrl && (
+                <VoiceMessage message={message} isUserMessage={isUserMessage} time={time} />
+              )}
+
+              {/* Display files/images before text */}
+              {message.type !== 'audio' && ((message.fileUrls && message.fileUrls.length > 0) || message.imageUrl) ? (
+                <MessageFiles 
+                  message={message}
+                  onFileClick={(url) => window.open(url, '_blank')}
+                />
+              ) : null}
+
+              {/* Only show text if there is text content */}
+              {message.text && (
+                <TextMessage 
+                  message={message.forwardedFrom ? {
+                    ...message,
+                    text: message.forwardedFrom.originalText,
+                    imageUrl: message.forwardedFrom.originalImageUrl,
+                    type: message.forwardedFrom.originalType,
+                  } : message} 
+                  time={time} 
+                  isUserMessage={isUserMessage} 
+                />
+              )}
+              
+              {/* Show time if there are files but no text */}
+              {(!message.text || message.text.trim() === '') && message.type !== 'audio' && ((message.fileUrls && message.fileUrls.length > 0) || message.imageUrl) && (
+                <PuiTypography 
+                  component="span"
+                  sx={{
+                    fontSize: '11px',
+                    color: '#939393',
+                    marginTop: '4px',
+                  }}
+                >
+                  {time}
+                </PuiTypography>
+              )}
               {message.reactions && message.reactions.length > 0 && (
                 <MessageReactions
                   reactions={message.reactions}

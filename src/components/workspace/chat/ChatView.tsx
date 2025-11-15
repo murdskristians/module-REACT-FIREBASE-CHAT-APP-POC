@@ -12,6 +12,7 @@ import { ConversationTopBar } from './ConversationTopBar';
 import { MessageList } from './MessageList';
 import { PinnedMessages } from './PinnedMessages';
 import { ChatAreaWrapper, MessagesContainer } from './StyledComponents';
+import type { FilePreviewItem } from './file-preview/FilesInputArea';
 
 type ChatViewProps = {
   user: firebaseCompat.User;
@@ -19,7 +20,8 @@ type ChatViewProps = {
   messages: ConversationMessage[];
   onSendMessage: (payload: {
     text: string;
-    file?: File | null;
+    files?: File[];
+    audio?: { blob: Blob; duration: number; volumeLevels: number[] };
     replyTo?: MessageReply | null;
   }) => Promise<void>;
   isSending: boolean;
@@ -31,6 +33,14 @@ type ChatViewProps = {
   onForwardMessage: (message: ConversationMessage, targetConversationIds: string[], forwardText?: string) => Promise<void>;
   onForward: (message: ConversationMessage) => void;
 };
+
+interface PendingAudio {
+  id: string;
+  blob: Blob;
+  duration: number;
+  volumeLevels: number[];
+  url: string;
+}
 
 export function ChatView({
   user,
@@ -47,14 +57,16 @@ export function ChatView({
   onForward,
 }: ChatViewProps) {
   const [composerValue, setComposerValue] = useState('');
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [pendingFiles, setPendingFiles] = useState<FilePreviewItem[]>([]);
+  const [pendingAudio, setPendingAudio] = useState<PendingAudio | null>(null);
   const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
   const [replyTo, setReplyTo] = useState<MessageReply | null>(null);
 
   useEffect(() => {
     if (!conversation) {
       setComposerValue('');
-      setPendingFile(null);
+      setPendingFiles([]);
+      setPendingAudio(null);
       setReplyTo(null);
     }
   }, [conversation]);
@@ -62,7 +74,8 @@ export function ChatView({
   useEffect(() => {
     if (!messages.length) {
       setComposerValue('');
-      setPendingFile(null);
+      setPendingFiles([]);
+      setPendingAudio(null);
     }
   }, [messages]);
 
@@ -74,15 +87,43 @@ export function ChatView({
     }
 
     const text = composerValue.trim();
-    if (!text && !pendingFile) {
+    if (!text && pendingFiles.length === 0 && !pendingAudio) {
       return;
     }
 
-    await onSendMessage({ text, file: pendingFile, replyTo });
+    const files = pendingFiles.map(f => f.file);
+    await onSendMessage({ 
+      text, 
+      files: files.length > 0 ? files : undefined,
+      audio: pendingAudio ? { blob: pendingAudio.blob, duration: pendingAudio.duration, volumeLevels: pendingAudio.volumeLevels } : undefined,
+      replyTo 
+    });
 
     setComposerValue('');
-    setPendingFile(null);
+    setPendingFiles([]);
+    if (pendingAudio) {
+      URL.revokeObjectURL(pendingAudio.url);
+      setPendingAudio(null);
+    }
     setReplyTo(null);
+  };
+
+  const handleRecordingComplete = (audioBlob: Blob, duration: number, volumeLevels: number[]) => {
+    const audioUrl = URL.createObjectURL(audioBlob);
+    setPendingAudio({
+      id: `${Date.now()}-${Math.random()}`,
+      blob: audioBlob,
+      duration,
+      volumeLevels,
+      url: audioUrl,
+    });
+  };
+
+  const handleRemoveAudio = () => {
+    if (pendingAudio) {
+      URL.revokeObjectURL(pendingAudio.url);
+      setPendingAudio(null);
+    }
   };
 
   const displayConversation: ViewConversation | null =
@@ -194,8 +235,12 @@ export function ChatView({
         conversationTitle={displayConversation.displayTitle}
         composerValue={composerValue}
         setComposerValue={setComposerValue}
-        pendingFile={pendingFile}
-        setPendingFile={setPendingFile}
+        pendingFiles={pendingFiles}
+        setPendingFiles={setPendingFiles}
+        pendingAudio={pendingAudio}
+        onRecordingComplete={handleRecordingComplete}
+        onRemoveAudio={handleRemoveAudio}
+        onAudioSent={handleRemoveAudio}
         onSubmit={handleSubmit}
         isSending={isSending}
         onSendMessage={onSendMessage}

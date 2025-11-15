@@ -209,7 +209,6 @@ export const ConversationMessagePopup: FC<ConversationMessagePopupProps> = ({
       className: 'delete',
       disabled: !isUserMessage,
     },
-    { label: 'Select', icon: PuiIcon.CheckCircle, onClick: () => {} },
   ];
 
   return (

@@ -64,7 +64,11 @@ export type ConversationMessage = {
   senderAvatarColor?: string | null;
   text?: string | null;
   imageUrl?: string | null;
-  type: 'text' | 'image';
+  fileUrls?: string[] | null;
+  audioUrl?: string | null;
+  audioDuration?: number | null;
+  audioVolumeLevels?: number[] | null;
+  type: 'text' | 'image' | 'file' | 'audio';
   createdAt?: firebase.firestore.Timestamp | null;
   isPinned?: boolean;
   pinnedBy?: string | null;
@@ -130,6 +134,10 @@ export function subscribeToConversationMessages(
           senderAvatarColor: data.senderAvatarColor ?? null,
           text: data.text ?? null,
           imageUrl: data.imageUrl ?? null,
+          fileUrls: data.fileUrls ?? null,
+          audioUrl: data.audioUrl ?? null,
+          audioDuration: data.audioDuration ?? null,
+          audioVolumeLevels: data.audioVolumeLevels ?? null,
           type: data.type ?? 'text',
           createdAt: data.createdAt ?? null,
           isPinned: data.isPinned ?? false,
@@ -175,6 +183,8 @@ type SendMessageOptions = {
   senderAvatarColor?: string | null;
   text?: string;
   file?: File | null;
+  files?: File[];
+  audio?: { blob: Blob; duration: number; volumeLevels: number[] };
   replyTo?: MessageReply | null;
   forwardedFrom?: MessageForward | null;
 };
@@ -187,6 +197,8 @@ export async function sendMessage({
   senderAvatarColor,
   text,
   file,
+  files,
+  audio,
   replyTo,
   forwardedFrom,
 }: SendMessageOptions): Promise<void> {
@@ -196,11 +208,34 @@ export async function sendMessage({
   const messageRef = messagesCollection.doc();
 
   let uploadedImageUrl: string | undefined;
-  let messageType: 'text' | 'image' = 'text';
+  let uploadedFileUrls: string[] = [];
+  let uploadedAudioUrl: string | undefined;
+  let messageType: 'text' | 'image' | 'file' | 'audio' = 'text';
 
-  if (file) {
-    uploadedImageUrl = await uploadConversationAttachment(conversationId, messageRef.id, file);
-    messageType = 'image';
+  // Support legacy single file parameter
+  const filesToUpload = files || (file ? [file] : []);
+
+  if (filesToUpload.length > 0) {
+    // Upload all files
+    uploadedFileUrls = await Promise.all(
+      filesToUpload.map(f => uploadConversationAttachment(conversationId, messageRef.id, f))
+    );
+    
+    // Determine message type based on first file
+    const firstFile = filesToUpload[0];
+    if (firstFile.type.startsWith('image/')) {
+      messageType = 'image';
+      uploadedImageUrl = uploadedFileUrls[0]; // For backward compatibility
+    } else {
+      messageType = 'file';
+    }
+  }
+
+  // Upload audio if present
+  if (audio) {
+    const audioFile = new File([audio.blob], `voice-${Date.now()}.webm`, { type: 'audio/webm' });
+    uploadedAudioUrl = await uploadConversationAttachment(conversationId, messageRef.id, audioFile);
+    messageType = 'audio';
   }
 
   const trimmedText = text?.trim();
@@ -212,6 +247,10 @@ export async function sendMessage({
     senderAvatarColor: senderAvatarColor ?? null,
     text: trimmedText ?? null,
     imageUrl: uploadedImageUrl ?? null,
+    fileUrls: uploadedFileUrls.length > 0 ? uploadedFileUrls : null,
+    audioUrl: uploadedAudioUrl ?? null,
+    audioDuration: audio?.duration ?? null,
+    audioVolumeLevels: audio?.volumeLevels ?? null,
     type: messageType,
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     replyTo: replyTo ? {

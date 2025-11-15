@@ -9,9 +9,17 @@ interface SendMessageProps {
 }
 
 export const SendMessage: FC<SendMessageProps> = ({ handleSend, disabled }) => {
+  const handleClick: MouseEventHandler = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!disabled) {
+      handleSend(e);
+    }
+  };
+
   return (
     <PuiBox
-      onClick={handleSend}
+      onClick={handleClick}
       className={clsx('chat-panel__composer-send', { disabled })}
     >
       {disabled ? <SendDisabled /> : <SendGradient />}
