@@ -8,7 +8,7 @@ import {
 } from '../../../notifications/NotificationProvider';
 import { deleteMessage, pinMessage, unpinMessage } from '../../../../firebase/conversations';
 import { getCurrentUser } from '../../../../firebase/auth';
-import type { ConversationMessage } from '../../../../firebase/conversations';
+import type { ConversationMessage, MessageReply } from '../../../../firebase/conversations';
 import { MessageReactionsWrapper } from './MessageReactionsWrapper';
 import { ConversationMessagePopupItem } from './ConversationMessagePopupItem';
 import { PopupChildren } from './PopupChildren';
@@ -31,6 +31,7 @@ interface ConversationMessagePopupProps {
   onClose: () => void;
   onMessageDeleted?: () => void;
   isOpenedFromRightClick: boolean;
+  onReply?: (replyTo: MessageReply) => void;
 }
 
 export const ConversationMessagePopup: FC<ConversationMessagePopupProps> = ({
@@ -45,6 +46,7 @@ export const ConversationMessagePopup: FC<ConversationMessagePopupProps> = ({
   onClose,
   onMessageDeleted,
   isOpenedFromRightClick,
+  onReply,
 }) => {
   const [activeOption, setActiveOption] = useState<MessagePopupItemType | null>(
     null
@@ -160,9 +162,25 @@ export const ConversationMessagePopup: FC<ConversationMessagePopupProps> = ({
     onClose();
   };
 
+  const handleReply = () => {
+    if (message && onReply) {
+      const replyTo: MessageReply = {
+        messageId: message.id,
+        senderId: message.senderId,
+        senderName: message.senderName ?? null,
+        text: message.text ?? null,
+        imageUrl: message.imageUrl ?? null,
+        type: message.type,
+        createdAt: message.createdAt ?? null,
+      };
+      onReply(replyTo);
+    }
+    onClose();
+  };
+
   // Popup options with real functionality
   const popupOptions: MessagePopupItemType[] = [
-    { label: 'Reply', icon: PuiIcon.CornerUpRight, onClick: () => {} },
+    { label: 'Reply', icon: PuiIcon.CornerUpRight, onClick: handleReply },
     {
       label: isPinned ? 'Unpin' : 'Pin',
       icon: PuiIcon.Pin2,

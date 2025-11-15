@@ -1,8 +1,10 @@
-import { PuiBox } from 'piche.ui';
+import { PuiBox, PuiIcon, PuiSvgIcon, useTheme } from 'piche.ui';
 import { FormEvent, useState } from 'react';
 
+import type { MessageReply } from '../../../firebase/conversations';
 import { AddMedia } from './AddMedia';
 import { EmojiList } from './EmojiList';
+import { Reply } from './message-card/reply/Reply';
 import { SendMessage } from './SendMessage';
 import { StyledConversationInput, StyledInputBox, StyledInputWrapper } from './StyledComponents';
 import { VoiceInput } from './VoiceInput';
@@ -16,6 +18,8 @@ interface ConversationInputProps {
   onSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>;
   isSending: boolean;
   onSendMessage: (payload: { text: string; file?: File | null }) => Promise<void>;
+  replyTo?: MessageReply | null;
+  onReplyToChange?: (replyTo: MessageReply | null) => void;
 }
 
 export function ConversationInput({
@@ -27,7 +31,10 @@ export function ConversationInput({
   onSubmit,
   isSending,
   onSendMessage,
+  replyTo,
+  onReplyToChange,
 }: ConversationInputProps) {
+  const theme = useTheme();
   const [isInputActive, setIsInputActive] = useState(false);
 
   const handleEmojiSelect = (emoji: string) => {
@@ -36,6 +43,45 @@ export function ConversationInput({
 
   return (
     <StyledInputWrapper>
+      {replyTo && (
+        <PuiBox
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: '#f6f8ff',
+            padding: '8px 12px',
+            borderRadius: '12px',
+            marginBottom: '8px',
+            position: 'relative',
+          }}
+        >
+          <PuiBox sx={{ flex: 1, minWidth: 0 }}>
+            <Reply replyTo={replyTo} />
+          </PuiBox>
+          {onReplyToChange && (
+            <PuiBox
+              onClick={() => onReplyToChange(null)}
+              sx={{
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '20px',
+                height: '20px',
+                flexShrink: 0,
+              }}
+            >
+              <PuiSvgIcon
+                icon={PuiIcon.XClose}
+                width={16}
+                height={16}
+                stroke={theme.palette.grey[300]}
+              />
+            </PuiBox>
+          )}
+        </PuiBox>
+      )}
       {pendingFile && (
         <PuiBox
           sx={{

@@ -1,7 +1,7 @@
 import { PuiBox, PuiStack } from 'piche.ui';
 import { FC, useEffect, useRef } from 'react';
 
-import type { ConversationMessage } from '../../../firebase/conversations';
+import type { ConversationMessage, MessageReply } from '../../../firebase/conversations';
 import type { Contact } from '../../../firebase/users';
 import { MessageCard } from './MessageCard';
 
@@ -15,6 +15,7 @@ interface MessageListProps {
   conversationId: string;
   highlightedMessageId?: string | null;
   onMessageDeleted?: () => void;
+  onReply?: (replyTo: MessageReply) => void;
 }
 
 export const MessageList: FC<MessageListProps> = ({
@@ -27,6 +28,7 @@ export const MessageList: FC<MessageListProps> = ({
   conversationId,
   highlightedMessageId,
   onMessageDeleted,
+  onReply,
 }) => {
   const listRef = useRef<HTMLDivElement | null>(null);
 
@@ -114,6 +116,7 @@ export const MessageList: FC<MessageListProps> = ({
                 conversationId={conversationId}
                 isHighlighted={highlightedMessageId === message.id}
                 onMessageDeleted={onMessageDeleted}
+                onReply={onReply}
               />
             );
           })

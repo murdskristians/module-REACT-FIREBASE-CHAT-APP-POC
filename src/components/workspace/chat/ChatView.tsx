@@ -3,7 +3,7 @@ import type firebaseCompat from 'firebase/compat/app';
 
 import { PuiStack, PuiTypography } from 'piche.ui';
 
-import type { ConversationMessage } from '../../../firebase/conversations';
+import type { ConversationMessage, MessageReply } from '../../../firebase/conversations';
 import type { Contact } from '../../../firebase/users';
 import type { ViewConversation } from '../Workspace';
 import { createViewConversationFromContact } from '../utils';
@@ -20,6 +20,7 @@ type ChatViewProps = {
   onSendMessage: (payload: {
     text: string;
     file?: File | null;
+    replyTo?: MessageReply | null;
   }) => Promise<void>;
   isSending: boolean;
   contactsMap: Map<string, Contact>;
@@ -40,11 +41,13 @@ export function ChatView({
   const [composerValue, setComposerValue] = useState('');
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
+  const [replyTo, setReplyTo] = useState<MessageReply | null>(null);
 
   useEffect(() => {
     if (!conversation) {
       setComposerValue('');
       setPendingFile(null);
+      setReplyTo(null);
     }
   }, [conversation]);
 
@@ -67,10 +70,11 @@ export function ChatView({
       return;
     }
 
-    await onSendMessage({ text, file: pendingFile });
+    await onSendMessage({ text, file: pendingFile, replyTo });
 
     setComposerValue('');
     setPendingFile(null);
+    setReplyTo(null);
   };
 
   const displayConversation: ViewConversation | null =
@@ -168,6 +172,7 @@ export function ChatView({
             onMessageDeleted={() => {
               // Messages will automatically update via Firestore subscription
             }}
+            onReply={setReplyTo}
           />
         )}
       </MessagesContainer>
@@ -181,6 +186,8 @@ export function ChatView({
         onSubmit={handleSubmit}
         isSending={isSending}
         onSendMessage={onSendMessage}
+        replyTo={replyTo}
+        onReplyToChange={setReplyTo}
       />
     </ChatAreaWrapper>
   );

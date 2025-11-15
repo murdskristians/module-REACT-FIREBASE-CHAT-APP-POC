@@ -2,11 +2,12 @@ import { PuiIcon, PuiStack, PuiTypography } from 'piche.ui';
 import type { FC, MouseEvent } from 'react';
 import { useRef, useState } from 'react';
 
-import type { ConversationMessage } from '../../../firebase/conversations';
+import type { ConversationMessage, MessageReply } from '../../../firebase/conversations';
 import { getCurrentUser } from '../../../firebase/auth';
 import { Avatar } from '../shared/Avatar';
 import { ConversationMessagePopup } from './message-card/ConversationMessagePopup';
 import { MessageReactions } from './message-card/MessageReactions';
+import { Reply } from './message-card/reply/Reply';
 import {
   StyledConversationMessageContent,
   StyledConversationMessageWrapper,
@@ -26,6 +27,7 @@ interface MessageCardProps {
   conversationId: string;
   isHighlighted?: boolean;
   onMessageDeleted?: () => void;
+  onReply?: (replyTo: MessageReply) => void;
 }
 
 const initialPositionState = { top: 0, left: 0 };
@@ -46,6 +48,7 @@ export const MessageCard: FC<MessageCardProps> = ({
   conversationId,
   isHighlighted = false,
   onMessageDeleted,
+  onReply,
 }) => {
   const [isContextMenuOpened, setIsContextMenuOpened] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState<{ top: number; left: number }>(initialPositionState);
@@ -145,6 +148,32 @@ export const MessageCard: FC<MessageCardProps> = ({
                 </PuiTypography>
               )}
 
+              {message.replyTo && (() => {
+                const currentUserId = getCurrentUser()?.uid;
+                const isReplyFromCurrentUser = message.replyTo.senderId === currentUserId;
+                const isMessageFromCurrentUser = isUserMessage;
+                
+                // Determine background color based on Communication UI logic
+                let replyBgColor: string | undefined;
+                if (isReplyFromCurrentUser && isMessageFromCurrentUser) {
+                  replyBgColor = '#E8F4FD'; // primary[25] equivalent
+                } else if (isReplyFromCurrentUser) {
+                  replyBgColor = '#E8F4FD'; // primary.light equivalent
+                } else if (isMessageFromCurrentUser) {
+                  replyBgColor = '#ffffff'; // background.default
+                } else {
+                  replyBgColor = undefined; // Will use default grey[50]
+                }
+                
+                return (
+                  <Reply 
+                    replyTo={message.replyTo} 
+                    isUserMessage={isUserMessage}
+                    backgroundColor={replyBgColor}
+                  />
+                );
+              })()}
+
               <TextMessage message={message} time={time} isUserMessage={isUserMessage} />
               {message.reactions && message.reactions.length > 0 && (
                 <MessageReactions
@@ -180,6 +209,7 @@ export const MessageCard: FC<MessageCardProps> = ({
         onClose={handleCloseContextMenu}
         onMessageDeleted={onMessageDeleted}
         isOpenedFromRightClick={isOpenedFromRightClick}
+        onReply={onReply}
       />
     </>
   );

@@ -35,6 +35,16 @@ export type MessageReaction = {
   reactedAt?: firebase.firestore.Timestamp | null;
 };
 
+export type MessageReply = {
+  messageId: string;
+  senderId: string;
+  senderName?: string | null;
+  text?: string | null;
+  imageUrl?: string | null;
+  type: 'text' | 'image';
+  createdAt?: firebase.firestore.Timestamp | null;
+};
+
 export type ConversationMessage = {
   id: string;
   senderId: string;
@@ -49,6 +59,7 @@ export type ConversationMessage = {
   pinnedBy?: string | null;
   pinnedAt?: firebase.firestore.Timestamp | null;
   reactions?: MessageReaction[];
+  replyTo?: MessageReply | null;
 };
 
 export function subscribeToConversations(
@@ -118,6 +129,15 @@ export function subscribeToConversationMessages(
             emoji: r.emoji,
             reactedAt: r.reactedAt ?? null,
           })) as MessageReaction[],
+          replyTo: data.replyTo ? {
+            messageId: data.replyTo.messageId,
+            senderId: data.replyTo.senderId,
+            senderName: data.replyTo.senderName ?? null,
+            text: data.replyTo.text ?? null,
+            imageUrl: data.replyTo.imageUrl ?? null,
+            type: data.replyTo.type ?? 'text',
+            createdAt: data.replyTo.createdAt ?? null,
+          } : null,
         } satisfies ConversationMessage;
       });
 
@@ -133,6 +153,7 @@ type SendMessageOptions = {
   senderAvatarColor?: string | null;
   text?: string;
   file?: File | null;
+  replyTo?: MessageReply | null;
 };
 
 export async function sendMessage({
@@ -143,6 +164,7 @@ export async function sendMessage({
   senderAvatarColor,
   text,
   file,
+  replyTo,
 }: SendMessageOptions): Promise<void> {
   const conversationRef = db.collection(CONVERSATIONS_COLLECTION).doc(conversationId);
   const messagesCollection = conversationRef.collection(MESSAGES_SUBCOLLECTION);
@@ -168,6 +190,15 @@ export async function sendMessage({
     imageUrl: uploadedImageUrl ?? null,
     type: messageType,
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    replyTo: replyTo ? {
+      messageId: replyTo.messageId,
+      senderId: replyTo.senderId,
+      senderName: replyTo.senderName ?? null,
+      text: replyTo.text ?? null,
+      imageUrl: replyTo.imageUrl ?? null,
+      type: replyTo.type,
+      createdAt: replyTo.createdAt ?? null,
+    } : null,
   });
 
   await conversationRef.set(

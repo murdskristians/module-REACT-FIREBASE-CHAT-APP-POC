@@ -22,6 +22,7 @@ import {
   createGroupConversation,
   type Conversation,
   type ConversationMessage,
+  type MessageReply,
 } from '../../firebase/conversations';
 import {
   getUserById,
@@ -506,9 +507,11 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
   const handleSendMessage = async ({
     text,
     file,
+    replyTo,
   }: {
     text: string;
     file?: File | null;
+    replyTo?: MessageReply | null;
   }) => {
     if (isSending) {
       return;
@@ -597,6 +600,7 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
         senderAvatarColor: userProfile?.avatarColor ?? '#A8D0FF',
         text,
         file,
+        replyTo,
       });
     } catch {
       // Silently handle error
