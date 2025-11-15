@@ -92,6 +92,50 @@ export const StyledMessagePopupList = PuiStyled(PuiList)(() => ({
   padding: '8px 4px',
 }));
 
+export const StyledMessageReaction = PuiStyled(PuiBox, {
+  shouldForwardProp: propName => propName !== 'hasUserReaction' && propName !== 'isUserMessage',
+})<{ hasUserReaction: boolean; isUserMessage: boolean }>(({ theme, hasUserReaction, isUserMessage }) => {
+  let backgroundColor = isUserMessage ? theme.palette.primary[25] : theme.palette.grey[50];
+
+  if (hasUserReaction) {
+    backgroundColor = '#B3D9F2';
+  }
+  const reactionsCountColor = hasUserReaction ? theme.palette.background.paper : theme.palette.primary.main;
+
+  return {
+    height: 24,
+    display: 'flex',
+    padding: '3px 6px',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '4px',
+    borderRadius: '16px',
+    backgroundColor,
+    cursor: 'pointer',
+    transition: 'background-color 0.3s ease',
+    '&:hover': {
+      backgroundColor: '#B3D9F2',
+      '& .reactions-count-wrapper': {
+        color: theme.palette.background.paper,
+      },
+    },
+    '& .reactions-count-wrapper': {
+      color: reactionsCountColor,
+    },
+  };
+});
+
+export const StyledReactionsContainer = PuiStyled(PuiBox, {
+  shouldForwardProp: prop => prop !== 'isWrapped' && prop !== 'hasReaction',
+})<{ isWrapped: boolean; hasReaction: boolean }>(({ isWrapped, hasReaction }) => ({
+  width: '100%',
+  marginTop: hasReaction ? '8px' : '0px',
+  display: 'flex',
+  flexDirection: 'row',
+  gap: '8px',
+  flexWrap: isWrapped ? 'wrap' : 'nowrap',
+}));
+
 export const StyledMessagePopupListItem = PuiStyled(PuiListItemButton)(({ theme }) => ({
   gap: '8px',
   padding: '6px 8px',

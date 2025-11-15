@@ -209,6 +209,8 @@ export const ConversationMessagePopup: FC<ConversationMessagePopupProps> = ({
       <PuiStack gap="4px">
         <MessageReactionsWrapper
           messageId={messageId}
+          conversationId={conversationId}
+          userReactions={message?.reactions?.filter(r => r.reactedBy === getCurrentUser()?.uid) || []}
           handleClose={handleClose}
         />
         <StyledMessagePopupListWrapper>

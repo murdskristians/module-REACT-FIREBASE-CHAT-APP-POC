@@ -28,6 +28,13 @@ export type ConversationMessagePreview = {
   createdAt?: firebase.firestore.Timestamp | null;
 };
 
+export type MessageReaction = {
+  id: string;
+  reactedBy: string;
+  emoji: string;
+  reactedAt?: firebase.firestore.Timestamp | null;
+};
+
 export type ConversationMessage = {
   id: string;
   senderId: string;
@@ -41,6 +48,7 @@ export type ConversationMessage = {
   isPinned?: boolean;
   pinnedBy?: string | null;
   pinnedAt?: firebase.firestore.Timestamp | null;
+  reactions?: MessageReaction[];
 };
 
 export function subscribeToConversations(
@@ -90,6 +98,7 @@ export function subscribeToConversationMessages(
       .onSnapshot((snapshot) => {
       const messages = snapshot.docs.map((doc) => {
         const data = doc.data();
+        const reactions = data.reactions ? (Array.isArray(data.reactions) ? data.reactions : []) : [];
         return {
           id: doc.id,
           senderId: data.senderId,
@@ -103,6 +112,12 @@ export function subscribeToConversationMessages(
           isPinned: data.isPinned ?? false,
           pinnedBy: data.pinnedBy ?? null,
           pinnedAt: data.pinnedAt ?? null,
+          reactions: reactions.map((r: any) => ({
+            id: r.id || doc.id + '_' + r.reactedBy + '_' + r.emoji,
+            reactedBy: r.reactedBy,
+            emoji: r.emoji,
+            reactedAt: r.reactedAt ?? null,
+          })) as MessageReaction[],
         } satisfies ConversationMessage;
       });
 
@@ -381,6 +396,76 @@ export async function unpinMessage(
       isPinned: false,
       pinnedBy: null,
       pinnedAt: null,
+    });
+  }
+}
+
+export async function addReaction(
+  conversationId: string,
+  messageId: string,
+  emoji: string,
+  currentUserId: string
+): Promise<void> {
+  const conversationRef = db.collection(CONVERSATIONS_COLLECTION).doc(conversationId);
+  const messageRef = conversationRef.collection(MESSAGES_SUBCOLLECTION).doc(messageId);
+
+  const messageDoc = await messageRef.get();
+  if (!messageDoc.exists) {
+    throw new Error('Message not found');
+  }
+
+  const messageData = messageDoc.data();
+  const existingReactions = (messageData?.reactions || []) as MessageReaction[];
+  
+  // Check if user already reacted with this emoji
+  const existingReaction = existingReactions.find(
+    (r) => r.reactedBy === currentUserId && r.emoji === emoji
+  );
+
+  if (existingReaction) {
+    // User already reacted with this emoji, remove it (toggle off)
+    await removeReaction(conversationId, messageId, emoji, currentUserId);
+    return;
+  }
+
+  // Add new reaction
+  const newReaction: MessageReaction = {
+    id: `${messageId}_${currentUserId}_${emoji}_${Date.now()}`,
+    reactedBy: currentUserId,
+    emoji: emoji,
+    reactedAt: firebase.firestore.Timestamp.now(),
+  };
+
+  await messageRef.update({
+    reactions: firebase.firestore.FieldValue.arrayUnion(newReaction),
+  });
+}
+
+export async function removeReaction(
+  conversationId: string,
+  messageId: string,
+  emoji: string,
+  currentUserId: string
+): Promise<void> {
+  const conversationRef = db.collection(CONVERSATIONS_COLLECTION).doc(conversationId);
+  const messageRef = conversationRef.collection(MESSAGES_SUBCOLLECTION).doc(messageId);
+
+  const messageDoc = await messageRef.get();
+  if (!messageDoc.exists) {
+    throw new Error('Message not found');
+  }
+
+  const messageData = messageDoc.data();
+  const existingReactions = (messageData?.reactions || []) as MessageReaction[];
+  
+  // Find the reaction to remove
+  const reactionToRemove = existingReactions.find(
+    (r) => r.reactedBy === currentUserId && r.emoji === emoji
+  );
+
+  if (reactionToRemove) {
+    await messageRef.update({
+      reactions: firebase.firestore.FieldValue.arrayRemove(reactionToRemove),
     });
   }
 }
