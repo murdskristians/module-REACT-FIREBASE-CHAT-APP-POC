@@ -220,16 +220,17 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
 
       <PuiBox
         sx={{
-          padding: '0 0 16px 0',
+          padding: '0 32px 16px 32px',
+          textAlign: 'center',
         }}
       >
         <PuiTypography
           variant="body-m-regular"
           sx={{
-            padding: '0 32px 16px 32px',
             color: '#939393',
             fontSize: '13px',
             fontFamily: "'Poppins', 'Inter', sans-serif",
+            textAlign: 'center',
           }}
         >
           Select conversations or contacts to forward this message
