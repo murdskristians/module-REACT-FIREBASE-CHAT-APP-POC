@@ -172,22 +172,22 @@ export const MessageCard: FC<MessageCardProps> = ({
                 const currentUserId = getCurrentUser()?.uid;
                 const isReplyFromCurrentUser = message.replyTo.senderId === currentUserId;
                 const isMessageFromCurrentUser = isUserMessage;
-                
+
                 // Determine background color based on Communication UI logic
                 let replyBgColor: string | undefined;
                 if (isReplyFromCurrentUser && isMessageFromCurrentUser) {
-                  replyBgColor = '#E8F4FD'; // primary[25] equivalent
+                  replyBgColor = 'var(--bg-secondary, #E8F4FD)'; // primary[25] equivalent
                 } else if (isReplyFromCurrentUser) {
-                  replyBgColor = '#E8F4FD'; // primary.light equivalent
+                  replyBgColor = 'var(--bg-secondary, #E8F4FD)'; // primary.light equivalent
                 } else if (isMessageFromCurrentUser) {
-                  replyBgColor = '#ffffff'; // background.default
+                  replyBgColor = 'var(--bg-primary, #ffffff)'; // background.default
                 } else {
-                  replyBgColor = undefined; // Will use default grey[50]
+                  replyBgColor = undefined; // Will use default var(--bg-tertiary)
                 }
-                
+
                 return (
-                  <Reply 
-                    replyTo={message.replyTo} 
+                  <Reply
+                    replyTo={message.replyTo}
                     isUserMessage={isUserMessage}
                     backgroundColor={replyBgColor}
                   />
