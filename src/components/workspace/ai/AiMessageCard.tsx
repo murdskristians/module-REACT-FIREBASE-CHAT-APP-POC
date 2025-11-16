@@ -35,8 +35,9 @@ export const AiMessageCard: FC<AiMessageCardProps> = ({ message }) => {
           gap: '8px',
           borderRadius: isUserMessage ? '16px 0 16px 16px' : '0px 16px 16px 16px',
           padding: '8px 16px',
-          background: isUserMessage ? 'var(--palette-message-bg)' : '#ffffff',
-          color: '#1f2131',
+          border: '1px solid var(--border-color, #f0f0f0)',
+          background: isUserMessage ? 'var(--palette-message-bg)' : 'var(--bg-primary, #ffffff)',
+          color: 'var(--text-primary, #1f2131)',
           position: 'relative',
           overflow: 'hidden',
           justifyContent: 'start',
@@ -46,7 +47,7 @@ export const AiMessageCard: FC<AiMessageCardProps> = ({ message }) => {
           <PuiTypography
             variant="body-sm-medium"
             sx={{
-              color: '#a0a0a0',
+              color: 'var(--text-secondary, #a0a0a0)',
               marginRight: 'auto',
               textWrap: 'nowrap',
               width: '100%',
@@ -73,7 +74,7 @@ export const AiMessageCard: FC<AiMessageCardProps> = ({ message }) => {
               wordBreak: 'break-word',
               fontSize: '14px',
               lineHeight: '1.5',
-              color: isUserMessage ? '#1f2131' : 'inherit',
+              color: 'var(--text-primary, #1f2131)',
             }}
           >
             {message.content}
@@ -81,7 +82,7 @@ export const AiMessageCard: FC<AiMessageCardProps> = ({ message }) => {
           <PuiTypography
             component="span"
             sx={{
-              color: '#939393',
+              color: 'var(--text-secondary, #939393)',
               fontSize: '11px',
               lineHeight: '1.5',
               marginLeft: 'auto',

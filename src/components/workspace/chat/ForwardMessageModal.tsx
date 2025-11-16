@@ -21,8 +21,8 @@ const StyledForwardPanelWrapper = PuiStyled(PuiBox)(() => ({
   flexDirection: 'column',
   height: '100%',
   overflow: 'hidden',
-  background: '#ffffff',
-  borderLeft: '1px solid #f0f0f0',
+  background: 'var(--bg-primary, #ffffff)',
+  borderLeft: '1px solid var(--border-color, #f0f0f0)',
   position: 'relative',
   pointerEvents: 'auto',
   zIndex: 1001,
@@ -36,13 +36,13 @@ const StyledForwardPanelWrapper = PuiStyled(PuiBox)(() => ({
 
 const StyledHeaderDivider = PuiStyled(PuiBox)(() => ({
   height: '1px',
-  backgroundColor: '#f0f0f0',
+  backgroundColor: 'var(--border-color, #f0f0f0)',
   margin: '0 32px',
 }));
 
 const StyledButtonWrapper = PuiStyled(PuiBox)(() => ({
   padding: '20px 32px',
-  borderTop: '1px solid #f0f0f0',
+  borderTop: '1px solid var(--border-color, #f0f0f0)',
   marginTop: 'auto',
 }));
 
@@ -205,7 +205,7 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
             margin: 0,
             fontSize: '20px',
             fontWeight: 600,
-            color: '#272727',
+            color: 'var(--text-primary, #272727)',
             fontFamily: "'Poppins', 'Inter', sans-serif",
           }}
         >
@@ -227,7 +227,7 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
         <PuiTypography
           variant="body-m-regular"
           sx={{
-            color: '#939393',
+            color: 'var(--text-secondary, #939393)',
             fontSize: '13px',
             fontFamily: "'Poppins', 'Inter', sans-serif",
             textAlign: 'center',
@@ -258,14 +258,14 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
           tabIndex={0}
           style={{
             width: '100%',
-            border: '1px solid #f0f0f0',
+            border: '1px solid var(--border-color, #f0f0f0)',
             borderRadius: '8px',
             padding: '12px 16px',
             fontSize: '14px',
             fontFamily: "'Poppins', 'Inter', sans-serif",
-            color: '#272727',
+            color: 'var(--text-primary, #272727)',
             outline: 'none',
-            background: '#ffffff',
+            background: 'var(--bg-primary, #ffffff)',
             boxSizing: 'border-box',
             cursor: 'text',
             pointerEvents: 'auto',
@@ -273,10 +273,10 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
             zIndex: 1000,
           }}
           onFocus={(e) => {
-            e.target.style.borderColor = '#3398DB';
+            e.target.style.borderColor = 'var(--palette-primary, #3398DB)';
           }}
           onBlur={(e) => {
-            e.target.style.borderColor = '#f0f0f0';
+            e.target.style.borderColor = 'var(--border-color, #f0f0f0)';
           }}
         />
       </PuiBox>
@@ -310,7 +310,7 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
                     cursor: 'pointer',
                     minHeight: '56px',
                     '&:hover': {
-                      backgroundColor: '#f6f8ff',
+                      backgroundColor: 'var(--bg-tertiary, #f6f8ff)',
                     },
                   }}
                 >
@@ -334,7 +334,7 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
                       sx={{
                         fontSize: '14px',
                         fontFamily: "'Poppins', 'Inter', sans-serif",
-                        color: '#272727',
+                        color: 'var(--text-primary, #272727)',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
@@ -353,7 +353,7 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
             variant="body-sm-medium"
             sx={{
               textAlign: 'center',
-              color: '#939393',
+              color: 'var(--text-secondary, #939393)',
               padding: '24px',
               fontSize: '13px',
               fontFamily: "'Poppins', 'Inter', sans-serif",
@@ -376,7 +376,7 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
               marginBottom: '8px',
               fontSize: '13px',
               fontFamily: "'Poppins', 'Inter', sans-serif",
-              color: '#272727',
+              color: 'var(--text-primary, #272727)',
             }}
           >
             Message Preview:
@@ -384,7 +384,7 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
           <PuiBox
             sx={{
               padding: '8px 12px',
-              backgroundColor: '#f6f8ff',
+              backgroundColor: 'var(--bg-tertiary, #f6f8ff)',
               borderRadius: '8px',
             }}
           >
@@ -416,14 +416,14 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
           tabIndex={0}
           style={{
             width: '100%',
-            border: '1px solid #f0f0f0',
+            border: '1px solid var(--border-color, #f0f0f0)',
             borderRadius: '8px',
             padding: '12px 16px',
             fontSize: '14px',
             fontFamily: "'Poppins', 'Inter', sans-serif",
-            color: '#272727',
+            color: 'var(--text-primary, #272727)',
             outline: 'none',
-            background: '#ffffff',
+            background: 'var(--bg-primary, #ffffff)',
             boxSizing: 'border-box',
             cursor: 'text',
             pointerEvents: 'auto',
@@ -434,10 +434,10 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
             maxHeight: '120px',
           }}
           onFocus={(e) => {
-            e.target.style.borderColor = '#3398DB';
+            e.target.style.borderColor = 'var(--palette-primary, #3398DB)';
           }}
           onBlur={(e) => {
-            e.target.style.borderColor = '#f0f0f0';
+            e.target.style.borderColor = 'var(--border-color, #f0f0f0)';
           }}
         />
       </PuiBox>
@@ -452,13 +452,13 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
           onClick={handleForward}
           sx={{
             backgroundColor:
-              selectedConversationIds.length === 0 ? '#d0d0d0' : '#3398DB',
+              selectedConversationIds.length === 0 ? 'var(--bg-tertiary, #d0d0d0)' : 'var(--palette-primary, #3398DB)',
             color: '#ffffff',
             '&:hover:not(.Mui-disabled)': {
-              backgroundColor: '#2980b9',
+              backgroundColor: 'var(--palette-primary-dark, #2980b9)',
             },
             '&.Mui-disabled': {
-              backgroundColor: '#d0d0d0 !important',
+              backgroundColor: 'var(--bg-tertiary, #d0d0d0) !important',
               color: '#ffffff',
             },
           }}

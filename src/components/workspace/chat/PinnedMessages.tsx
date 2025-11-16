@@ -112,21 +112,21 @@ export const PinnedMessages: FC<PinnedMessagesProps> = ({
           ))}
         </StyledPinnedBarsContainer>
         <PuiStack sx={{ justifyContent: 'center', overflowX: 'hidden' }}>
-          <PuiTypography 
-            variant='body-xs-medium' 
-            color='primary.main'
-            sx={{ fontSize: '11px', lineHeight: 1.4 }}
+          <PuiTypography
+            variant='body-xs-medium'
+            sx={{ fontSize: '11px', lineHeight: 1.4, color: 'var(--palette-primary, ' + palette.primary.main + ')' }}
           >
             Pinned message
           </PuiTypography>
           <PuiTypography
             variant='body-xs-regular'
-            sx={{ 
-              overflow: 'hidden', 
-              textOverflow: 'ellipsis', 
+            sx={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
               fontSize: '11px',
-              lineHeight: 1.4
+              lineHeight: 1.4,
+              color: 'var(--text-primary, #1f2131)'
             }}
           >
             {getMessagePreview(activePinnedMessage)}
@@ -137,7 +137,7 @@ export const PinnedMessages: FC<PinnedMessagesProps> = ({
         width={20}
         height={20}
         icon={PuiIcon.Pin2}
-        stroke={palette.primary.main}
+        stroke={'var(--palette-primary, ' + palette.primary.main + ')'}
       />
     </StyledPinnedMessages>
   );

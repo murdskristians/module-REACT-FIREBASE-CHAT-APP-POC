@@ -5,11 +5,11 @@ export const StyledPinnedMessages = PuiStyled(PuiStack)(({ theme }) => ({
   padding: '4px 32px',
   justifyContent: 'space-between',
   alignItems: 'center',
-  borderTop: `1px solid ${theme.palette.grey[200]}`,
-  borderBottom: `1px solid ${theme.palette.grey[200]}`,
+  borderTop: '1px solid var(--border-color, ' + theme.palette.grey[200] + ')',
+  borderBottom: '1px solid var(--border-color, ' + theme.palette.grey[200] + ')',
   borderLeft: 'none',
   borderRight: 'none',
-  background: theme.palette.common.white,
+  background: 'var(--bg-primary, ' + theme.palette.common.white + ')',
   cursor: 'pointer',
   position: 'absolute',
   top: '64px',
@@ -19,7 +19,7 @@ export const StyledPinnedMessages = PuiStyled(PuiStack)(({ theme }) => ({
   gap: 8,
 
   '&:hover': {
-    background: theme.palette.background.default,
+    background: 'var(--bg-tertiary, ' + theme.palette.background.default + ')',
   },
 }));
 
@@ -38,7 +38,7 @@ export const StyledPinnedBar = PuiStyled(PuiBox, {
   width: 2,
   minHeight: 8,
   borderRadius: '1px',
-  backgroundColor: isActive ? theme.palette.primary.main : theme.palette.grey[200],
+  backgroundColor: isActive ? 'var(--palette-primary, ' + theme.palette.primary.main + ')' : 'var(--border-color, ' + theme.palette.grey[200] + ')',
   transition: 'background-color 0.2s ease',
 }));
 

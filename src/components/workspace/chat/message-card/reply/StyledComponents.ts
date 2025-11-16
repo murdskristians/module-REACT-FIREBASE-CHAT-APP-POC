@@ -3,7 +3,7 @@ import { PuiBox, PuiStyled, PuiTypography } from 'piche.ui';
 export const StyledReply = PuiStyled(PuiBox)(({ theme }) => ({
   padding: '12px',
   borderRadius: '8px',
-  backgroundColor: theme.palette.grey[50],
+  backgroundColor: 'var(--bg-tertiary, ' + theme.palette.grey[50] + ')',
   display: 'flex',
   flexDirection: 'column',
   position: 'relative',
@@ -18,7 +18,7 @@ export const StyledReply = PuiStyled(PuiBox)(({ theme }) => ({
     top: 0,
     bottom: 0,
     width: '3px',
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: 'var(--palette-primary, ' + theme.palette.primary.main + ')',
   },
 }));
 
@@ -30,7 +30,7 @@ export const StyledReplyContent = PuiStyled(PuiBox)(() => ({
 }));
 
 export const StyledReplyName = PuiStyled(PuiTypography)(({ theme }) => ({
-  color: theme.palette.primary.main,
+  color: 'var(--palette-primary, ' + theme.palette.primary.main + ')',
   fontSize: '13px',
   fontWeight: 500,
   marginBottom: '4px',
@@ -38,7 +38,7 @@ export const StyledReplyName = PuiStyled(PuiTypography)(({ theme }) => ({
 
 export const StyledReplyText = PuiStyled(PuiTypography)(({ theme }) => ({
   fontSize: '13px',
-  color: theme.palette.grey[700],
+  color: 'var(--text-secondary, ' + theme.palette.grey[700] + ')',
   fontWeight: 400,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
