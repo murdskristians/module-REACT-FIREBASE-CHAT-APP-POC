@@ -23,10 +23,10 @@ export const MessageContextMenuPopup = PuiStyled(PuiMenu, {
 
 export const MessageReactionsListWrapper = PuiStyled(PuiBox)(({ theme }) => ({
   '& .EmojiPickerReact': {
-    backgroundColor: theme.palette.background.default,
+    backgroundColor: 'var(--bg-primary, ' + theme.palette.background.default + ')',
     boxShadow: '0px 5px 40px 0px rgba(0, 0, 0, 0.10)',
     borderRadius: '20px',
-    border: `1px solid ${theme.palette.grey[50]}`,
+    border: '1px solid var(--border-color, ' + theme.palette.grey[50] + ')',
   },
   '& .EmojiPickerReact ul': {
     padding: '8px 16px',
@@ -78,9 +78,9 @@ export const StyledMessagePopup = PuiStyled(PuiPopover)(() => ({
 }));
 
 export const StyledMessagePopupListWrapper = PuiStyled(PuiBox)(({ theme }) => ({
-  backgroundColor: theme.palette.common.white,
+  backgroundColor: 'var(--bg-primary, ' + theme.palette.common.white + ')',
   borderRadius: '4px',
-  border: `1px solid ${theme.palette.grey[50]}`,
+  border: '1px solid var(--border-color, ' + theme.palette.grey[50] + ')',
   boxShadow: '0px 7px 10.4px 0px rgba(0, 0, 0, 0.03)',
   transition: '0.2s',
   '& .MuiListItemIcon-root': {
@@ -143,9 +143,13 @@ export const StyledMessagePopupListItem = PuiStyled(PuiListItemButton)(({ theme 
   borderRadius: '4px',
   '& .MuiListItemText-primary': {
     fontSize: '12px',
+    color: 'var(--text-primary, ' + theme.palette.text.primary + ')',
+  },
+  '& svg': {
+    color: 'var(--text-secondary, ' + theme.palette.grey[600] + ')',
   },
   '&:hover': {
-    backgroundColor: theme.palette.background.default,
+    backgroundColor: 'var(--bg-tertiary, ' + theme.palette.background.default + ')',
   },
   '&.delete': {
     'svg, .MuiListItemText-primary': {
