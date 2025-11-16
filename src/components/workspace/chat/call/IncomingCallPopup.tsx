@@ -1,5 +1,5 @@
 import { PuiBox, PuiIcon, PuiSvgIcon, PuiTypography, useTheme } from 'piche.ui';
-import { FC, useCallback } from 'react';
+import { FC } from 'react';
 import { Avatar } from '../../shared/Avatar';
 import type { CallState } from '../../../../types/call';
 

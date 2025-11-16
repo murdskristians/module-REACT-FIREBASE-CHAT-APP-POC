@@ -3,7 +3,6 @@ import type { SignallingMessage, CallRoom } from '../types/call';
 import { CallMessageType } from '../types/call';
 import firebase from 'firebase/compat/app';
 
-const CALLS_COLLECTION = 'calls';
 const CALL_ROOMS_COLLECTION = 'callRooms';
 const CALL_MESSAGES_COLLECTION = 'callMessages';
 

@@ -12,7 +12,6 @@ import { auth } from '../firebase/index';
 import type {
   SignallingMessage,
   CallState,
-  CallRoom,
 } from '../types/call';
 import { CallMessageType, PeerConnectionMode } from '../types/call';
 

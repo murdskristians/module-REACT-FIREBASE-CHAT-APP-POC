@@ -88,10 +88,12 @@ export const CallView: FC<CallViewProps> = ({
     });
 
     return () => {
-      audioElementsRef.current.forEach((audioElement) => {
+      // Copy ref value to avoid stale closure
+      const audioElements = audioElementsRef.current;
+      audioElements.forEach((audioElement) => {
         audioElement.srcObject = null;
       });
-      audioElementsRef.current.clear();
+      audioElements.clear();
     };
   }, [callState.remoteStreams]);
 
