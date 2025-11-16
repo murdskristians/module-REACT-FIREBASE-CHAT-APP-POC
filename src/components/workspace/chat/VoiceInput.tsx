@@ -70,6 +70,9 @@ export function VoiceInput({ onRecordingComplete }: VoiceInputProps) {
               '&:hover': {
                 backgroundColor: 'transparent',
               },
+              svg: {
+                color: 'var(--text-secondary, #939393)',
+              },
             }}
           >
             <PuiSvgIcon width={16} height={16} icon={PuiIcon.Microphone} />
@@ -89,8 +92,8 @@ export function VoiceInput({ onRecordingComplete }: VoiceInputProps) {
             padding: '15px',
             gap: '12px',
             borderRadius: '12px',
-            border: `1px solid ${theme.palette.grey[50]}`,
-            background: theme.palette.background.default,
+            border: '1px solid var(--border-color, ' + theme.palette.grey[50] + ')',
+            background: 'var(--bg-primary, ' + theme.palette.background.default + ')',
           }}
         >
           <PuiIconButton
@@ -102,17 +105,17 @@ export function VoiceInput({ onRecordingComplete }: VoiceInputProps) {
               borderRadius: '50%',
               width: '20px',
               height: '20px',
-              background: theme.palette.common.white,
-              border: `1px solid ${theme.palette.grey[50]}`,
+              background: 'var(--bg-tertiary, ' + theme.palette.common.white + ')',
+              border: '1px solid var(--border-color, ' + theme.palette.grey[50] + ')',
               '&:hover': {
-                background: theme.palette.common.white,
-                borderColor: theme.palette.grey[100],
+                background: 'var(--bg-tertiary, ' + theme.palette.common.white + ')',
+                borderColor: 'var(--border-color, ' + theme.palette.grey[100] + ')',
                 '& svg': {
-                  color: theme.palette.grey[400],
+                  color: 'var(--text-secondary, ' + theme.palette.grey[400] + ')',
                 },
               },
               svg: {
-                color: theme.palette.grey[300],
+                color: 'var(--text-secondary, ' + theme.palette.grey[300] + ')',
               },
             }}
           >

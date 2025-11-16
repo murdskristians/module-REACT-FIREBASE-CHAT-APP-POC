@@ -36,7 +36,7 @@ export const VoiceTimeline = ({ duration }: VoiceTimelineProps) => {
         sx={{
           position: 'relative',
           height: '8px',
-          backgroundColor: '#f0f0f0',
+          backgroundColor: 'var(--border-color, #f0f0f0)',
           borderRadius: '44px',
           flexGrow: 1,
         }}
@@ -47,7 +47,7 @@ export const VoiceTimeline = ({ duration }: VoiceTimelineProps) => {
             left: 0,
             top: 0,
             height: '100%',
-            backgroundColor: '#3398DB',
+            backgroundColor: 'var(--palette-primary, #3398DB)',
             borderRadius: '44px',
             width: `${progress}%`,
             pointerEvents: 'none',
@@ -78,7 +78,9 @@ export const VoiceTimeline = ({ duration }: VoiceTimelineProps) => {
             justifyContent: 'center',
           }}
         >
-          <PuiTypography variant="body-sm-medium">{formatDuration(duration)}</PuiTypography>
+          <PuiTypography variant="body-sm-medium" sx={{ color: 'var(--text-primary, #1f2131)' }}>
+            {formatDuration(duration)}
+          </PuiTypography>
         </PuiBox>
       </PuiBox>
     </PuiBox>

@@ -238,14 +238,14 @@ export const AiChatView: FC<AiChatViewProps> = ({
             sx={{
               minWidth: 'auto',
               padding: '8px 16px',
-              background: inputValue.trim() && !isSending ? '#6366f1' : '#e5e7eb',
-              color: inputValue.trim() && !isSending ? '#ffffff' : '#9ca3af',
+              background: inputValue.trim() && !isSending ? '#6366f1' : 'var(--bg-tertiary, #e5e7eb)',
+              color: inputValue.trim() && !isSending ? '#ffffff' : 'var(--text-secondary, #9ca3af)',
               borderRadius: '8px',
               border: 'none',
               cursor: inputValue.trim() && !isSending ? 'pointer' : 'not-allowed',
               transition: 'all 0.2s',
               '&:hover': {
-                background: inputValue.trim() && !isSending ? '#4f46e5' : '#e5e7eb',
+                background: inputValue.trim() && !isSending ? '#4f46e5' : 'var(--bg-tertiary, #e5e7eb)',
               },
             }}
           >
