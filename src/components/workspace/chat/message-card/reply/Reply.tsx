@@ -35,11 +35,8 @@ export const Reply: FC<ReplyProps> = ({ replyTo, onClick, backgroundColor, isUse
     if (backgroundColor) {
       return backgroundColor;
     }
-    // Default background color logic similar to Communication UI
-    if (isUserMessage) {
-      return theme.palette.background.default;
-    }
-    return theme.palette.grey[50];
+    // Default background color logic similar to Communication UI - use CSS variable for dark mode
+    return 'var(--bg-tertiary, ' + theme.palette.grey[50] + ')';
   };
 
   return (
@@ -72,7 +69,7 @@ export const Reply: FC<ReplyProps> = ({ replyTo, onClick, backgroundColor, isUse
                 noWrap
                 sx={{
                   fontSize: '13px',
-                  color: theme.palette.grey[700],
+                  color: 'var(--text-secondary, ' + theme.palette.grey[700] + ')',
                   fontWeight: 400,
                 }}
               >
