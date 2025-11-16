@@ -43,6 +43,9 @@ export const CallView: FC<CallViewProps> = ({
 
   // Handle remote audio streams
   useEffect(() => {
+    // Copy ref value at the start of the effect to avoid stale closure
+    const audioElements = audioElementsRef.current;
+    
     callState.remoteStreams.forEach((stream, contactId) => {
       const audioTracks = stream.getAudioTracks();
       const videoTracks = stream.getVideoTracks();
@@ -57,13 +60,13 @@ export const CallView: FC<CallViewProps> = ({
       if (audioTracks.length > 0) {
         console.log(`CallView: Setting up audio for ${contactId} with ${audioTracks.length} audio tracks`);
         
-        let audioElement = audioElementsRef.current.get(contactId);
+        let audioElement = audioElements.get(contactId);
         if (!audioElement) {
           audioElement = new Audio();
           audioElement.autoplay = true;
           audioElement.playsInline = true;
           audioElement.muted = false;
-          audioElementsRef.current.set(contactId, audioElement);
+          audioElements.set(contactId, audioElement);
         }
         
         // Update audio source if stream changed
@@ -80,16 +83,15 @@ export const CallView: FC<CallViewProps> = ({
     });
 
     // Cleanup removed streams
-    audioElementsRef.current.forEach((audioElement, contactId) => {
+    audioElements.forEach((audioElement, contactId) => {
       if (!callState.remoteStreams.has(contactId)) {
         audioElement.srcObject = null;
-        audioElementsRef.current.delete(contactId);
+        audioElements.delete(contactId);
       }
     });
 
     return () => {
-      // Copy ref value to avoid stale closure
-      const audioElements = audioElementsRef.current;
+      // Use the copied value in cleanup
       audioElements.forEach((audioElement) => {
         audioElement.srcObject = null;
       });
