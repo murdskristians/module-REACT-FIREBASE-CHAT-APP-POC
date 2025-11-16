@@ -59,6 +59,7 @@
   --text-secondary: #9CA3AF;
   --border-color: #374151;
   --dock-bg: #0F172A;
+  --palette-message-bg: #1e3a52;
 }
 
 [data-theme='dark'] .workspace {
@@ -67,7 +68,7 @@
 }
 
 [data-theme='dark'] .conversation-panel {
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
   border-right-color: var(--border-color);
 }
 
@@ -76,7 +77,7 @@
 }
 
 [data-theme='dark'] .ai-panel {
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
   border-left-color: var(--border-color);
 }
 
@@ -91,6 +92,10 @@
 
 [data-theme='dark'] .conversation-item.selected {
   background: var(--bg-tertiary);
+}
+
+[data-theme='dark'] .conversation-panel__item--active {
+  background: var(--bg-secondary) !important;
 }
 
 [data-theme='dark'] .message {

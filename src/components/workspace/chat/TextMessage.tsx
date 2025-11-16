@@ -12,18 +12,18 @@ interface TextMessageProps {
 export const TextMessage: FC<TextMessageProps> = ({ message, time, isUserMessage = false }) => {
   return (
     <StyledMessageTextWrapper>
-      <StyledTextContent 
+      <StyledTextContent
         variant="body-sm-regular"
         sx={{
-          color: isUserMessage ? '#1f2131' : 'inherit',
+          color: 'var(--text-primary, #1f2131)',
         }}
       >
         {message.text}
       </StyledTextContent>
-      <StyledMessageStatus 
+      <StyledMessageStatus
         component="span"
         sx={{
-          color: isUserMessage ? '#939393' : '#939393',
+          color: 'var(--text-secondary, #939393)',
         }}
       >
         {time}

@@ -269,6 +269,7 @@ export function ConversationList({
                           height={14}
                           icon={PuiIcon.Pin2}
                           style={{ flexShrink: 0 }}
+                          stroke="var(--text-secondary, #939393)"
                         />
                       )}
                       <time className="conversation-panel__item-time">

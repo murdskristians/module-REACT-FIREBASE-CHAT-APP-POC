@@ -128,10 +128,11 @@ export const MessageCard: FC<MessageCardProps> = ({
                 gap: '8px',
                 borderRadius: isUserMessage ? '16px 0 16px 16px' : '0px 16px 16px 16px',
                 padding: '8px 16px',
-                background: isHighlighted 
-                  ? (isUserMessage ? '#B3D9F2' : '#E3F2FD') 
-                  : (isUserMessage ? 'var(--palette-message-bg)' : '#ffffff'),
-                color: isUserMessage ? '#1f2131' : '#1f2131',
+                border: '1px solid var(--border-color, #f0f0f0)',
+                background: isHighlighted
+                  ? (isUserMessage ? '#B3D9F2' : '#E3F2FD')
+                  : (isUserMessage ? 'var(--palette-message-bg)' : 'var(--bg-primary, #ffffff)'),
+                color: 'var(--text-primary, #1f2131)',
                 position: 'relative',
                 overflow: 'hidden',
                 justifyContent: 'start',
