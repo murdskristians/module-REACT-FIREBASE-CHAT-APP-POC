@@ -35,6 +35,7 @@ type ChatViewProps = {
   contacts: Contact[];
   onForwardMessage: (message: ConversationMessage, targetConversationIds: string[], forwardText?: string) => Promise<void>;
   onForward: (message: ConversationMessage) => void;
+  onAddParticipant?: () => void;
 };
 
 interface PendingAudio {
@@ -58,6 +59,7 @@ export function ChatView({
   contacts,
   onForwardMessage,
   onForward,
+  onAddParticipant,
 }: ChatViewProps) {
   const {
     callState,
@@ -232,6 +234,7 @@ export function ChatView({
         conversation={displayConversation}
         onContactClick={onContactClick}
         onStartCall={startCall}
+        onAddParticipant={onAddParticipant}
       />
       {!isPendingConversation && (
         <PinnedMessages

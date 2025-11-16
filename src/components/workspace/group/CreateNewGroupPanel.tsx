@@ -49,6 +49,7 @@ type CreateNewGroupPanelProps = {
   contacts: Contact[];
   onCreateGroup: (title: string, selectedContactIds: string[]) => Promise<void>;
   onClose: () => void;
+  preselectedContactIds?: string[];
 };
 
 export function CreateNewGroupPanel({
@@ -56,11 +57,12 @@ export function CreateNewGroupPanel({
   contacts,
   onCreateGroup,
   onClose,
+  preselectedContactIds = [],
 }: CreateNewGroupPanelProps) {
   const [groupName, setGroupName] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedContactIds, setSelectedContactIds] = useState<Set<string>>(
-    new Set()
+    new Set(preselectedContactIds)
   );
   const [isCreating, setIsCreating] = useState(false);
 
@@ -70,16 +72,25 @@ export function CreateNewGroupPanel({
 
   const filteredContacts = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
-    if (!term) {
-      return availableContacts;
+    let result = availableContacts;
+
+    if (term) {
+      result = availableContacts.filter((contact) => {
+        const displayName = (contact.displayName || '').toLowerCase();
+        const email = (contact.email || '').toLowerCase();
+        return displayName.includes(term) || email.includes(term);
+      });
     }
 
-    return availableContacts.filter((contact) => {
-      const displayName = (contact.displayName || '').toLowerCase();
-      const email = (contact.email || '').toLowerCase();
-      return displayName.includes(term) || email.includes(term);
+    // Sort selected contacts to the top
+    return result.sort((a, b) => {
+      const aSelected = selectedContactIds.has(a.id);
+      const bSelected = selectedContactIds.has(b.id);
+      if (aSelected && !bSelected) return -1;
+      if (!aSelected && bSelected) return 1;
+      return 0;
     });
-  }, [availableContacts, searchTerm]);
+  }, [availableContacts, searchTerm, selectedContactIds]);
 
   const handleToggleContact = (contactId: string) => {
     setSelectedContactIds((prev) => {
