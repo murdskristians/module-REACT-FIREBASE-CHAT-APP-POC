@@ -13,6 +13,9 @@ import { MessageList } from './MessageList';
 import { PinnedMessages } from './PinnedMessages';
 import { ChatAreaWrapper, MessagesContainer } from './StyledComponents';
 import type { FilePreviewItem } from './file-preview/FilesInputArea';
+import { useCall } from '../../../hooks/useCall';
+import { CallView } from './call/CallView';
+import { IncomingCallPopup } from './call/IncomingCallPopup';
 
 type ChatViewProps = {
   user: firebaseCompat.User;
@@ -56,6 +59,15 @@ export function ChatView({
   onForwardMessage,
   onForward,
 }: ChatViewProps) {
+  const {
+    callState,
+    startCall,
+    acceptCall,
+    declineCall,
+    endCall,
+    toggleAudio,
+    toggleVideo,
+  } = useCall();
   const [composerValue, setComposerValue] = useState('');
   const [pendingFiles, setPendingFiles] = useState<FilePreviewItem[]>([]);
   const [pendingAudio, setPendingAudio] = useState<PendingAudio | null>(null);
@@ -143,21 +155,53 @@ export function ChatView({
     return displayMessages.filter(msg => msg.isPinned);
   }, [displayMessages]);
 
+  // Get caller info for incoming call - must be before early return
+  const callerInfo = useMemo(() => {
+    if (!callState.callingMessage) return null;
+    const callerId = callState.callingMessage.senderId;
+    const caller = contactsMap.get(callerId);
+    return caller
+      ? { name: caller.name, avatarUrl: caller.avatarUrl }
+      : { name: 'Unknown', avatarUrl: undefined };
+  }, [callState.callingMessage, contactsMap]);
+
   if (!displayConversation) {
     return (
-      <PuiStack
-        height="100%"
-        justifyContent="center"
-        alignItems="center"
-        gap="10px"
-      >
-        <PuiTypography variant="body-m-medium" color="grey.400">
-          Select a conversation
-        </PuiTypography>
-        <PuiTypography variant="body-sm-regular" color="grey.300">
-          Choose a contact from the list to start chatting.
-        </PuiTypography>
-      </PuiStack>
+      <>
+        <PuiStack
+          height="100%"
+          justifyContent="center"
+          alignItems="center"
+          gap="10px"
+        >
+          <PuiTypography variant="body-m-medium" color="grey.400">
+            Select a conversation
+          </PuiTypography>
+          <PuiTypography variant="body-sm-regular" color="grey.300">
+            Choose a contact from the list to start chatting.
+          </PuiTypography>
+        </PuiStack>
+        {/* Incoming call popup */}
+        {callState.isCalling && callState.callingMessage && callerInfo && (
+          <IncomingCallPopup
+            callState={callState}
+            onAccept={acceptCall}
+            onDecline={declineCall}
+            callerName={callerInfo.name}
+            callerAvatarUrl={callerInfo.avatarUrl}
+          />
+        )}
+        {/* Active call view */}
+        {(callState.isConnected || callState.isConnecting) && (
+          <CallView
+            callState={callState}
+            contacts={contactsMap}
+            onToggleAudio={toggleAudio}
+            onToggleVideo={toggleVideo}
+            onEndCall={endCall}
+          />
+        )}
+      </>
     );
   }
 
@@ -182,10 +226,12 @@ export function ChatView({
   };
 
   return (
+    <>
     <ChatAreaWrapper>
       <ConversationTopBar
         conversation={displayConversation}
         onContactClick={onContactClick}
+        onStartCall={startCall}
       />
       {!isPendingConversation && (
         <PinnedMessages
@@ -248,5 +294,28 @@ export function ChatView({
         onReplyToChange={setReplyTo}
       />
     </ChatAreaWrapper>
+
+      {/* Incoming call popup */}
+      {callState.isCalling && callState.callingMessage && callerInfo && (
+        <IncomingCallPopup
+          callState={callState}
+          onAccept={acceptCall}
+          onDecline={declineCall}
+          callerName={callerInfo.name}
+          callerAvatarUrl={callerInfo.avatarUrl}
+        />
+      )}
+
+      {/* Active call view */}
+      {(callState.isConnected || callState.isConnecting) && (
+        <CallView
+          callState={callState}
+          contacts={contactsMap}
+          onToggleAudio={toggleAudio}
+          onToggleVideo={toggleVideo}
+          onEndCall={endCall}
+        />
+      )}
+    </>
   );
 }
