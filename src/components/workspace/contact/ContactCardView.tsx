@@ -63,10 +63,11 @@ export const ContactCardView: FC<ContactCardViewProps> = ({
         height: '100%',
         overflowY: 'auto',
         padding: 0,
-        backgroundColor: '#f5f7fb',
+        backgroundColor: 'var(--bg-primary, #f5f7fb)',
         fontSize: '12px',
         '& *': {
           fontSize: 'inherit',
+          color: 'var(--text-primary, #272727)',
         },
         // Ensure contact info container displays items in column
         '& > div > div:last-child': {
@@ -89,6 +90,51 @@ export const ContactCardView: FC<ContactCardViewProps> = ({
             display: 'flex !important',
             flexDirection: 'column !important',
             gap: '4px !important',
+          },
+        },
+        // Dark mode support for contact card elements
+        '& [class*="MuiPaper"]': {
+          backgroundColor: 'var(--bg-primary, #ffffff) !important',
+        },
+        '& [class*="MuiTypography"]': {
+          color: 'var(--text-primary, #272727) !important',
+        },
+        '& [class*="MuiIconButton"]': {
+          color: 'var(--text-primary, #272727) !important',
+          backgroundColor: 'var(--bg-primary, #ffffff) !important',
+          '& svg': {
+            color: 'var(--text-primary, #272727) !important',
+          },
+          '&:hover': {
+            backgroundColor: 'var(--bg-tertiary, #f6f8ff) !important',
+          },
+        },
+        '& button': {
+          backgroundColor: 'var(--bg-primary, #ffffff) !important',
+          color: 'var(--text-primary, #272727) !important',
+          '& svg': {
+            color: 'var(--text-primary, #272727) !important',
+          },
+          '&:hover': {
+            backgroundColor: 'var(--bg-tertiary, #f6f8ff) !important',
+          },
+        },
+        '& a': {
+          color: 'var(--palette-primary, #3398DB) !important',
+        },
+        // Fix icon backgrounds in dark mode - icons have white content so need colored backgrounds
+        '& [class*="ContactCard"] [class*="Icon"]': {
+          backgroundColor: 'var(--palette-primary, #3398DB) !important',
+          '& *': {
+            color: '#ffffff !important',
+          },
+        },
+        '& [class*="ListItemIcon"]': {
+          '& > div': {
+            backgroundColor: 'var(--palette-primary, #3398DB) !important',
+            '& *': {
+              color: '#ffffff !important',
+            },
           },
         },
       }}

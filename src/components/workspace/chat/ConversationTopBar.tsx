@@ -9,12 +9,14 @@ interface ConversationTopBarProps {
   conversation: ViewConversation;
   onContactClick?: () => void;
   onStartCall?: (conversationId: string, isGroup: boolean) => void;
+  onAddParticipant?: () => void;
 }
 
 export const ConversationTopBar: FC<ConversationTopBarProps> = ({
   conversation,
   onContactClick,
   onStartCall,
+  onAddParticipant,
 }) => {
   const isPrivateConversation = conversation.type === 'private';
 
@@ -37,6 +39,7 @@ export const ConversationTopBar: FC<ConversationTopBarProps> = ({
             <StyledTopBarButton
               aria-label="Add participant"
               title="Add participant"
+              onClick={onAddParticipant}
             >
               <PuiSvgIcon width={20} height={20} icon={PuiIcon.UserPlus1} />
             </StyledTopBarButton>

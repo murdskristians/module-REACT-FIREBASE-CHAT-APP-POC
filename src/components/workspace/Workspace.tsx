@@ -81,6 +81,7 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
     null
   );
   const [showCreateGroupPanel, setShowCreateGroupPanel] = useState(false);
+  const [showAddParticipantPanel, setShowAddParticipantPanel] = useState(false);
   const [messageToForward, setMessageToForward] = useState<ConversationMessage | null>(null);
   const [isForwarding, setIsForwarding] = useState(false);
 
@@ -399,6 +400,14 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
     setShowCreateGroupPanel(false);
   }, []);
 
+  const handleAddParticipant = useCallback(() => {
+    setShowAddParticipantPanel(true);
+  }, []);
+
+  const handleCloseAddParticipantPanel = useCallback(() => {
+    setShowAddParticipantPanel(false);
+  }, []);
+
   const handleGroupCreated = useCallback(
     async (title: string, selectedContactIds: string[]) => {
       try {
@@ -703,6 +712,7 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
               contacts={contacts}
               onForwardMessage={handleForwardMessage}
               onForward={setMessageToForward}
+              onAddParticipant={handleAddParticipant}
             />
             {selectedContact && selectedContactId ? (
               <ContactCardView
@@ -716,6 +726,18 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
                 contacts={contacts}
                 onCreateGroup={handleGroupCreated}
                 onClose={handleCloseCreateGroupPanel}
+              />
+            ) : showAddParticipantPanel ? (
+              <CreateNewGroupPanel
+                currentUserId={user.uid}
+                contacts={contacts}
+                onCreateGroup={handleGroupCreated}
+                onClose={handleCloseAddParticipantPanel}
+                preselectedContactIds={
+                  activeConversationState.conversation?.participants.filter(
+                    (id) => id !== user.uid
+                  ) || []
+                }
               />
             ) : messageToForward ? (
               <ForwardMessageModal
