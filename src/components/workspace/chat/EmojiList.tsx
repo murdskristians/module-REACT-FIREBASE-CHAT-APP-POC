@@ -24,18 +24,32 @@ export const EmojiList = ({ onEmojiSelect }: EmojiListProps) => {
   return (
     <PuiBox position='relative'>
       {open && (
-        <PuiClickAwayListener onClickAway={handleClose}>
-          <StyledEmojiWrapper onClick={e => e.stopPropagation()}>
-            <EmojiPicker
-              onEmojiClick={handleEmojiClick}
-              skinTonesDisabled
-              searchPlaceholder='Search emoji'
-              width={336}
-              height={552}
-              previewConfig={{ showPreview: false }}
-            />
-          </StyledEmojiWrapper>
-        </PuiClickAwayListener>
+        <>
+          <PuiBox
+            onClick={handleClose}
+            sx={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              zIndex: 9999,
+            }}
+          />
+          <PuiClickAwayListener onClickAway={handleClose}>
+            <StyledEmojiWrapper onClick={e => e.stopPropagation()}>
+              <EmojiPicker
+                onEmojiClick={handleEmojiClick}
+                skinTonesDisabled
+                searchPlaceholder='Search emoji'
+                width={336}
+                height={552}
+                previewConfig={{ showPreview: false }}
+              />
+            </StyledEmojiWrapper>
+          </PuiClickAwayListener>
+        </>
       )}
       <StyledEmojiButton
         className={clsx({ 'menu-is-open': open })}

@@ -133,29 +133,44 @@ export const StyledEmojiButton = PuiStyled('button')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  color: '#a0a0a0',
+  color: 'var(--text-secondary, #a0a0a0)',
   borderRadius: '50%',
   transition: 'background-color 0.2s ease',
   '&:hover, &.menu-is-open': {
-    backgroundColor: theme.palette.grey[50],
+    backgroundColor: 'var(--bg-tertiary, ' + theme.palette.grey[50] + ')',
   },
   '& svg': {
-    color: '#a0a0a0',
+    color: 'var(--text-secondary, #a0a0a0)',
   },
   '&:hover svg, &.menu-is-open svg': {
-    color: theme.palette.grey[600],
+    color: 'var(--text-secondary, ' + theme.palette.grey[600] + ')',
   },
 }));
 
 export const StyledEmojiWrapper = PuiStyled(PuiBox)(({ theme }) => ({
   '& .epr-main': {
-    position: 'absolute',
-    bottom: '32px',
-    left: 0,
+    position: 'fixed',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
     border: 'none',
     borderRadius: 8,
     boxShadow: '0px -4px 12px 0px rgba(0, 0, 0, 0.05), -4px 8px 16px -2px rgba(27, 33, 44, 0.12)',
-    zIndex: 1000,
+    zIndex: 10000,
+    backgroundColor: 'var(--bg-primary, ' + theme.palette.common.white + ')',
+    '&::-webkit-scrollbar': {
+      width: '8px !important',
+    },
+    '&::-webkit-scrollbar-track': {
+      background: 'var(--bg-primary, ' + theme.palette.background.default + ') !important',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      background: '#4B5563 !important',
+      borderRadius: '4px !important',
+    },
+    '&::-webkit-scrollbar-thumb:hover': {
+      background: '#6B7280 !important',
+    },
     '& .epr-header': {
       position: 'initial !important',
       '& > div:first-of-type': {
@@ -163,35 +178,79 @@ export const StyledEmojiWrapper = PuiStyled(PuiBox)(({ theme }) => ({
         '& input': {
           padding: '0 16px 0 40px',
           borderRadius: 4,
-          backgroundColor: theme.palette.background.default,
-          borderColor: theme.palette.background.default,
-          color: theme.palette.grey[600],
+          backgroundColor: 'var(--bg-tertiary, ' + theme.palette.background.default + ')',
+          borderColor: 'var(--border-color, ' + theme.palette.background.default + ')',
+          color: 'var(--text-primary, ' + theme.palette.grey[600] + ')',
           fontFamily: 'Poppins, Inter, sans-serif',
           fontSize: 12,
           fontWeight: 500,
           lineHeight: '160%',
           transition: 'border-color 0.2s ease',
           '&:focus': {
-            borderColor: theme.palette.grey[100],
+            borderColor: 'var(--border-color, ' + theme.palette.grey[100] + ')',
             outline: 'none',
+          },
+          '&::placeholder': {
+            color: 'var(--text-secondary, ' + theme.palette.grey[400] + ')',
           },
         },
         '& .epr-icn-search': {
           left: 16,
+          '& svg': {
+            fill: 'var(--text-secondary, ' + theme.palette.grey[400] + ')',
+          },
         },
       },
       '& .epr-category-nav': {
         position: 'absolute',
         bottom: 0,
         width: '100%',
-        background: theme.palette.background.default,
+        background: 'var(--bg-primary, ' + theme.palette.background.default + ')',
         padding: '12px 16px',
         zIndex: 5,
         opacity: '1 !important',
+        '& button': {
+          '& svg': {
+            fill: 'var(--text-secondary, ' + theme.palette.grey[400] + ')',
+          },
+          '&.epr-cat-btn.epr-active': {
+            '& svg': {
+              fill: 'var(--palette-primary, ' + theme.palette.primary.main + ')',
+            },
+          },
+        },
+      },
+    },
+    '& .epr-body': {
+      '&::-webkit-scrollbar': {
+        width: '8px !important',
+      },
+      '&::-webkit-scrollbar-track': {
+        background: 'var(--bg-primary, ' + theme.palette.background.default + ') !important',
+      },
+      '&::-webkit-scrollbar-thumb': {
+        background: '#4B5563 !important',
+        borderRadius: '4px !important',
+      },
+      '&::-webkit-scrollbar-thumb:hover': {
+        background: '#6B7280 !important',
       },
     },
     '& .epr-emoji-list': {
       marginBottom: 72,
+      '&::-webkit-scrollbar': {
+        width: '8px !important',
+      },
+      '&::-webkit-scrollbar-track': {
+        background: 'var(--bg-primary, ' + theme.palette.background.default + ') !important',
+      },
+      '&::-webkit-scrollbar-thumb': {
+        background: '#4B5563 !important',
+        borderRadius: '4px !important',
+      },
+      '&::-webkit-scrollbar-thumb:hover': {
+        background: '#6B7280 !important',
+      },
       '& .epr-emoji-category-content': {
         gridTemplateColumns: 'repeat(auto-fill, 28px)',
         gap: 84,
@@ -212,7 +271,8 @@ export const StyledEmojiWrapper = PuiStyled(PuiBox)(({ theme }) => ({
         },
       },
       '& .epr-emoji-category-label': {
-        color: theme.palette.grey[600],
+        color: 'var(--text-secondary, ' + theme.palette.grey[600] + ')',
+        backgroundColor: 'var(--bg-primary, ' + theme.palette.common.white + ')',
         fontFamily: 'Poppins, Inter, sans-serif',
         fontSize: 12,
         fontWeight: 500,
