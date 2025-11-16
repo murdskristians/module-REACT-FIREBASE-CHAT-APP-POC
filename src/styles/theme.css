@@ -117,3 +117,192 @@
   background: var(--dock-bg);
 }
 
+/* Dark mode - Search input */
+[data-theme='dark'] .conversation-panel__search {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+[data-theme='dark'] .conversation-panel__search input {
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .conversation-panel__search input::placeholder {
+  color: var(--text-secondary);
+}
+
+[data-theme='dark'] .conversation-panel__search-button {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+[data-theme='dark'] .conversation-panel__search-button:hover {
+  background: var(--bg-tertiary) !important;
+  color: var(--palette-primary) !important;
+}
+
+[data-theme='dark'] .conversation-panel__search [class*="MuiButtonBase-root"],
+[data-theme='dark'] .conversation-panel__search [class*="MuiIconButton-root"],
+[data-theme='dark'] .conversation-panel__search button[class*="Mui"],
+[data-theme='dark'] .conversation-panel__search button {
+  background-color: var(--bg-secondary) !important;
+  background: var(--bg-secondary) !important;
+  color: var(--text-secondary);
+}
+
+[data-theme='dark'] .conversation-panel__search [class*="MuiButtonBase-root"]:hover,
+[data-theme='dark'] .conversation-panel__search [class*="MuiIconButton-root"]:hover,
+[data-theme='dark'] .conversation-panel__search button[class*="Mui"]:hover,
+[data-theme='dark'] .conversation-panel__search button:hover {
+  background-color: var(--bg-tertiary) !important;
+  background: var(--bg-tertiary) !important;
+  color: var(--palette-primary) !important;
+}
+
+/* Dark mode - Chat header */
+[data-theme='dark'] .chat-panel__header {
+  background: var(--bg-primary);
+  border-bottom-color: var(--border-color);
+}
+
+/* Dark mode - Styled TopBar (Material-UI component) */
+[data-theme='dark'] div[class*="MuiStack"][class*="StyledTopBar"] {
+  background-color: var(--bg-primary) !important;
+}
+
+[data-theme='dark'] .MuiStack-root[class*="Styled"] {
+  background-color: var(--bg-primary) !important;
+}
+
+[data-theme='dark'] .chat-panel__meta h2 {
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .chat-panel__meta h2:hover {
+  color: var(--text-secondary);
+}
+
+[data-theme='dark'] .chat-panel__meta p {
+  color: var(--text-secondary);
+}
+
+[data-theme='dark'] .chat-panel__action {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+[data-theme='dark'] .chat-panel__action:hover {
+  background: var(--bg-secondary);
+}
+
+/* Dark mode - TopBar buttons */
+[data-theme='dark'] button[class*="StyledTopBarButton"] {
+  background: var(--bg-tertiary) !important;
+}
+
+[data-theme='dark'] button[class*="StyledTopBarButton"] svg {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme='dark'] button[class*="StyledTopBarButton"]:hover {
+  background: var(--bg-secondary) !important;
+}
+
+[data-theme='dark'] button[class*="StyledTopBarButton"]:hover svg {
+  color: var(--palette-primary) !important;
+}
+
+/* Dark mode - Conversation Info */
+[data-theme='dark'] [class*="StyledConversationTitle"] {
+  color: var(--text-primary) !important;
+}
+
+[data-theme='dark'] [class*="StyledConversationTitle"]:hover {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme='dark'] [class*="StyledConversationSubtitle"] {
+  color: var(--text-secondary) !important;
+}
+
+/* Dark mode - Divider */
+[data-theme='dark'] .MuiDivider-root {
+  border-color: var(--border-color) !important;
+}
+
+/* Dark mode - Message composer */
+[data-theme='dark'] .chat-panel__composer-row {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+[data-theme='dark'] .chat-panel__composer-row:focus-within {
+  border-color: var(--palette-primary);
+}
+
+[data-theme='dark'] .chat-panel__composer-input {
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .chat-panel__composer-input::placeholder {
+  color: var(--text-secondary);
+}
+
+[data-theme='dark'] .chat-panel__composer-button {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+[data-theme='dark'] .chat-panel__composer-button:hover {
+  background: var(--bg-primary);
+}
+
+[data-theme='dark'] .chat-panel__composer-divider {
+  background: var(--border-color);
+}
+
+/* Dark mode - AI panel composer */
+[data-theme='dark'] .ai-panel__composer-row {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+[data-theme='dark'] .ai-panel__input-box {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+[data-theme='dark'] .ai-panel__input-box:focus-within {
+  border-color: var(--palette-primary);
+}
+
+[data-theme='dark'] .ai-panel__composer-input {
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .ai-panel__composer-input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Dark mode - AI panel (MUI components in AiChatView) */
+[data-theme='dark'] .ai-panel input[type='text']::placeholder {
+  color: var(--text-secondary) !important;
+}
+
+/* Dark mode - Legacy message input (Channel component) */
+[data-theme='dark'] .message-input {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+[data-theme='dark'] .message-input:focus {
+  border-color: var(--palette-primary);
+}
+
+[data-theme='dark'] .message-input::placeholder {
+  color: var(--text-secondary);
+}
+

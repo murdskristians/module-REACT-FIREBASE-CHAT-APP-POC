@@ -53,6 +53,34 @@
   gap: 32px;
 }
 
+.dock__theme-toggle {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f3f5ff;
+  transition: all 0.2s ease;
+}
+
+.dock__theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.05);
+}
+
+.dock__theme-toggle:active {
+  transform: scale(0.95);
+}
+
+.dock__theme-toggle svg {
+  width: 24px;
+  height: 24px;
+}
+
 .dock__logo {
   width: 48px;
   height: 48px;

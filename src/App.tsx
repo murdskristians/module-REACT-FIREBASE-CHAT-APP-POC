@@ -21,9 +21,11 @@ function App() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Initialize palette from localStorage
+    // Initialize palette and theme from localStorage
     const savedPalette = localStorage.getItem('app-theme-palette') || 'default';
+    const savedTheme = localStorage.getItem('app-theme-mode') || 'light';
     document.documentElement.setAttribute('data-palette', savedPalette);
+    document.documentElement.setAttribute('data-theme', savedTheme);
 
     const unsubscribe = subscribeToAuthChanges((currentUser) => {
       setUser(currentUser);

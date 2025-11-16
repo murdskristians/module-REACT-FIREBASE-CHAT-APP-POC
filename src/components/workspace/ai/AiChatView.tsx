@@ -197,7 +197,7 @@ export const AiChatView: FC<AiChatViewProps> = ({
       <PuiBox
         sx={{
           padding: '16px 24px',
-          borderTop: '1px solid #e5e7eb',
+          borderTop: '1px solid var(--border-color, #e5e7eb)',
         }}
       >
         <PuiBox
@@ -206,10 +206,10 @@ export const AiChatView: FC<AiChatViewProps> = ({
           sx={{
             display: 'flex',
             gap: '12px',
-            background: '#f9fafb',
+            background: 'var(--bg-tertiary, #f9fafb)',
             borderRadius: '12px',
             padding: '12px 16px',
-            border: isInputActive ? '2px solid #6366f1' : '2px solid transparent',
+            border: isInputActive ? '2px solid #6366f1' : '2px solid var(--border-color, transparent)',
             transition: 'border-color 0.2s',
           }}
         >
@@ -229,6 +229,7 @@ export const AiChatView: FC<AiChatViewProps> = ({
               fontSize: '14px',
               fontFamily: "'Inter', sans-serif",
               resize: 'none',
+              color: 'var(--text-primary, #1f2131)',
             }}
           />
           <PuiButton

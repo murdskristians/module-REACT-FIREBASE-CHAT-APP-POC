@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { PuiBox, PuiTypography, PuiSwitch } from 'piche.ui';
+import { useTheme } from '../../hooks/useTheme';
 
-type ThemeMode = 'light' | 'dark';
 type ThemePalette = 'purple' | 'green' | 'orange' | 'pink' | 'default';
 
 const PALETTE_STORAGE_KEY = 'app-theme-palette';
@@ -38,7 +38,7 @@ const themePalettes = {
 };
 
 export const AppearanceTheme = () => {
-  const [themeMode, setThemeMode] = useState<ThemeMode>('light');
+  const { themeMode, toggleTheme } = useTheme();
 
   const [selectedPalette, setSelectedPalette] = useState<ThemePalette>(() => {
     const saved = localStorage.getItem(PALETTE_STORAGE_KEY);
@@ -49,11 +49,6 @@ export const AppearanceTheme = () => {
     localStorage.setItem(PALETTE_STORAGE_KEY, selectedPalette);
     document.documentElement.setAttribute('data-palette', selectedPalette);
   }, [selectedPalette]);
-
-  const handleThemeToggle = () => {
-    setThemeMode((prev) => (prev === 'light' ? 'dark' : 'light'));
-    // No functionality - just UI toggle
-  };
 
   const handlePaletteChange = (palette: ThemePalette) => {
     setSelectedPalette(palette);
@@ -112,9 +107,9 @@ export const AppearanceTheme = () => {
                 Switch to dark theme for better viewing in low light
               </PuiTypography>
             </PuiBox>
-            <PuiSwitch 
-              checked={themeMode === 'dark'} 
-              onChange={handleThemeToggle}
+            <PuiSwitch
+              checked={themeMode === 'dark'}
+              onChange={toggleTheme}
               sx={{
                 '& .MuiSwitch-track': {
                   backgroundColor: '#D1D5DB',

@@ -116,7 +116,7 @@ export function ConversationInput({
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            background: '#f6f8ff',
+            background: 'var(--palette-message-bg, #E8F4FB)',
             padding: '8px 12px',
             borderRadius: '12px',
             marginBottom: '8px',
@@ -157,7 +157,7 @@ export function ConversationInput({
             gap: '8px',
             padding: '8px 12px',
             borderRadius: '8px',
-            background: theme.palette.grey[50],
+            background: 'var(--bg-secondary, ' + theme.palette.grey[50] + ')',
             marginBottom: '8px',
             position: 'relative',
           }}
@@ -225,7 +225,7 @@ export function ConversationInput({
                 outline: 'none',
                 fontSize: '13px',
                 fontFamily: 'Poppins, Inter, sans-serif',
-                color: '#272727',
+                color: 'var(--text-primary, #272727)',
               }}
             />
             <VoiceInput onRecordingComplete={onRecordingComplete} />
@@ -235,7 +235,7 @@ export function ConversationInput({
                   style={{
                     width: '1px',
                     height: '24px',
-                    background: '#f0f0f0',
+                    background: 'var(--border-color, #f0f0f0)',
                     margin: '0 11px',
                   }}
                 />

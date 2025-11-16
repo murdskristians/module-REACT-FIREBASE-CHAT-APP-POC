@@ -13,7 +13,7 @@ export const StyledTopBar = PuiStyled(PuiStack)(({ theme }) => ({
   justifyContent: 'space-between',
   alignItems: 'center',
   padding: '16px 32px',
-  backgroundColor: theme.palette.common.white,
+  backgroundColor: 'var(--bg-primary, ' + theme.palette.common.white + ')',
   height: 64,
   zIndex: 1,
 }));
@@ -24,15 +24,15 @@ export const StyledTopBarButton = PuiStyled(PuiIconButton)(({ theme }) => ({
   width: '40px',
   height: '40px',
   svg: {
-    color: theme.palette.grey[400],
+    color: 'var(--text-secondary, ' + theme.palette.grey[400] + ')',
   },
   '&.MuiButtonBase-root': {
-    background: theme.palette.background.default,
+    background: 'var(--bg-tertiary, ' + theme.palette.background.default + ')',
   },
   '&.MuiButtonBase-root:hover': {
-    backgroundColor: theme.palette.grey[50],
+    backgroundColor: 'var(--bg-secondary, ' + theme.palette.grey[50] + ')',
     svg: {
-      color: theme.palette.primary.main,
+      color: 'var(--palette-primary, ' + theme.palette.primary.main + ')',
     },
   },
   '&.contained': {
@@ -80,11 +80,11 @@ export const StyledInputWrapper = PuiStyled(PuiStack)(() => ({
 }));
 
 export const StyledConversationInput = PuiStyled(PuiBox)(({ theme }) => ({
-  backgroundColor: theme.palette.background.default,
-  border: `1px solid ${theme.palette.grey[50]}`,
+  backgroundColor: 'var(--bg-tertiary, ' + theme.palette.background.default + ')',
+  border: '1px solid var(--border-color, ' + theme.palette.grey[50] + ')',
   borderRadius: '12px',
   '&.active': {
-    border: `1px solid ${theme.palette.grey[100]}`,
+    border: '1px solid var(--palette-primary, ' + theme.palette.grey[100] + ')',
   },
 }));
 
