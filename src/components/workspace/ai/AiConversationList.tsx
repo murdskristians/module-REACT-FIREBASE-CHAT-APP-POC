@@ -54,7 +54,7 @@ export const AiConversationList: FC<AiConversationListProps> = ({
       <PuiStack
         sx={{
           padding: '12px 24px',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid var(--border-color, #e5e7eb)',
           flexDirection: 'row',
           alignItems: 'center',
           gap: '12px',
@@ -74,20 +74,20 @@ export const AiConversationList: FC<AiConversationListProps> = ({
             justifyContent: 'center',
             transition: 'background 0.2s',
             '&:hover': {
-              background: '#f3f4f6',
+              background: 'var(--bg-tertiary, #f3f4f6)',
             },
           }}
         >
-          <PuiSvgIcon icon={PuiIcon.ArrowLeft} width={20} height={20} sx={{ color: '#374151' }} />
+          <PuiSvgIcon icon={PuiIcon.ArrowLeft} width={20} height={20} sx={{ color: 'var(--text-primary, #374151)' }} />
         </PuiButton>
-        <PuiTypography variant="body-lg-semibold" sx={{ fontSize: '16px', flex: 1 }}>
+        <PuiTypography variant="body-lg-semibold" sx={{ fontSize: '16px', flex: 1, color: 'var(--text-primary, #1f2937)' }}>
           History
         </PuiTypography>
         <PuiButton
           onClick={onNewConversation}
           sx={{
             padding: '8px 12px',
-            background: '#3398DB',
+            background: 'var(--palette-primary, #3398DB)',
             color: '#ffffff',
             borderRadius: '6px',
             border: 'none',
@@ -99,7 +99,7 @@ export const AiConversationList: FC<AiConversationListProps> = ({
             fontWeight: 500,
             transition: 'background 0.2s',
             '&:hover': {
-              background: '#2980b9',
+              background: 'var(--palette-primary-dark, #2980b9)',
             },
           }}
         >
@@ -129,7 +129,7 @@ export const AiConversationList: FC<AiConversationListProps> = ({
           >
             <PuiTypography
               variant="body-sm-regular"
-              sx={{ color: '#9ca3af', fontSize: '13px' }}
+              sx={{ color: 'var(--text-secondary, #9ca3af)', fontSize: '13px' }}
             >
               No conversations yet. Start a new one!
             </PuiTypography>
@@ -145,14 +145,14 @@ export const AiConversationList: FC<AiConversationListProps> = ({
                 cursor: 'pointer',
                 background:
                   selectedConversationId === conversation.id
-                    ? '#eef2ff'
+                    ? 'var(--bg-secondary, #eef2ff)'
                     : 'transparent',
                 transition: 'background 0.2s',
                 '&:hover': {
                   background:
                     selectedConversationId === conversation.id
-                      ? '#eef2ff'
-                      : '#f9fafb',
+                      ? 'var(--bg-secondary, #eef2ff)'
+                      : 'var(--bg-tertiary, #f9fafb)',
                 },
               }}
             >
@@ -171,8 +171,8 @@ export const AiConversationList: FC<AiConversationListProps> = ({
                   sx={{
                     color:
                       selectedConversationId === conversation.id
-                        ? '#6366f1'
-                        : '#9ca3af',
+                        ? 'var(--palette-primary, #6366f1)'
+                        : 'var(--text-secondary, #9ca3af)',
                     marginTop: '2px',
                   }}
                 />
@@ -181,10 +181,7 @@ export const AiConversationList: FC<AiConversationListProps> = ({
                   sx={{
                     flex: 1,
                     fontSize: '14px',
-                    color:
-                      selectedConversationId === conversation.id
-                        ? '#1f2937'
-                        : '#374151',
+                    color: 'var(--text-primary, #1f2937)',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     display: '-webkit-box',
@@ -200,7 +197,7 @@ export const AiConversationList: FC<AiConversationListProps> = ({
                 variant="body-xs-regular"
                 sx={{
                   fontSize: '11px',
-                  color: '#9ca3af',
+                  color: 'var(--text-secondary, #9ca3af)',
                   paddingLeft: '28px',
                 }}
               >

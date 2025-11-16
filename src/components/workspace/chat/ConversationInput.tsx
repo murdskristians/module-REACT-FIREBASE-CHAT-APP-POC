@@ -157,7 +157,7 @@ export function ConversationInput({
             gap: '8px',
             padding: '8px 12px',
             borderRadius: '8px',
-            background: 'var(--bg-secondary, ' + theme.palette.grey[50] + ')',
+            background: 'var(--bg-tertiary, ' + theme.palette.grey[50] + ')',
             marginBottom: '8px',
             position: 'relative',
           }}
@@ -174,9 +174,9 @@ export function ConversationInput({
               icon={PuiIcon.PlayFilled}
               width={20}
               height={20}
-              stroke={theme.palette.primary.main}
+              stroke={'var(--palette-primary, ' + theme.palette.primary.main + ')'}
             />
-            <PuiTypography variant="body-sm-regular" sx={{ fontSize: '13px' }}>
+            <PuiTypography variant="body-sm-regular" sx={{ fontSize: '13px', color: 'var(--text-primary, #1f2131)' }}>
               Voice message {formatDuration(pendingAudio.duration)}
             </PuiTypography>
           </PuiBox>
@@ -196,7 +196,7 @@ export function ConversationInput({
               icon={PuiIcon.XClose}
               width={16}
               height={16}
-              stroke={theme.palette.grey[300]}
+              stroke={'var(--text-secondary, ' + theme.palette.grey[300] + ')'}
             />
           </PuiBox>
         </PuiBox>
