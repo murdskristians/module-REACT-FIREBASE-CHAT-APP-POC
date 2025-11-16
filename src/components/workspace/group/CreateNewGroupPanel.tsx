@@ -19,8 +19,8 @@ const StyledGroupCreationWrapper = PuiStyled(PuiBox)(() => ({
   flexDirection: 'column',
   height: '100%',
   overflow: 'hidden',
-  background: '#ffffff',
-  borderLeft: '1px solid #f0f0f0',
+  background: 'var(--bg-primary, #ffffff)',
+  borderLeft: '1px solid var(--border-color, #f0f0f0)',
   position: 'relative',
   pointerEvents: 'auto',
   zIndex: 1001,
@@ -34,13 +34,13 @@ const StyledGroupCreationWrapper = PuiStyled(PuiBox)(() => ({
 
 const StyledHeaderDivider = PuiStyled(PuiBox)(() => ({
   height: '1px',
-  backgroundColor: '#f0f0f0',
+  backgroundColor: 'var(--border-color, #f0f0f0)',
   margin: '0 32px',
 }));
 
 const StyledGroupCreationBtnWrapper = PuiStyled(PuiBox)(() => ({
   padding: '20px 32px',
-  borderTop: '1px solid #f0f0f0',
+  borderTop: '1px solid var(--border-color, #f0f0f0)',
   marginTop: 'auto',
 }));
 
@@ -134,13 +134,22 @@ export function CreateNewGroupPanel({
             margin: 0,
             fontSize: '20px',
             fontWeight: 600,
-            color: '#272727',
+            color: 'var(--text-primary, #272727)',
             fontFamily: "'Poppins', 'Inter', sans-serif",
           }}
         >
           Create new group
         </PuiTypography>
-        <PuiIconButton onClick={onClose} aria-label="Close" size="small">
+        <PuiIconButton
+          onClick={onClose}
+          aria-label="Close"
+          size="small"
+          sx={{
+            '& svg': {
+              color: 'var(--text-primary, #272727)',
+            },
+          }}
+        >
           <PuiSvgIcon width={20} height={20} icon={PuiIcon.XClose} />
         </PuiIconButton>
       </PuiBox>
@@ -197,24 +206,24 @@ export function CreateNewGroupPanel({
           style={{
             flex: 1,
             minWidth: 0,
-            border: '1px solid #f0f0f0',
+            border: '1px solid var(--border-color, #f0f0f0)',
             borderRadius: '8px',
             padding: '12px 16px',
             fontSize: '14px',
             fontFamily: "'Poppins', 'Inter', sans-serif",
-            color: '#272727',
+            color: 'var(--text-primary, #272727)',
             outline: 'none',
-            background: '#ffffff',
+            background: 'var(--bg-primary, #ffffff)',
             cursor: 'text',
             pointerEvents: 'auto',
             zIndex: 1000,
             position: 'relative',
           }}
           onFocus={(e) => {
-            e.target.style.borderColor = '#3398DB';
+            e.target.style.borderColor = 'var(--palette-primary, #3398DB)';
           }}
           onBlur={(e) => {
-            e.target.style.borderColor = '#f0f0f0';
+            e.target.style.borderColor = 'var(--border-color, #f0f0f0)';
           }}
         />
       </PuiBox>
@@ -241,14 +250,14 @@ export function CreateNewGroupPanel({
           tabIndex={0}
           style={{
             width: '100%',
-            border: '1px solid #f0f0f0',
+            border: '1px solid var(--border-color, #f0f0f0)',
             borderRadius: '8px',
             padding: '12px 16px',
             fontSize: '14px',
             fontFamily: "'Poppins', 'Inter', sans-serif",
-            color: '#272727',
+            color: 'var(--text-primary, #272727)',
             outline: 'none',
-            background: '#ffffff',
+            background: 'var(--bg-primary, #ffffff)',
             boxSizing: 'border-box',
             cursor: 'text',
             pointerEvents: 'auto',
@@ -256,10 +265,10 @@ export function CreateNewGroupPanel({
             zIndex: 1000,
           }}
           onFocus={(e) => {
-            e.target.style.borderColor = '#3398DB';
+            e.target.style.borderColor = 'var(--palette-primary, #3398DB)';
           }}
           onBlur={(e) => {
-            e.target.style.borderColor = '#f0f0f0';
+            e.target.style.borderColor = 'var(--border-color, #f0f0f0)';
           }}
         />
       </PuiBox>
@@ -293,7 +302,7 @@ export function CreateNewGroupPanel({
                     cursor: 'pointer',
                     minHeight: '56px',
                     '&:hover': {
-                      backgroundColor: '#f6f8ff',
+                      backgroundColor: 'var(--bg-tertiary, #f6f8ff)',
                     },
                   }}
                 >
@@ -317,7 +326,7 @@ export function CreateNewGroupPanel({
                       sx={{
                         fontSize: '14px',
                         fontFamily: "'Poppins', 'Inter', sans-serif",
-                        color: '#272727',
+                        color: 'var(--text-primary, #272727)',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
@@ -371,7 +380,7 @@ export function CreateNewGroupPanel({
             variant="body-sm-medium"
             sx={{
               textAlign: 'center',
-              color: '#939393',
+              color: 'var(--text-secondary, #939393)',
               padding: '24px',
               fontSize: '13px',
               fontFamily: "'Poppins', 'Inter', sans-serif",
@@ -392,13 +401,13 @@ export function CreateNewGroupPanel({
           onClick={handleCreateGroup}
           sx={{
             backgroundColor:
-              selectedContactIds.size === 0 ? '#d0d0d0' : '#3398DB',
+              selectedContactIds.size === 0 ? 'var(--bg-tertiary, #d0d0d0)' : 'var(--palette-primary, #3398DB)',
             color: '#ffffff',
             '&:hover:not(.Mui-disabled)': {
-              backgroundColor: '#2980b9',
+              backgroundColor: 'var(--palette-primary-dark, #2980b9)',
             },
             '&.Mui-disabled': {
-              backgroundColor: '#d0d0d0 !important',
+              backgroundColor: 'var(--bg-tertiary, #d0d0d0) !important',
               color: '#ffffff',
             },
           }}
