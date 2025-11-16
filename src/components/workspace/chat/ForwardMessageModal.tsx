@@ -211,7 +211,16 @@ export const ForwardMessageModal: FC<ForwardMessageModalProps> = ({
         >
           Forward Message
         </PuiTypography>
-        <PuiIconButton onClick={handleClose} aria-label="Close" size="small">
+        <PuiIconButton
+          onClick={handleClose}
+          aria-label="Close"
+          size="small"
+          sx={{
+            '& svg': {
+              color: 'var(--text-primary, #272727)',
+            },
+          }}
+        >
           <PuiSvgIcon width={20} height={20} icon={PuiIcon.XClose} />
         </PuiIconButton>
       </PuiBox>
