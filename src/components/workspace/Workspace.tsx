@@ -4,7 +4,8 @@ import type firebaseCompat from 'firebase/compat/app';
 
 import './Workspace.css';
 
-import { AppDock } from './AppDock';
+// AppDock moved to host app (q-app)
+// import { AppDock } from './AppDock';
 import { ConversationList } from './ConversationList';
 import { ChatView } from './chat/ChatView';
 import { AiPanel } from './ai/AiPanel';
@@ -672,12 +673,14 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
   return (
     <MuiThemeProvider theme={theme}>
       <div className="workspace">
+        {/* AppDock moved to host app (q-app)
         <AppDock
           user={user}
           activeApp={activeApp}
           onSelectApp={handleSelectApp}
           onOpenProfile={handleOpenProfile}
         />
+        */}
 
         {activeApp === 'profile' ? (
           <section className="workspace__profile-view">

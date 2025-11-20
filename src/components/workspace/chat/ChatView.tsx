@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import type firebaseCompat from 'firebase/compat/app';
 
-import { PuiStack, PuiTypography } from 'piche.ui';
+import { PuiBox, PuiStack, PuiTypography } from 'piche.ui';
 
 import type { ConversationMessage, MessageReply, Conversation } from '../../../firebase/conversations';
 import type { Contact } from '../../../firebase/users';
@@ -55,9 +55,6 @@ export function ChatView({
   contactsMap,
   pendingUser,
   onContactClick,
-  conversations,
-  contacts,
-  onForwardMessage,
   onForward,
   onAddParticipant,
 }: ChatViewProps) {
@@ -163,7 +160,7 @@ export function ChatView({
     const callerId = callState.callingMessage.senderId;
     const caller = contactsMap.get(callerId);
     return caller
-      ? { name: caller.name, avatarUrl: caller.avatarUrl }
+      ? { displayName: caller.displayName, avatarUrl: caller.avatarUrl }
       : { name: 'Unknown', avatarUrl: undefined };
   }, [callState.callingMessage, contactsMap]);
 
@@ -189,8 +186,8 @@ export function ChatView({
             callState={callState}
             onAccept={acceptCall}
             onDecline={declineCall}
-            callerName={callerInfo.name}
-            callerAvatarUrl={callerInfo.avatarUrl}
+            callerName={callerInfo.displayName ?? ''}
+            callerAvatarUrl={callerInfo.avatarUrl ?? '' }
           />
         )}
         {/* Active call view */}
@@ -228,7 +225,7 @@ export function ChatView({
   };
 
   return (
-    <>
+    <PuiBox width="100%" height="100%" flexGrow="1"className="middlesection">
     <ChatAreaWrapper>
       <ConversationTopBar
         conversation={displayConversation}
@@ -305,7 +302,7 @@ export function ChatView({
           onAccept={acceptCall}
           onDecline={declineCall}
           callerName={callerInfo.name}
-          callerAvatarUrl={callerInfo.avatarUrl}
+          callerAvatarUrl={callerInfo.avatarUrl ?? ''}
         />
       )}
 
@@ -319,6 +316,6 @@ export function ChatView({
           onEndCall={endCall}
         />
       )}
-    </>
+    </PuiBox>
   );
 }
