@@ -1,6 +1,6 @@
 {
   "name": "react-firechat-poc",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
   "types": "dist/lib.d.ts",
