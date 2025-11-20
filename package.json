@@ -1,5 +1,5 @@
 {
-  "name": "react-firechat-poc",
+  "name": "module-react-firebase-chat-app-poc",
   "version": "0.1.17",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
@@ -7,23 +7,38 @@
   "files": [
     "dist"
   ],
+  "description": "Firebase chat workspace component for React applications",
+  "keywords": [
+    "react",
+    "firebase",
+    "chat",
+    "workspace",
+    "messaging",
+    "firestore"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/murdskristians/module-react-firechat-poc.git"
+  },
+  "author": "Kristians Murds",
+  "license": "MIT",
+  "homepage": "https://github.com/murdskristians/module-react-firechat-poc#readme",
+  "bugs": {
+    "url": "https://github.com/murdskristians/module-react-firechat-poc/issues"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "firebase": "^12.0.0",
+    "react-router-dom": "^6.0.0",
+    "piche.ui": "^1.1.0"
+  },
   "dependencies": {
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^14.0.0",
-    "@testing-library/user-event": "^13.5.0",
     "clsx": "^2.1.1",
     "darkmode-js": "^1.5.7",
     "date-fns": "^2.30.0",
     "emoji-picker-react": "^4.15.1",
-    "firebase": "^12.5.0",
-    "openai": "^6.9.0",
-    "piche.ui": "^1.1.461",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0",
-    "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "openai": "^6.9.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -59,16 +74,27 @@
     "@babel/preset-env": "^7.28.5",
     "@babel/preset-react": "^7.28.5",
     "@babel/preset-typescript": "^7.28.5",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^20.19.24",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^5.1.1",
+    "firebase": "^12.5.0",
     "firebase-admin": "^12.0.0",
+    "piche.ui": "^1.1.461",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0",
+    "react-scripts": "5.0.1",
     "typescript": "^4.9.5",
     "vite": "^7.2.2",
     "vite-plugin-css-injected-by-js": "^3.5.2",
-    "vite-plugin-dts": "^4.5.4"
+    "vite-plugin-dts": "^4.5.4",
+    "web-vitals": "^2.1.4"
   },
   "packageManager": "pnpm@9.12.0"
 }
