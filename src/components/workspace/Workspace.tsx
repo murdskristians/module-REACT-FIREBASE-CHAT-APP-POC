@@ -28,13 +28,9 @@ import {
   type MessageReply,
 } from '../../firebase/conversations';
 import {
-  getUserById,
   subscribeToContacts,
-  subscribeToUserProfile,
   type Contact,
 } from '../../firebase/users';
-import { MainPanelWrapper } from '../../pages/user-info/MainPanelWrapper';
-import type { ProfileContact } from '../../types/profile';
 import { theme } from '../../theme';
 
 type WorkspaceProps = {
@@ -55,7 +51,7 @@ type ActiveConversationState = {
   messages: ConversationMessage[];
 };
 
-export function Workspace({ user, onSignOut }: WorkspaceProps) {
+export function Workspace({ user }: WorkspaceProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationState, setActiveConversationState] =
     useState<ActiveConversationState>({
@@ -68,14 +64,6 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [currentUserProfile, setCurrentUserProfile] = useState<Contact | null>(
-    null
-  );
-  const [activeApp, setActiveApp] = useState<'chat' | 'profile'>('chat');
-  const [profileContact, setProfileContact] = useState<ProfileContact | null>(
-    null
-  );
-  const [isProfileLoading, setIsProfileLoading] = useState(true);
   const [showUserSearchModal, setShowUserSearchModal] = useState(false);
   const [pendingUser, setPendingUser] = useState<Contact | null>(null);
   const [selectedContactId, setSelectedContactId] = useState<string | null>(
@@ -89,12 +77,8 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
   const contactsMap = useMemo(() => {
     const map = new Map<string, Contact>();
     contacts.forEach((contact) => map.set(contact.id, contact));
-    // Include current user's profile in the map
-    if (currentUserProfile) {
-      map.set(currentUserProfile.id, currentUserProfile);
-    }
     return map;
-  }, [contacts, currentUserProfile]);
+  }, [contacts]);
 
   const createViewConversationFromContact = useCallback(
     (contact: Contact, conversationId: string): ViewConversation => {
@@ -116,13 +100,9 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
         return {
           ...conversation,
           displayTitle: 'Saved Messages',
-          displaySubtitle: currentUserProfile?.status ?? 'Last seen recently',
-          displayAvatarUrl:
-            currentUserProfile?.avatarUrl ?? conversation.avatarUrl ?? null,
-          displayAvatarColor:
-            currentUserProfile?.avatarColor ??
-            conversation.avatarColor ??
-            '#A8D0FF',
+          displaySubtitle: 'Last seen recently',
+          displayAvatarUrl: conversation.avatarUrl ?? null,
+          displayAvatarColor: conversation.avatarColor ?? '#A8D0FF',
           counterpartId: user.uid,
           isPinned: true, // Always pinned
         };
@@ -160,7 +140,6 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
         conversation.subtitle ??
         counterpart?.email ??
         'Last seen recently';
-      const currentUserAvatarUrl = currentUserProfile?.avatarUrl ?? null;
 
       console.log('[buildViewConversation] Avatar Debug', {
         conversationId: conversation.id,
@@ -169,16 +148,11 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
         counterpartFound: !!counterpart,
         counterpartAvatarUrl: counterpart?.avatarUrl ?? 'null/undefined',
         conversationAvatarUrl: conversation.avatarUrl ?? 'null/undefined',
-        currentUserAvatarUrl: currentUserAvatarUrl ?? 'null/undefined',
         isGroupConversation,
       });
       const displayAvatarUrl = isGroupConversation
         ? conversation.avatarUrl ?? null
-        : counterpart?.avatarUrl ??
-          (conversation.avatarUrl !== currentUserAvatarUrl
-            ? conversation.avatarUrl
-            : null) ??
-          null;
+        : counterpart?.avatarUrl ?? conversation.avatarUrl ?? null;
       const displayAvatarColor =
         conversation.avatarColor ?? counterpart?.avatarColor ?? '#A8D0FF';
 
@@ -198,7 +172,7 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
         counterpartId,
       };
     },
-    [contactsMap, user.uid, currentUserProfile]
+    [contactsMap, user.uid]
   );
 
   const viewConversations = useMemo<ViewConversation[]>(() => {
@@ -293,24 +267,6 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
   useEffect(() => {
     const unsubscribe = subscribeToContacts(user.uid, (nextContacts) => {
       setContacts(nextContacts);
-    });
-
-    return unsubscribe;
-  }, [user.uid]);
-
-  useEffect(() => {
-    // Load current user's profile
-    const loadUserProfile = async () => {
-      const profile = await getUserById(user.uid);
-      if (profile) {
-        setCurrentUserProfile(profile);
-      }
-    };
-    void loadUserProfile();
-    setIsProfileLoading(true);
-    const unsubscribe = subscribeToUserProfile(user.uid, (nextProfile) => {
-      setProfileContact(nextProfile);
-      setIsProfileLoading(false);
     });
 
     return unsubscribe;
@@ -469,14 +425,6 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
       setActiveConversationState({ conversation: null, messages: [] });
     }
   }, [selectedConversationId]);
-
-  const handleSelectApp = (app: 'chat' | 'profile') => {
-    setActiveApp(app);
-  };
-
-  const handleOpenProfile = () => {
-    setActiveApp('profile');
-  };
 
   const handleUserSelect = useCallback(
     async (selectedUser: Contact) => {
@@ -673,25 +621,9 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
   return (
     <MuiThemeProvider theme={theme}>
       <div className="workspace">
-        {/* AppDock moved to host app (q-app)
-        <AppDock
-          user={user}
-          activeApp={activeApp}
-          onSelectApp={handleSelectApp}
-          onOpenProfile={handleOpenProfile}
-        />
-        */}
+        {/* AppDock moved to host app (q-app) */}
 
-        {activeApp === 'profile' ? (
-          <section className="workspace__profile-view">
-            <MainPanelWrapper
-              onSignOut={onSignOut}
-              profileContact={profileContact}
-              isLoading={isProfileLoading}
-            />
-          </section>
-        ) : (
-          <>
+        <>
             <ConversationList
               conversations={filteredConversations}
               onSearchChange={setSearchTerm}
@@ -760,7 +692,6 @@ export function Workspace({ user, onSignOut }: WorkspaceProps) {
               <AiPanel />
             )}
           </>
-        )}
       </div>
 
       {/* User Search Modal */}
