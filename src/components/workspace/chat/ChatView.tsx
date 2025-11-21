@@ -225,7 +225,7 @@ export function ChatView({
   };
 
   return (
-    <PuiBox width="100%" height="100%" flexGrow="1"className="middlesection">
+    <PuiBox width="100%" height="100%" flexGrow="1" className="middlesection">
     <ChatAreaWrapper>
       <ConversationTopBar
         conversation={displayConversation}
@@ -242,7 +242,7 @@ export function ChatView({
         />
       )}
 
-      <MessagesContainer sx={{ paddingTop: pinnedMessages.length > 0 ? '44px' : 0 }}>
+      <MessagesContainer sx={{ paddingTop: pinnedMessages.length > 0 ? '44px' : 0, position: 'relative' }}>
         {isPendingConversation ? (
           <PuiStack
             height="100%"

@@ -45,11 +45,27 @@ export const MessageList: FC<MessageListProps> = ({
       ref={listRef}
       className="messages-container"
       sx={{
-        position: 'relative',
-        flexGrow: 1,
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         overflowY: 'auto',
-        height: '100%',
+        overflowX: 'hidden',
         paddingBottom: '24px',
+        '&::-webkit-scrollbar': {
+          width: '8px',
+        },
+        '&::-webkit-scrollbar-track': {
+          background: 'transparent',
+        },
+        '&::-webkit-scrollbar-thumb': {
+          background: '#d1d5db',
+          borderRadius: '4px',
+        },
+        '&::-webkit-scrollbar-thumb:hover': {
+          background: '#9ca3af',
+        },
       }}
     >
       <PuiStack

@@ -10,9 +10,12 @@ export interface CreateCallRoomOptions {
   conversationId: string;
   participants: string[];
   group?: boolean;
+  isHyi?: boolean;
 }
 
-export async function createCallRoom(options: CreateCallRoomOptions): Promise<string> {
+export async function createCallRoom(
+  options: CreateCallRoomOptions
+): Promise<string> {
   const currentUser = auth.currentUser;
   if (!currentUser) {
     throw new Error('User must be authenticated to create a call room');
@@ -45,7 +48,9 @@ export async function endCallRoom(roomId: string): Promise<void> {
   });
 }
 
-export async function sendCallMessage(message: SignallingMessage): Promise<void> {
+export async function sendCallMessage(
+  message: SignallingMessage
+): Promise<void> {
   const currentUser = auth.currentUser;
   if (!currentUser) {
     throw new Error('User must be authenticated to send call messages');
@@ -83,7 +88,7 @@ export function subscribeToIncomingCalls(
   callback: (message: SignallingMessage) => void
 ): () => void {
   const CALL_INVITATION_TIMEOUT_MS = 60000; // 60 seconds - ignore invitations older than this
-  
+
   const unsubscribe = db
     .collection(CALL_MESSAGES_COLLECTION)
     .where('type', '==', 'call-invitation')
@@ -91,11 +96,11 @@ export function subscribeToIncomingCalls(
     .onSnapshot(async (snapshot) => {
       // Process all changes and filter
       const changes = snapshot.docChanges();
-      
+
       // Sort by timestamp descending (most recent first)
       const sortedChanges = changes
-        .filter(change => change.type === 'added')
-        .map(change => ({
+        .filter((change) => change.type === 'added')
+        .map((change) => ({
           change,
           message: change.doc.data() as SignallingMessage,
         }))
@@ -103,49 +108,60 @@ export function subscribeToIncomingCalls(
           const timestampA = a.message.timestamp;
           const timestampB = b.message.timestamp;
           // Handle Firestore Timestamp objects
-          const timeA = timestampA instanceof Object && 'toMillis' in timestampA 
-            ? timestampA.toMillis() 
-            : typeof timestampA === 'number' 
-            ? timestampA 
-            : Date.now();
-          const timeB = timestampB instanceof Object && 'toMillis' in timestampB 
-            ? timestampB.toMillis() 
-            : typeof timestampB === 'number' 
-            ? timestampB 
-            : Date.now();
+          const timeA =
+            timestampA instanceof Object && 'toMillis' in timestampA
+              ? timestampA.toMillis()
+              : typeof timestampA === 'number'
+              ? timestampA
+              : Date.now();
+          const timeB =
+            timestampB instanceof Object && 'toMillis' in timestampB
+              ? timestampB.toMillis()
+              : typeof timestampB === 'number'
+              ? timestampB
+              : Date.now();
           return timeB - timeA; // Descending order
         });
 
       // Process only the most recent invitation
       if (sortedChanges.length > 0) {
         const { message } = sortedChanges[0];
-        
+
         // Check if invitation is too old
         let messageTimestamp: number;
-        if (message.timestamp instanceof Object && 'toMillis' in message.timestamp) {
+        if (
+          message.timestamp instanceof Object &&
+          'toMillis' in message.timestamp
+        ) {
           messageTimestamp = message.timestamp.toMillis();
         } else if (typeof message.timestamp === 'number') {
           messageTimestamp = message.timestamp;
         } else {
           // If timestamp is invalid, skip this message
-          console.log('Invalid timestamp in call invitation:', message.timestamp);
+          console.log(
+            'Invalid timestamp in call invitation:',
+            message.timestamp
+          );
           return;
         }
-        
+
         const now = Date.now();
         const age = now - messageTimestamp;
-        
+
         if (age > CALL_INVITATION_TIMEOUT_MS) {
           console.log('Ignoring old call invitation:', age, 'ms old');
           return;
         }
-        
+
         // Check if room is still active
         if (message.roomId) {
           try {
             const room = await getCallRoom(message.roomId);
             if (!room || room.endedAt) {
-              console.log('Ignoring call invitation for ended room:', message.roomId);
+              console.log(
+                'Ignoring call invitation for ended room:',
+                message.roomId
+              );
               return;
             }
           } catch (error) {
@@ -153,7 +169,7 @@ export function subscribeToIncomingCalls(
             // Continue processing if we can't check room status
           }
         }
-        
+
         // Only process recent invitations
         callback(message);
       }
@@ -187,4 +203,3 @@ export async function sendCallInvitation(
 
   await sendCallMessage(message);
 }
-
