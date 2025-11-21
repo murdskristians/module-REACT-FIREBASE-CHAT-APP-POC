@@ -51,8 +51,11 @@ export const StyledTopBarButton = PuiStyled(PuiIconButton)(({ theme }) => ({
 
 export const MessagesContainer = PuiStyled(PuiStack)(() => ({
   flexGrow: 1,
-  overflow: 'auto',
+  overflow: 'hidden',
   zIndex: 0,
+  minHeight: 0,
+  maxHeight: '100%',
+  position: 'relative',
 }));
 
 export const ConversationInfoWrapper = PuiStyled(PuiBox)({
