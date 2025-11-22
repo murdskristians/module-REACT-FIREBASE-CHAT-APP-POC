@@ -62,6 +62,7 @@ type ConversationListProps = {
   onPinToggle: (conversationId: string, isPinned: boolean) => void;
   onHideToggle: (conversationId: string, isHidden: boolean) => void;
   onCreateGroup?: () => void;
+  isVisible?: boolean;
 };
 
 const formatTimestamp = (timestamp?: firebase.firestore.Timestamp | null) => {
@@ -91,7 +92,9 @@ export function ConversationList({
   onPinToggle,
   onHideToggle,
   onCreateGroup,
+  isVisible = true,
 }: ConversationListProps) {
+  console.log('[ConversationList] Rendering, isVisible:', isVisible);
   const [contextMenu, setContextMenu] = useState<{
     conversationId: string;
     x: number;
@@ -163,7 +166,14 @@ export function ConversationList({
   };
 
   return (
-    <section className="conversation-panel" aria-label="Conversation list">
+    <section 
+      className={`conversation-panel ${!isVisible ? 'conversation-panel--hidden' : ''}`} 
+      aria-label="Conversation list"
+      style={{ 
+        display: 'flex',
+        visibility: !isVisible ? 'hidden' : 'visible',
+      }}
+    >
       <label className="conversation-panel__search">
         <div style={{ position: 'relative', zIndex: 1003 }}>
           <StyledPlusButton

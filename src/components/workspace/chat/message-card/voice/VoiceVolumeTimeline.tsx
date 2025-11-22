@@ -79,6 +79,10 @@ export const VoiceVolumeTimeline: FC<VoiceVolumeTimelineProps> = ({ duration, vo
         height: '15px',
         flexGrow: 1,
         gap: '2px',
+        width: '100%',
+        maxWidth: '100%',
+        minWidth: 0,
+        overflow: 'hidden',
       }}
     >
       {normalizedLevels.map((level, index) => {

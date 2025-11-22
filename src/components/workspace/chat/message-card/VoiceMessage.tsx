@@ -6,7 +6,7 @@ import { VoiceVolumeTimeline } from './voice/VoiceVolumeTimeline';
 interface VoiceMessageProps {
   message: ConversationMessage;
   isUserMessage?: boolean;
-  time?: string;
+  time?: string; // Time is passed but not displayed here - it's shown in TextMessage or separately
 }
 
 const formatDuration = (ms: number): string => {
@@ -129,6 +129,7 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ message, isUserMessage = f
         gap: '8px',
         width: '100%',
         maxWidth: '282px',
+        padding: '4px 0',
       }}
     >
       <audio ref={audioRef} src={message.audioUrl || undefined} preload="metadata" />
@@ -167,6 +168,7 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ message, isUserMessage = f
           width: '100%',
           flex: 1,
           minWidth: 0,
+          padding: '0 4px',
         }}
       >
         {/* Waveform */}
@@ -177,6 +179,9 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ message, isUserMessage = f
             height: '15px',
             flexGrow: 1,
             marginBottom: '4px',
+            width: '100%',
+            maxWidth: '100%',
+            overflow: 'hidden',
           }}
         >
           <VoiceVolumeTimeline
@@ -246,28 +251,6 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ message, isUserMessage = f
               </PuiTypography>
             </PuiIconButton>
           </PuiBox>
-          
-          {/* Time and status - aligned to the right */}
-          {time && (
-            <PuiBox
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                marginLeft: 'auto',
-              }}
-            >
-              <PuiTypography
-                variant="body-sm-regular"
-                sx={{
-                  fontSize: '11px',
-                  color: theme.palette.grey[500],
-                }}
-              >
-                {time}
-              </PuiTypography>
-            </PuiBox>
-          )}
         </PuiBox>
       </PuiBox>
     </PuiBox>

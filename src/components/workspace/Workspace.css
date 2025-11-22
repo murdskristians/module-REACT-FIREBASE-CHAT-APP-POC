@@ -8,9 +8,39 @@
   }
 }
 
+@keyframes ratCrawl {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(calc(100vw - 60px));
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes aiButtonMove {
+  0% {
+    right: 14px;
+  }
+  25% {
+    right: calc(25vw - 12px);
+  }
+  50% {
+    right: calc(50vw - 12px);
+  }
+  75% {
+    right: calc(25vw - 12px);
+  }
+  100% {
+    right: 14px;
+  }
+}
+
 .workspace {
   display: grid;
-  grid-template-columns: 315px minmax(0, 1fr) 380px;
+  grid-template-columns: 315px minmax(400px, 1fr) minmax(380px, 420px);
   height: 100%;
   background: linear-gradient(180deg, #f6f8ff 0%, #ffffff 100%);
   color: #1f2131;
@@ -1001,6 +1031,13 @@
   background-image: none !important;
 }
 
+/* Chat middle section */
+.middlesection {
+  min-width: 400px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
 /* AI panel */
 .ai-panel {
   background: #ffffff;
@@ -1009,6 +1046,30 @@
   flex-direction: column;
   overflow: hidden;
   height: 100%;
+  min-width: 380px;
+  max-width: 420px;
+}
+
+/* Mobile AI panel - full screen, replaces middlesection */
+@media (max-width: 900px) {
+  .ai-panel--mobile {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 999 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    border-left: none !important;
+    background: #ffffff !important;
+    transition: transform 0.3s ease-in-out;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
 }
 
 .ai-panel__header {
@@ -1124,29 +1185,395 @@
   color: #C380C6;
 }
 
+/* Tablet and smaller desktop */
 @media (max-width: 1360px) {
   .workspace {
     grid-template-columns: 280px minmax(0, 1fr) 340px;
   }
 }
 
+/* Tablet landscape */
 @media (max-width: 1200px) {
   .workspace {
-    grid-template-columns: 280px minmax(0, 1fr);
+    grid-template-columns: 280px minmax(400px, 1fr);
   }
 
-  .ai-panel {
+  .ai-panel:not(.ai-panel--mobile) {
     display: none;
+  }
+  
+  .ai-panel--mobile {
+    display: flex !important;
   }
 }
 
+/* Tablet portrait and small desktop */
 @media (max-width: 900px) {
   .workspace {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .conversation-panel {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.3s ease-in-out;
+    background: var(--bg-primary, #ffffff);
+  }
+  
+  .conversation-panel--hidden {
+    transform: translateX(-100%);
+  }
+  
+  .middlesection {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+    transition: transform 0.3s ease-in-out;
+    background: var(--bg-primary, #ffffff);
+  }
+  
+  /* Hide chat view when conversation list is shown on mobile */
+  .middlesection--hidden {
+    transform: translateX(100%);
+    pointer-events: none;
+  }
+  
+  .chat-panel__header {
+    padding: 12px 16px;
+    height: 56px;
+  }
+  
+  .chat-panel__composer {
+    margin: 0 16px 16px 16px;
+  }
+  
+  .conversation-panel__search {
+    margin: 0 12px;
+    padding: 8px 12px;
+    height: 36px;
+  }
+}
+
+/* Mobile landscape and large phones */
+@media (max-width: 768px) {
+  .workspace {
+    grid-template-columns: minmax(0, 1fr);
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile */
+  }
+  
+  .conversation-panel {
     display: none;
+  }
+  
+  .chat-panel__header {
+    padding: 10px 12px;
+    height: 52px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .chat-panel__avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 12px;
+  }
+  
+  .chat-panel__meta h2 {
+    font-size: 13px;
+  }
+  
+  .chat-panel__meta p {
+    font-size: 11px;
+  }
+  
+  .chat-panel__action {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .chat-panel__composer {
+    margin: 0 12px 12px 12px;
+    gap: 6px;
+  }
+  
+  .chat-panel__composer-row {
+    padding: 10px 12px;
+    border-radius: 20px;
+  }
+  
+  .chat-panel__composer-button {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+  }
+  
+  .chat-panel__composer-input {
+    font-size: 14px; /* Prevent zoom on iOS */
+  }
+  
+  .chat-panel__messages {
+    padding-bottom: 8px;
+  }
+  
+  .conversation-panel__item {
+    padding: 10px 8px;
+    gap: 10px;
+  }
+  
+  .conversation-panel__avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 14px;
+  }
+  
+  .conversation-panel__item-title {
+    font-size: 14px;
+  }
+  
+  .conversation-panel__item-subtitle {
+    font-size: 13px;
+  }
+  
+  .conversation-panel__item-time {
+    font-size: 11px;
+  }
+  
+  .middlesection {
+    min-width: 0;
+  }
+}
+
+/* Mobile portrait - small phones */
+@media (max-width: 480px) {
+  .workspace {
+    grid-template-columns: minmax(0, 1fr);
+    height: 100vh;
+    height: 100dvh;
+  }
+  
+  .chat-panel__header {
+    padding: 8px 10px;
+    height: 48px;
+  }
+  
+  .chat-panel__avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+  }
+  
+  .chat-panel__meta h2 {
+    font-size: 12px;
+  }
+  
+  .chat-panel__meta p {
+    font-size: 10px;
+  }
+  
+  .chat-panel__actions {
+    gap: 8px;
+  }
+  
+  .chat-panel__action {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .chat-panel__composer {
+    margin: 0 10px 10px 10px;
+    gap: 4px;
+  }
+  
+  .chat-panel__composer-row {
+    padding: 8px 10px;
+    border-radius: 24px;
+  }
+  
+  .chat-panel__composer-button {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+  }
+  
+  .chat-panel__composer-input {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  .conversation-panel__item {
+    padding: 12px 8px;
+  }
+  
+  .conversation-panel__avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 15px;
+  }
+  
+  .conversation-panel__item-title {
+    font-size: 15px;
+  }
+  
+  .conversation-panel__item-subtitle {
+    font-size: 13px;
+  }
+  
+  .chat-messages__bubble {
+    padding: 12px 14px;
+    border-radius: 16px;
+    max-width: 85%;
+  }
+  
+  .chat-messages__text {
+    font-size: 14px;
+  }
+  
+  .popup-menu {
+    width: 140px;
+  }
+  
+  .popup-menu-item {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+}
+
+/* Very small phones (iPhone SE, etc.) */
+@media (max-width: 375px) {
+  .chat-panel__header {
+    padding: 6px 8px;
+    height: 44px;
+  }
+  
+  .chat-panel__avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+  }
+  
+  .chat-panel__meta h2 {
+    font-size: 11px;
+  }
+  
+  .chat-panel__meta p {
+    font-size: 9px;
+  }
+  
+  .chat-panel__action {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .chat-panel__composer {
+    margin: 0 8px 8px 8px;
+  }
+  
+  .chat-panel__composer-row {
+    padding: 6px 8px;
+  }
+  
+  .chat-panel__composer-button {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+  }
+  
+  .chat-messages__bubble {
+    padding: 10px 12px;
+    max-width: 90%;
+  }
+  
+  .chat-messages__text {
+    font-size: 13px;
+  }
+  
+  .conversation-panel__item {
+    padding: 10px 6px;
+  }
+  
+  .conversation-panel__avatar {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* Touch-friendly improvements for mobile */
+@media (max-width: 768px) {
+  /* Increase touch target sizes */
+  .chat-panel__action,
+  .chat-panel__composer-button,
+  .conversation-panel__item {
+    min-height: 44px; /* iOS recommended minimum */
+  }
+  
+  .chat-panel__composer-button {
+    min-width: 44px;
+  }
+  
+  /* Better spacing for touch */
+  .chat-panel__actions {
+    gap: 12px;
+  }
+  
+  .conversation-panel__item {
+    padding: 12px 8px;
+  }
+  
+  /* Prevent text selection on buttons */
+  .chat-panel__action,
+  .chat-panel__composer-button,
+  .conversation-panel__item,
+  button {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+  
+  /* Improve scroll behavior */
+  .conversation-panel__list,
+  .messages-container {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  /* Better input handling on iOS */
+  .chat-panel__composer-input {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  input[type="search"],
+  input[type="text"] {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+/* Very small phones - additional optimizations */
+@media (max-width: 375px) {
+  /* Even more compact spacing */
+  .chat-panel__header {
+    padding: 6px 8px;
+  }
+  
+  .chat-panel__composer {
+    margin: 0 8px 8px 8px;
+  }
+  
+  .conversation-panel__item {
+    padding: 10px 6px;
+  }
+  
+  /* Smaller gaps */
+  .chat-panel__actions {
+    gap: 8px;
   }
 }
 

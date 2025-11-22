@@ -1,21 +1,32 @@
 import { PuiBox, PuiStyled, PuiTypography } from 'piche.ui';
 
 export const StyledMessageTextWrapper = PuiStyled(PuiBox)(() => ({
-  width: 'max-content',
+  width: '100%',
   flexWrap: 'wrap',
-  minWidth: '100%',
+  minWidth: 0,
   maxWidth: '100%',
   marginRight: 'auto',
   whiteSpace: 'normal',
+  wordBreak: 'break-word',
+  overflowWrap: 'break-word',
 }));
 
 export const StyledTextContent = PuiStyled(PuiTypography)(({ theme }) => ({
   wordBreak: 'break-word',
+  overflowWrap: 'break-word',
   whiteSpace: 'pre-wrap',
-  display: 'inline',
+  display: 'block',
   fontSize: '13px',
-  lineHeight: 1.6,
+  lineHeight: 1.5,
   fontFamily: "'Poppins', 'Inter', sans-serif",
+  maxWidth: '100%',
+  minWidth: 0,
+  width: '100%',
+  hyphens: 'auto',
+  '@media (max-width: 768px)': {
+    fontSize: '12px',
+    lineHeight: 1.4,
+  },
   '& .mention': {
     color: theme.palette.primary.main,
     fontSize: '13px',
@@ -27,6 +38,9 @@ export const StyledTextContent = PuiStyled(PuiTypography)(({ theme }) => ({
     borderRadius: '4px',
     backgroundColor: theme.palette.primary.light,
     cursor: 'pointer',
+    '@media (max-width: 768px)': {
+      fontSize: '12px',
+    },
   },
 }));
 

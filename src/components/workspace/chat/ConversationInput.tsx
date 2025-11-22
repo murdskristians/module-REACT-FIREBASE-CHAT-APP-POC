@@ -1,5 +1,5 @@
 import { PuiBox, PuiIcon, PuiSvgIcon, PuiTypography, useTheme } from 'piche.ui';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useRef, useCallback } from 'react';
 
 import type { MessageReply } from '../../../firebase/conversations';
 import { AddMedia } from './AddMedia';
@@ -9,6 +9,7 @@ import { SendMessage } from './SendMessage';
 import { StyledConversationInput, StyledInputBox, StyledInputWrapper } from './StyledComponents';
 import { VoiceInput } from './VoiceInput';
 import { FilesInputArea, FilePreviewItem } from './file-preview/FilesInputArea';
+import { useNotification, NotificationType } from '../../notifications/NotificationProvider';
 
 interface PendingAudio {
   id: string;
@@ -52,7 +53,10 @@ export function ConversationInput({
   onReplyToChange,
 }: ConversationInputProps) {
   const theme = useTheme();
+  const { showNotification } = useNotification();
   const [isInputActive, setIsInputActive] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
 
   const handleEmojiSelect = (emoji: string) => {
     setComposerValue(composerValue + emoji);
@@ -62,20 +66,76 @@ export function ConversationInput({
     setPendingFiles(pendingFiles.filter(f => f.id !== id));
   };
 
-  const handleFileSelect = (file: File) => {
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-    if (file.size > MAX_FILE_SIZE) {
-      alert(`File size exceeds 10MB limit. Selected file is ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+  const isVideoFile = (file: File): boolean => {
+    return file.type.startsWith('video/') || /\.(mp4|webm|ogg|mov|avi|mkv|flv|wmv|m4v)$/i.test(file.name);
+  };
+
+  const handleFileSelect = useCallback((file: File) => {
+    const MAX_VIDEO_SIZE = 20 * 1024 * 1024; // 20MB for video
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB for other files
+    
+    // Check video file size
+    if (isVideoFile(file) && file.size > MAX_VIDEO_SIZE) {
+      const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+      showNotification({
+        message: `Video file is too large (${fileSizeMB}MB). Maximum size for a single video is 20MB.`,
+        type: NotificationType.Error,
+      });
       return;
     }
+    
+    // Check other file sizes
+    if (!isVideoFile(file) && file.size > MAX_FILE_SIZE) {
+      const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+      showNotification({
+        message: `File size exceeds 10MB limit. Selected file is ${fileSizeMB}MB`,
+        type: NotificationType.Error,
+      });
+      return;
+    }
+    
     const newFile: FilePreviewItem = {
       id: `${Date.now()}-${Math.random()}`,
       file,
       isUploading: false,
       isUploaded: false,
     };
-    setPendingFiles([...pendingFiles, newFile]);
-  };
+    setPendingFiles((prev) => [...prev, newFile]);
+  }, [showNotification, setPendingFiles]);
+
+  const handleFilesSelected = useCallback((files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    Array.from(files).forEach(file => handleFileSelect(file));
+  }, [handleFileSelect]);
+
+  // Drag and drop handlers
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      handleFilesSelected(files);
+    }
+  }, [handleFilesSelected]);
 
   const handleRemoveAudio = () => {
     if (onRemoveAudio) {
@@ -109,7 +169,31 @@ export function ConversationInput({
   };
 
   return (
-    <StyledInputWrapper>
+    <StyledInputWrapper
+      ref={dropZoneRef}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+      sx={{
+        position: 'relative',
+        ...(isDragging && {
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            border: '2px dashed var(--palette-primary, #4AA3DF)',
+            borderRadius: '12px',
+            backgroundColor: 'rgba(74, 163, 223, 0.05)',
+            zIndex: 1000,
+            pointerEvents: 'none',
+          },
+        }),
+      }}
+    >
       {replyTo && (
         <PuiBox
           sx={{

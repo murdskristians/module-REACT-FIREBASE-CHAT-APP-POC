@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import type firebaseCompat from 'firebase/compat/app';
 
 import { PuiBox, PuiStack, PuiTypography } from 'piche.ui';
@@ -36,6 +36,9 @@ type ChatViewProps = {
   onForwardMessage: (message: ConversationMessage, targetConversationIds: string[], forwardText?: string) => Promise<void>;
   onForward: (message: ConversationMessage) => void;
   onAddParticipant?: () => void;
+  onBackToConversationList?: () => void;
+  showConversationList?: boolean;
+  onOpenAiPanel?: () => void;
 };
 
 interface PendingAudio {
@@ -57,6 +60,9 @@ export function ChatView({
   onContactClick,
   onForward,
   onAddParticipant,
+  onBackToConversationList,
+  showConversationList = true,
+  onOpenAiPanel,
 }: ChatViewProps) {
   const {
     callState,
@@ -90,6 +96,40 @@ export function ChatView({
     }
   }, [messages]);
 
+  // Helper function to extract audio data from audio file
+  const extractAudioData = useCallback(async (audioFile: File): Promise<{ duration: number; volumeLevels: number[] }> => {
+    return new Promise((resolve, reject) => {
+      const audio = new Audio();
+      const url = URL.createObjectURL(audioFile);
+      
+      audio.src = url;
+      audio.preload = 'metadata';
+      
+      audio.onloadedmetadata = () => {
+        const duration = audio.duration * 1000; // Convert to milliseconds
+        
+        // Generate volume levels (simplified - in real app you'd analyze the audio)
+        const volumeLevels: number[] = [];
+        const segments = 67; // Same as voice recording
+        const baseVolume = 0.3; // Base volume level
+        
+        for (let i = 0; i < segments; i++) {
+          // Generate random volume levels with some variation
+          const variation = (Math.random() - 0.5) * 0.4;
+          volumeLevels.push(Math.max(0.1, Math.min(1, baseVolume + variation)));
+        }
+        
+        URL.revokeObjectURL(url);
+        resolve({ duration, volumeLevels });
+      };
+      
+      audio.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error('Failed to load audio file'));
+      };
+    });
+  }, []);
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -102,11 +142,41 @@ export function ChatView({
       return;
     }
 
-    const files = pendingFiles.map(f => f.file);
+    // Check if there are audio files that should be treated as voice messages
+    const audioFiles = pendingFiles.filter(f => {
+      const file = f.file;
+      return file.type.startsWith('audio/') || /\.(mp3|wav|ogg|m4a|aac|flac|wma|opus)$/i.test(file.name);
+    });
+    
+    const otherFiles = pendingFiles.filter(f => {
+      const file = f.file;
+      return !file.type.startsWith('audio/') && !/\.(mp3|wav|ogg|m4a|aac|flac|wma|opus)$/i.test(file.name);
+    });
+
+    let audioToSend = pendingAudio;
+    
+    // If there's an audio file and no pending audio, process it as voice message
+    if (audioFiles.length > 0 && !pendingAudio) {
+      const firstAudioFile = audioFiles[0];
+      try {
+        const { duration, volumeLevels } = await extractAudioData(firstAudioFile.file);
+        audioToSend = {
+          id: `${Date.now()}-${Math.random()}`,
+          blob: firstAudioFile.file,
+          duration,
+          volumeLevels,
+          url: URL.createObjectURL(firstAudioFile.file),
+        };
+      } catch (error) {
+        console.error('Failed to extract audio data:', error);
+      }
+    }
+
+    const files = otherFiles.map(f => f.file);
     await onSendMessage({ 
       text, 
       files: files.length > 0 ? files : undefined,
-      audio: pendingAudio ? { blob: pendingAudio.blob, duration: pendingAudio.duration, volumeLevels: pendingAudio.volumeLevels } : undefined,
+      audio: audioToSend ? { blob: audioToSend.blob, duration: audioToSend.duration, volumeLevels: audioToSend.volumeLevels } : undefined,
       replyTo 
     });
 
@@ -115,6 +185,9 @@ export function ChatView({
     if (pendingAudio) {
       URL.revokeObjectURL(pendingAudio.url);
       setPendingAudio(null);
+    }
+    if (audioToSend && audioToSend !== pendingAudio) {
+      URL.revokeObjectURL(audioToSend.url);
     }
     setReplyTo(null);
   };
@@ -224,14 +297,69 @@ export function ChatView({
     onForward(message);
   };
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 900;
+
   return (
-    <PuiBox width="100%" height="100%" flexGrow="1" className="middlesection">
+    <PuiBox 
+      width="100%" 
+      height="100%" 
+      flexGrow="1" 
+      className={`middlesection ${isMobile && showConversationList ? 'middlesection--hidden' : ''}`}
+      sx={{ position: 'relative' }}
+    >
+    {isMobile && onOpenAiPanel && !showConversationList && conversation && (
+      <PuiBox
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('[ChatView] AI button clicked');
+          if (onOpenAiPanel) {
+            onOpenAiPanel();
+          }
+        }}
+        sx={{
+          position: 'fixed',
+          bottom: '79px',
+          right: '14px',
+          zIndex: 10000,
+          cursor: 'pointer',
+          pointerEvents: 'auto',
+          animation: 'aiButtonMove 80s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+        }}
+      >
+        {/* AI circle - увеличен в 1.25 раза (19px * 1.25 = 23.75px, округлим до 24px) */}
+        <PuiBox
+          sx={{
+            width: '24px',
+            height: '24px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 2px 8px rgba(102, 126, 234, 0.4)',
+            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+            '&:active': {
+              transform: 'scale(0.9)',
+            },
+            '&:hover': {
+              boxShadow: '0 4px 12px rgba(102, 126, 234, 0.6)',
+              transform: 'scale(1.1)',
+            },
+          }}
+        >
+          <span style={{ color: '#ffffff', fontSize: '10px', fontWeight: 700, letterSpacing: '0.3px' }}>AI</span>
+        </PuiBox>
+      </PuiBox>
+    )}
     <ChatAreaWrapper>
       <ConversationTopBar
         conversation={displayConversation}
         onContactClick={onContactClick}
         onStartCall={startCall}
         onAddParticipant={onAddParticipant}
+        onBackToConversationList={onBackToConversationList}
+        showConversationList={showConversationList}
       />
       {!isPendingConversation && (
         <PinnedMessages

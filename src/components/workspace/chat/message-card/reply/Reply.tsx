@@ -1,4 +1,4 @@
-import { PuiBox, PuiStack, PuiTypography, useTheme } from 'piche.ui';
+import { PuiBox, PuiIcon, PuiSvgIcon, PuiStack, PuiTypography, useTheme } from 'piche.ui';
 import type { FC } from 'react';
 
 import type { MessageReply } from '../../../../../firebase/conversations';
@@ -57,6 +57,60 @@ export const Reply: FC<ReplyProps> = ({ replyTo, onClick, backgroundColor, isUse
                 <StyledReplyImage>
                   <img src={replyTo.imageUrl} alt="Reply preview" />
                 </StyledReplyImage>
+                {replyTo.text && (
+                  <StyledReplyText variant="body-sm-regular">
+                    {replyTo.text}
+                  </StyledReplyText>
+                )}
+              </PuiBox>
+            ) : replyTo.type === 'video' && replyTo.fileUrl ? (
+              <PuiBox sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <PuiBox
+                  sx={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '4px',
+                    background: theme.palette.grey[100],
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <PuiSvgIcon
+                    icon={PuiIcon.PlayFilled}
+                    width={20}
+                    height={20}
+                    stroke={theme.palette.grey[400]}
+                  />
+                </PuiBox>
+                {replyTo.text && (
+                  <StyledReplyText variant="body-sm-regular">
+                    {replyTo.text}
+                  </StyledReplyText>
+                )}
+              </PuiBox>
+            ) : replyTo.type === 'audio' && replyTo.fileUrl ? (
+              <PuiBox sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <PuiBox
+                  sx={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '4px',
+                    background: theme.palette.grey[100],
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <PuiSvgIcon
+                    icon={PuiIcon.PlayFilled}
+                    width={20}
+                    height={20}
+                    stroke={theme.palette.grey[400]}
+                  />
+                </PuiBox>
                 {replyTo.text && (
                   <StyledReplyText variant="body-sm-regular">
                     {replyTo.text}

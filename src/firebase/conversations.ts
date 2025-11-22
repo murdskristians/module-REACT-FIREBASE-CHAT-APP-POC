@@ -41,7 +41,8 @@ export type MessageReply = {
   senderName?: string | null;
   text?: string | null;
   imageUrl?: string | null;
-  type: 'text' | 'image';
+  fileUrl?: string | null; // For video/audio files
+  type: 'text' | 'image' | 'video' | 'audio' | 'file';
   createdAt?: firebase.firestore.Timestamp | null;
 };
 
@@ -52,7 +53,11 @@ export type MessageForward = {
   originalSenderName?: string | null;
   originalText?: string | null;
   originalImageUrl?: string | null;
-  originalType: 'text' | 'image';
+  originalFileUrls?: string[] | null;
+  originalAudioUrl?: string | null;
+  originalAudioDuration?: number | null;
+  originalAudioVolumeLevels?: number[] | null;
+  originalType: 'text' | 'image' | 'file' | 'audio' | 'video';
   originalCreatedAt?: firebase.firestore.Timestamp | null;
 };
 
@@ -68,7 +73,7 @@ export type ConversationMessage = {
   audioUrl?: string | null;
   audioDuration?: number | null;
   audioVolumeLevels?: number[] | null;
-  type: 'text' | 'image' | 'file' | 'audio';
+  type: 'text' | 'image' | 'file' | 'audio' | 'video';
   createdAt?: firebase.firestore.Timestamp | null;
   isPinned?: boolean;
   pinnedBy?: string | null;
@@ -155,6 +160,7 @@ export function subscribeToConversationMessages(
             senderName: data.replyTo.senderName ?? null,
             text: data.replyTo.text ?? null,
             imageUrl: data.replyTo.imageUrl ?? null,
+            fileUrl: data.replyTo.fileUrl ?? null,
             type: data.replyTo.type ?? 'text',
             createdAt: data.replyTo.createdAt ?? null,
           } : null,
@@ -165,6 +171,10 @@ export function subscribeToConversationMessages(
             originalSenderName: data.forwardedFrom.originalSenderName ?? null,
             originalText: data.forwardedFrom.originalText ?? null,
             originalImageUrl: data.forwardedFrom.originalImageUrl ?? null,
+            originalFileUrls: data.forwardedFrom.originalFileUrls ?? null,
+            originalAudioUrl: data.forwardedFrom.originalAudioUrl ?? null,
+            originalAudioDuration: data.forwardedFrom.originalAudioDuration ?? null,
+            originalAudioVolumeLevels: data.forwardedFrom.originalAudioVolumeLevels ?? null,
             originalType: data.forwardedFrom.originalType ?? 'text',
             originalCreatedAt: data.forwardedFrom.originalCreatedAt ?? null,
           } : null,
@@ -210,28 +220,60 @@ export async function sendMessage({
   let uploadedImageUrl: string | undefined;
   let uploadedFileUrls: string[] = [];
   let uploadedAudioUrl: string | undefined;
-  let messageType: 'text' | 'image' | 'file' | 'audio' = 'text';
+  let messageType: 'text' | 'image' | 'file' | 'audio' | 'video' = 'text';
 
   // Support legacy single file parameter
   const filesToUpload = files || (file ? [file] : []);
 
   if (filesToUpload.length > 0) {
-    // Upload all files
-    uploadedFileUrls = await Promise.all(
-      filesToUpload.map(f => uploadConversationAttachment(conversationId, messageRef.id, f))
+    // Check if there are audio files that should be treated as voice messages
+    const audioFiles = filesToUpload.filter(f => 
+      f.type.startsWith('audio/') || /\.(mp3|wav|ogg|m4a|aac|flac|wma|opus)$/i.test(f.name)
     );
-    
-    // Determine message type based on first file
-    const firstFile = filesToUpload[0];
-    if (firstFile.type.startsWith('image/')) {
-      messageType = 'image';
-      uploadedImageUrl = uploadedFileUrls[0]; // For backward compatibility
+    const nonAudioFiles = filesToUpload.filter(f => 
+      !f.type.startsWith('audio/') && !/\.(mp3|wav|ogg|m4a|aac|flac|wma|opus)$/i.test(f.name)
+    );
+
+    // If there are audio files and no separate audio blob, treat first audio file as voice message
+    if (audioFiles.length > 0 && !audio) {
+      const firstAudioFile = audioFiles[0];
+      uploadedAudioUrl = await uploadConversationAttachment(conversationId, messageRef.id, firstAudioFile);
+      messageType = 'audio';
+      
+      // Upload non-audio files if any
+      if (nonAudioFiles.length > 0) {
+        uploadedFileUrls = await Promise.all(
+          nonAudioFiles.map(f => uploadConversationAttachment(conversationId, messageRef.id, f))
+        );
+        // Determine type for non-audio files
+        const firstNonAudioFile = nonAudioFiles[0];
+        if (firstNonAudioFile.type.startsWith('image/')) {
+          uploadedImageUrl = uploadedFileUrls[0];
+        }
+      }
     } else {
-      messageType = 'file';
+      // Upload all files normally
+      uploadedFileUrls = await Promise.all(
+        filesToUpload.map(f => uploadConversationAttachment(conversationId, messageRef.id, f))
+      );
+      
+      // Determine message type based on first file
+      const firstFile = filesToUpload[0];
+      if (firstFile.type.startsWith('image/')) {
+        messageType = 'image';
+        uploadedImageUrl = uploadedFileUrls[0]; // For backward compatibility
+      } else if (firstFile.type.startsWith('video/') || /\.(mp4|webm|ogg|mov|avi|mkv|flv|wmv|m4v)$/i.test(firstFile.name)) {
+        messageType = 'video';
+      } else if (firstFile.type.startsWith('audio/') || /\.(mp3|wav|ogg|m4a|aac|flac|wma|opus)$/i.test(firstFile.name)) {
+        messageType = 'audio';
+        uploadedAudioUrl = uploadedFileUrls[0]; // Use first file as audio URL
+      } else {
+        messageType = 'file';
+      }
     }
   }
 
-  // Upload audio if present
+  // Upload audio if present (from voice recording or processed audio file)
   if (audio) {
     const audioFile = new File([audio.blob], `voice-${Date.now()}.webm`, { type: 'audio/webm' });
     uploadedAudioUrl = await uploadConversationAttachment(conversationId, messageRef.id, audioFile);
@@ -240,18 +282,47 @@ export async function sendMessage({
 
   const trimmedText = text?.trim();
 
+  // If forwarding, use original fileUrls from forwardedFrom
+  const finalFileUrls = forwardedFrom?.originalFileUrls && forwardedFrom.originalFileUrls.length > 0
+    ? forwardedFrom.originalFileUrls
+    : (uploadedFileUrls.length > 0 ? uploadedFileUrls : null);
+  
+  // If forwarding, use original imageUrl from forwardedFrom
+  const finalImageUrl = forwardedFrom?.originalImageUrl
+    ? forwardedFrom.originalImageUrl
+    : uploadedImageUrl;
+  
+  // If forwarding, use original audioUrl from forwardedFrom
+  const finalAudioUrl = forwardedFrom?.originalAudioUrl
+    ? forwardedFrom.originalAudioUrl
+    : (forwardedFrom?.originalFileUrls && forwardedFrom.originalFileUrls.length > 0 && forwardedFrom.originalType === 'audio'
+      ? forwardedFrom.originalFileUrls[0]
+      : uploadedAudioUrl);
+  
+  // If forwarding, preserve original type
+  const finalMessageType = forwardedFrom?.originalType || messageType;
+  
+  // If forwarding audio, preserve original audio metadata
+  const finalAudioDuration = forwardedFrom?.originalType === 'audio' && forwardedFrom.originalAudioDuration
+    ? forwardedFrom.originalAudioDuration
+    : (audio?.duration ?? null);
+  
+  const finalAudioVolumeLevels = forwardedFrom?.originalType === 'audio' && forwardedFrom.originalAudioVolumeLevels
+    ? forwardedFrom.originalAudioVolumeLevels
+    : (audio?.volumeLevels ?? null);
+
   await messageRef.set({
     senderId,
     senderName: senderName ?? null,
     senderAvatarUrl: senderAvatarUrl ?? null,
     senderAvatarColor: senderAvatarColor ?? null,
     text: trimmedText ?? null,
-    imageUrl: uploadedImageUrl ?? null,
-    fileUrls: uploadedFileUrls.length > 0 ? uploadedFileUrls : null,
-    audioUrl: uploadedAudioUrl ?? null,
-    audioDuration: audio?.duration ?? null,
-    audioVolumeLevels: audio?.volumeLevels ?? null,
-    type: messageType,
+    imageUrl: finalImageUrl ?? null,
+    fileUrls: finalFileUrls,
+    audioUrl: finalAudioUrl ?? null,
+    audioDuration: finalAudioDuration,
+    audioVolumeLevels: finalAudioVolumeLevels,
+    type: finalMessageType,
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     replyTo: replyTo ? {
       messageId: replyTo.messageId,
@@ -259,6 +330,7 @@ export async function sendMessage({
       senderName: replyTo.senderName ?? null,
       text: replyTo.text ?? null,
       imageUrl: replyTo.imageUrl ?? null,
+      fileUrl: replyTo.fileUrl ?? null,
       type: replyTo.type,
       createdAt: replyTo.createdAt ?? null,
     } : null,
@@ -269,6 +341,10 @@ export async function sendMessage({
       originalSenderName: forwardedFrom.originalSenderName ?? null,
       originalText: forwardedFrom.originalText ?? null,
       originalImageUrl: forwardedFrom.originalImageUrl ?? null,
+      originalFileUrls: forwardedFrom.originalFileUrls ?? null,
+      originalAudioUrl: forwardedFrom.originalAudioUrl ?? null,
+      originalAudioDuration: forwardedFrom.originalAudioDuration ?? null,
+      originalAudioVolumeLevels: forwardedFrom.originalAudioVolumeLevels ?? null,
       originalType: forwardedFrom.originalType,
       originalCreatedAt: forwardedFrom.originalCreatedAt ?? null,
     } : null,
@@ -313,7 +389,7 @@ export async function forwardMessage({
   senderAvatarUrl,
   senderAvatarColor,
   contactsMap,
-}: ForwardMessageOptions): Promise<void> {
+}: ForwardMessageOptions): Promise<string[]> {
   if (targetConversationIds.length === 0) {
     throw new Error('No target conversations specified');
   }
@@ -326,35 +402,65 @@ export async function forwardMessage({
     originalSenderName: message.senderName ?? null,
     originalText: message.text ?? null,
     originalImageUrl: message.imageUrl ?? null,
+    originalFileUrls: message.fileUrls ?? null,
+    originalAudioUrl: message.audioUrl ?? null,
+    originalAudioDuration: message.audioDuration ?? null,
+    originalAudioVolumeLevels: message.audioVolumeLevels ?? null,
     originalType: message.type,
     originalCreatedAt: message.createdAt ?? null,
   };
 
+  const finalConversationIds: string[] = [];
+
   // Forward to each target conversation
   for (const targetConversationId of targetConversationIds) {
-    // Check if conversation exists
+    // Check if conversation exists by ID
     const conversationRef = db.collection(CONVERSATIONS_COLLECTION).doc(targetConversationId);
     const conversationDoc = await conversationRef.get();
 
     let finalConversationId = targetConversationId;
 
-    // If conversation doesn't exist, it might be a contact ID - create a new conversation
+    // If conversation doesn't exist by ID, it might be a contact ID
     if (!conversationDoc.exists) {
       const contact = contactsMap.get(targetConversationId);
       if (!contact) {
         throw new Error(`Contact not found: ${targetConversationId}`);
       }
 
-      // Create new conversation
-      const newConversationId = await ensureConversationExists({
-        participants: [senderId, targetConversationId],
-        title: contact.displayName ?? contact.email ?? 'Unknown',
-        subtitle: null,
-        avatarColor: contact.avatarColor ?? null,
-        avatarUrl: contact.avatarUrl ?? null,
+      // First, try to find existing conversation between sender and target contact
+      // Query conversations where both participants are present
+      const existingConversationsQuery = await db
+        .collection(CONVERSATIONS_COLLECTION)
+        .where('participants', 'array-contains', senderId)
+        .where('type', '==', 'direct')
+        .get();
+
+      // Filter to find conversation with exactly these two participants
+      const existingConversation = existingConversationsQuery.docs.find((doc) => {
+        const data = doc.data();
+        const participants = data.participants || [];
+        return (
+          participants.length === 2 &&
+          participants.includes(senderId) &&
+          participants.includes(targetConversationId)
+        );
       });
 
-      finalConversationId = newConversationId;
+      if (existingConversation) {
+        // Use existing conversation
+        finalConversationId = existingConversation.id;
+      } else {
+        // Create new conversation only if it doesn't exist
+        const newConversationId = await ensureConversationExists({
+          participants: [senderId, targetConversationId],
+          title: contact.displayName ?? contact.email ?? 'Unknown',
+          subtitle: null,
+          avatarColor: contact.avatarColor ?? null,
+          avatarUrl: contact.avatarUrl ?? null,
+        });
+
+        finalConversationId = newConversationId;
+      }
     }
 
     // Send the forwarded message
@@ -369,7 +475,11 @@ export async function forwardMessage({
       replyTo: null,
       forwardedFrom,
     });
+
+    finalConversationIds.push(finalConversationId);
   }
+
+  return finalConversationIds;
 }
 
 type EnsureConversationOptions = {

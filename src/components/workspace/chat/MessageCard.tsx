@@ -122,7 +122,9 @@ export const MessageCard: FC<MessageCardProps> = ({
               className={`message-bubble ${isUserMessage ? 'user-message-bubble' : ''}`}
               onContextMenu={handleOpenContextMenu}
               sx={{
-                width: 'min-content',
+                width: 'fit-content',
+                maxWidth: '100%',
+                minWidth: 0,
                 flexWrap: 'wrap',
                 alignItems: 'end',
                 gap: '8px',
@@ -134,10 +136,22 @@ export const MessageCard: FC<MessageCardProps> = ({
                   : (isUserMessage ? 'var(--palette-message-bg)' : 'var(--bg-primary, #ffffff)'),
                 color: 'var(--text-primary, #1f2131)',
                 position: 'relative',
-                overflow: 'hidden',
+                overflow: 'visible',
                 justifyContent: 'start',
-                maxWidth: '100%',
                 transition: 'background-color 0.3s ease-in-out',
+                wordBreak: 'break-word',
+                overflowWrap: 'break-word',
+                hyphens: 'auto',
+                '@media (max-width: 768px)': {
+                  padding: '6px 12px',
+                  gap: '6px',
+                  borderRadius: isUserMessage ? '14px 0 14px 14px' : '0px 14px 14px 14px',
+                },
+                '@media (max-width: 480px)': {
+                  padding: '6px 10px',
+                  gap: '4px',
+                  borderRadius: isUserMessage ? '12px 0 12px 12px' : '0px 12px 12px 12px',
+                },
               }}
             >
               {!isUserMessage && senderName && isGroup && (
@@ -194,15 +208,49 @@ export const MessageCard: FC<MessageCardProps> = ({
                 );
               })()}
 
-              {/* Display audio message */}
-              {message.type === 'audio' && message.audioUrl && (
-                <VoiceMessage message={message} isUserMessage={isUserMessage} time={time} />
-              )}
+              {/* Display audio message - check both audioUrl and fileUrls for audio files */}
+              {(message.type === 'audio' && message.audioUrl) || 
+               (message.fileUrls && message.fileUrls.length > 0 && 
+                message.fileUrls.some(url => /\.(mp3|wav|ogg|m4a|aac|flac|wma|opus)(\?|$)/i.test(url)) &&
+                !message.imageUrl) ? (
+                <>
+                  <VoiceMessage 
+                    message={{
+                      ...message,
+                      audioUrl: message.audioUrl || (message.fileUrls && message.fileUrls[0]) || undefined,
+                    }} 
+                    isUserMessage={isUserMessage} 
+                  />
+                  {/* Show time for audio messages if no text */}
+                  {(!message.text || message.text.trim() === '') && (
+                    <PuiTypography 
+                      component="span"
+                      sx={{
+                        fontSize: '11px',
+                        color: '#939393',
+                        marginTop: '4px',
+                        width: '100%',
+                        textAlign: isUserMessage ? 'right' : 'left',
+                      }}
+                    >
+                      {time}
+                    </PuiTypography>
+                  )}
+                </>
+              ) : null}
 
-              {/* Display files/images before text */}
-              {message.type !== 'audio' && ((message.fileUrls && message.fileUrls.length > 0) || message.imageUrl) ? (
+              {/* Display files/images/videos before text - exclude audio files */}
+              {message.type !== 'audio' && 
+               !(message.fileUrls && message.fileUrls.length > 0 && 
+                 message.fileUrls.some(url => /\.(mp3|wav|ogg|m4a|aac|flac|wma|opus)(\?|$)/i.test(url))) &&
+               ((message.fileUrls && message.fileUrls.length > 0) || message.imageUrl) ? (
                 <MessageFiles 
-                  message={message}
+                  message={message.forwardedFrom ? {
+                    ...message,
+                    fileUrls: message.forwardedFrom.originalFileUrls ?? message.fileUrls,
+                    imageUrl: message.forwardedFrom.originalImageUrl ?? message.imageUrl,
+                    type: message.forwardedFrom.originalType,
+                  } : message}
                   onFileClick={(url) => window.open(url, '_blank')}
                 />
               ) : null}
@@ -214,6 +262,7 @@ export const MessageCard: FC<MessageCardProps> = ({
                     ...message,
                     text: message.forwardedFrom.originalText,
                     imageUrl: message.forwardedFrom.originalImageUrl,
+                    fileUrls: message.forwardedFrom.originalFileUrls ?? undefined,
                     type: message.forwardedFrom.originalType,
                   } : message} 
                   time={time} 

@@ -1,4 +1,4 @@
-import { PuiStack } from 'piche.ui';
+import { PuiStack, PuiIcon, PuiIconButton, PuiSvgIcon } from 'piche.ui';
 import { useEffect, useState } from 'react';
 
 import { auth } from '../../../firebase';
@@ -14,7 +14,12 @@ import {
 import { AiChatView } from './AiChatView';
 import { AiConversationList } from './AiConversationList';
 
-export function AiPanel() {
+type AiPanelProps = {
+  onBack?: () => void;
+  isMobile?: boolean;
+};
+
+export function AiPanel({ onBack, isMobile = false }: AiPanelProps) {
   const [conversations, setConversations] = useState<AiConversation[]>([]);
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<AiMessage[]>([]);
@@ -127,7 +132,36 @@ export function AiPanel() {
   }
 
   return (
-    <aside className="ai-panel" aria-label="Assistant panel">
+    <aside 
+      className={`ai-panel ${isMobile ? 'ai-panel--mobile middlesection' : ''}`} 
+      aria-label="Assistant panel"
+    >
+      {isMobile && onBack && (
+        <PuiStack
+          direction="row"
+          sx={{
+            padding: '12px 16px',
+            borderBottom: '1px solid #f0f0f0',
+            alignItems: 'center',
+            gap: '12px',
+          }}
+        >
+          <PuiIconButton
+            onClick={onBack}
+            aria-label="Back"
+            sx={{
+              width: '40px',
+              height: '40px',
+              padding: 0,
+            }}
+          >
+            <PuiSvgIcon width={20} height={20} icon={PuiIcon.ArrowLeft} />
+          </PuiIconButton>
+          <PuiStack sx={{ flex: 1, minWidth: 0 }}>
+            <span style={{ fontSize: '14px', fontWeight: 600, color: '#272727' }}>AI Assistant</span>
+          </PuiStack>
+        </PuiStack>
+      )}
       <PuiStack
         sx={{
           height: '100%',

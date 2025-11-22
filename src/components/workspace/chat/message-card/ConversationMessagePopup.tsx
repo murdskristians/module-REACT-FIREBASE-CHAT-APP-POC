@@ -166,12 +166,22 @@ export const ConversationMessagePopup: FC<ConversationMessagePopupProps> = ({
 
   const handleReply = () => {
     if (message && onReply) {
+      // Determine file URL for video/audio
+      let fileUrl: string | null = null;
+      if (message.type === 'video' || message.type === 'audio') {
+        // Get first file URL from fileUrls or audioUrl
+        fileUrl = (message.fileUrls && message.fileUrls.length > 0) 
+          ? message.fileUrls[0] 
+          : message.audioUrl ?? null;
+      }
+      
       const replyTo: MessageReply = {
         messageId: message.id,
         senderId: message.senderId,
         senderName: message.senderName ?? null,
         text: message.text ?? null,
         imageUrl: message.imageUrl ?? null,
+        fileUrl: fileUrl,
         type: message.type,
         createdAt: message.createdAt ?? null,
       };

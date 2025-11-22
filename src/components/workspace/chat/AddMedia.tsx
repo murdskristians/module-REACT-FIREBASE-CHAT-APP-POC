@@ -85,7 +85,7 @@ export function AddMedia({ onFileSelect }: AddMediaProps) {
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar"
+        accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar,video/*,audio/*,.mp4,.mp3,.webm,.ogg,.wav,.m4a,.aac,.flac"
         multiple
         style={{ display: 'none' }}
         onChange={handleFilesSelected}
