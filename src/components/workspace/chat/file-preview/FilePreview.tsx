@@ -1,5 +1,5 @@
 import { PuiBox, PuiCircularProgress, PuiIcon, PuiSvgIcon, PuiStack, PuiTypography, useTheme } from 'piche.ui';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 export interface FilePreviewItem {
   id: string;
@@ -62,7 +62,6 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ item, onRemove }) => {
   const isAudio = isAudioFile(item.file);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [videoThumbnail, setVideoThumbnail] = useState<string | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
   
   // Create object URL for images/videos/audio when component mounts or file changes
   useEffect(() => {

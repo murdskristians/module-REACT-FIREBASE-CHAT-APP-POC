@@ -70,10 +70,6 @@ export function ConversationInput({
     return file.type.startsWith('video/') || /\.(mp4|webm|ogg|mov|avi|mkv|flv|wmv|m4v)$/i.test(file.name);
   };
 
-  const isAudioFile = (file: File): boolean => {
-    return file.type.startsWith('audio/') || /\.(mp3|wav|ogg|m4a|aac|flac|wma|opus)$/i.test(file.name);
-  };
-
   const handleFileSelect = useCallback((file: File) => {
     const MAX_VIDEO_SIZE = 20 * 1024 * 1024; // 20MB for video
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB for other files
@@ -104,13 +100,13 @@ export function ConversationInput({
       isUploading: false,
       isUploaded: false,
     };
-    setPendingFiles(prev => [...prev, newFile]);
-  }, [showNotification]);
+    setPendingFiles((prev) => [...prev, newFile]);
+  }, [showNotification, setPendingFiles]);
 
   const handleFilesSelected = useCallback((files: FileList | null) => {
     if (!files || files.length === 0) return;
     Array.from(files).forEach(file => handleFileSelect(file));
-  }, [handleFileSelect, showNotification]);
+  }, [handleFileSelect]);
 
   // Drag and drop handlers
   const handleDragEnter = useCallback((e: React.DragEvent) => {
