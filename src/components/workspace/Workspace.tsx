@@ -73,6 +73,8 @@ export function Workspace({ user }: WorkspaceProps) {
   const [showAddParticipantPanel, setShowAddParticipantPanel] = useState(false);
   const [messageToForward, setMessageToForward] = useState<ConversationMessage | null>(null);
   const [isForwarding, setIsForwarding] = useState(false);
+  const [showConversationList, setShowConversationList] = useState(true);
+  const [showAiPanel, setShowAiPanel] = useState(false);
 
   const contactsMap = useMemo(() => {
     const map = new Map<string, Contact>();
@@ -388,6 +390,10 @@ export function Workspace({ user }: WorkspaceProps) {
   );
 
   const handleConversationSelect = (conversationId: string) => {
+    console.log('[Workspace] handleConversationSelect called with:', conversationId);
+    console.log('[Workspace] Current selectedConversationId:', selectedConversationId);
+    console.log('[Workspace] Current showConversationList:', showConversationList);
+    
     // Check if this is a new user (not a real conversation)
     if (conversationId.startsWith('new_')) {
       const contactId = conversationId.replace('new_', '');
@@ -407,18 +413,84 @@ export function Workspace({ user }: WorkspaceProps) {
       (conv) => conv.id === conversationId
     );
 
-    if (!conversation || conversation.id === selectedConversationId) {
+    if (!conversation) {
+      console.log('[Workspace] Conversation not found');
       return;
     }
 
+    // On mobile, always allow selecting even if it's the same conversation
+    // This fixes the bug where returning to list and clicking same person doesn't work
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 900;
+    if (!isMobile && conversation.id === selectedConversationId) {
+      console.log('[Workspace] Same conversation selected on desktop, skipping');
+      return;
+    }
+
+    console.log('[Workspace] Setting conversation:', conversation.id);
+    
+    // If selecting the same conversation, don't clear messages
+    // This fixes the bug where clicking same user shows empty chat
+    const isSameConversation = conversation.id === selectedConversationId;
+    
     setSelectedConversationId(conversation.id);
     setPendingUser(null);
-    setActiveConversationState({
-      conversation,
-      messages: [],
-    });
+    
+    if (isSameConversation) {
+      // Keep existing messages when selecting the same conversation
+      setActiveConversationState((prev) => ({
+        ...prev,
+        conversation,
+      }));
+    } else {
+      // Clear messages only when selecting a different conversation
+      setActiveConversationState({
+        conversation,
+        messages: [],
+      });
+    }
+    
+    // On mobile, hide conversation list when selecting a conversation
+    if (isMobile) {
+      setShowConversationList(false);
+    }
     setSelectedContactId(null);
   };
+
+  const handleBackToConversationList = useCallback(() => {
+    console.log('[Workspace] ========== handleBackToConversationList CALLED ==========');
+    console.log('[Workspace] Current showConversationList BEFORE:', showConversationList);
+    console.log('[Workspace] Current selectedConversationId:', selectedConversationId);
+    setShowConversationList(true);
+    setShowAiPanel(false);
+    // Don't clear selectedConversationId - keep it so we can return to the same chat
+    console.log('[Workspace] Set showConversationList to TRUE');
+    console.log('[Workspace] ========== END handleBackToConversationList ==========');
+  }, [showConversationList, selectedConversationId]);
+
+  const handleOpenAiPanel = useCallback(() => {
+    console.log('[Workspace] handleOpenAiPanel called');
+    console.log('[Workspace] Current showAiPanel:', showAiPanel);
+    console.log('[Workspace] Current showConversationList:', showConversationList);
+    setShowAiPanel(true);
+    setShowConversationList(false);
+    console.log('[Workspace] Set showAiPanel to TRUE, showConversationList to FALSE');
+  }, [showAiPanel, showConversationList]);
+
+  const handleCloseAiPanel = useCallback(() => {
+    console.log('[Workspace] handleCloseAiPanel called');
+    console.log('[Workspace] Current showAiPanel:', showAiPanel);
+    console.log('[Workspace] Current selectedConversationId:', selectedConversationId);
+    setShowAiPanel(false);
+    // Return to conversation list if no conversation is selected, otherwise stay in chat
+    if (!selectedConversationId) {
+      setShowConversationList(true);
+      console.log('[Workspace] No conversation selected, showing conversation list');
+    } else {
+      // If we have a conversation, show it (don't show conversation list)
+      setShowConversationList(false);
+      console.log('[Workspace] Conversation selected, staying in chat');
+    }
+  }, [showAiPanel, selectedConversationId]);
 
   useEffect(() => {
     if (!selectedConversationId) {
@@ -448,6 +520,12 @@ export function Workspace({ user }: WorkspaceProps) {
     [conversations, user.uid]
   );
   const handleContactClick = () => {
+    // On mobile devices, don't open contact card view
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 900;
+    if (isMobile) {
+      return; // Don't open contact card on mobile
+    }
+    
     const conversation = activeConversationState.conversation;
     if (conversation) {
       setSelectedContactId(conversation.counterpartId);
@@ -598,7 +676,7 @@ export function Workspace({ user }: WorkspaceProps) {
         ])
       );
 
-      await forwardMessage({
+      const finalConversationIds = await forwardMessage({
         message,
         originalConversationId: activeConversationState.conversation.id,
         targetConversationIds,
@@ -613,6 +691,25 @@ export function Workspace({ user }: WorkspaceProps) {
         senderAvatarColor: userProfile?.avatarColor ?? '#A8D0FF',
         contactsMap: contactsMapForForward,
       });
+
+      // If forwarding to only one user, navigate to that conversation
+      if (targetConversationIds.length === 1 && finalConversationIds.length === 1) {
+        const targetConversationId = finalConversationIds[0];
+        // Wait for the conversation to appear in the list, then navigate
+        const checkAndNavigate = () => {
+          const conversationExists = conversations.some(
+            (conv) => conv.id === targetConversationId
+          );
+          if (conversationExists) {
+            setSelectedConversationId(targetConversationId);
+          } else {
+            // Check again after a short delay
+            setTimeout(checkAndNavigate, 100);
+          }
+        };
+        // Start checking after a short initial delay
+        setTimeout(checkAndNavigate, 200);
+      }
     } finally {
       setIsForwarding(false);
     }
@@ -633,22 +730,35 @@ export function Workspace({ user }: WorkspaceProps) {
               onPinToggle={handlePinToggle}
               onHideToggle={handleHideToggle}
               onCreateGroup={handleCreateGroup}
+              isVisible={showConversationList}
             />
-            <ChatView
-              user={user}
-              conversation={activeConversationState.conversation}
-              messages={activeConversationState.messages}
-              onSendMessage={handleSendMessage}
-              isSending={isSending}
-              contactsMap={contactsMap}
-              pendingUser={pendingUser}
-              onContactClick={handleContactClick}
-              conversations={conversations}
-              contacts={contacts}
-              onForwardMessage={handleForwardMessage}
-              onForward={setMessageToForward}
-              onAddParticipant={handleAddParticipant}
-            />
+            {(() => {
+              const isMobile = typeof window !== 'undefined' && window.innerWidth <= 900;
+              if (showAiPanel && isMobile) {
+                // On mobile, show AI panel in the middle section (where ChatView normally is)
+                return <AiPanel onBack={handleCloseAiPanel} isMobile={true} />;
+              }
+              return (
+                <ChatView
+                  user={user}
+                  conversation={activeConversationState.conversation}
+                  messages={activeConversationState.messages}
+                  onSendMessage={handleSendMessage}
+                  isSending={isSending}
+                  contactsMap={contactsMap}
+                  pendingUser={pendingUser}
+                  onContactClick={handleContactClick}
+                  conversations={conversations}
+                  contacts={contacts}
+                  onForwardMessage={handleForwardMessage}
+                  onForward={setMessageToForward}
+                  onAddParticipant={handleAddParticipant}
+                  onBackToConversationList={handleBackToConversationList}
+                  showConversationList={showConversationList}
+                  onOpenAiPanel={handleOpenAiPanel}
+                />
+              );
+            })()}
             {selectedContact && selectedContactId ? (
               <ContactCardView
                 contact={selectedContact}
@@ -688,9 +798,14 @@ export function Workspace({ user }: WorkspaceProps) {
                 }}
                 isLoading={isForwarding}
               />
-            ) : (
-              <AiPanel />
-            )}
+            ) : (() => {
+              const isMobile = typeof window !== 'undefined' && window.innerWidth <= 900;
+              // On desktop, always show AI panel (in the right column)
+              // On mobile, only show if showAiPanel is true (and it's shown in middle section, not here)
+              return !isMobile ? (
+                <AiPanel onBack={handleCloseAiPanel} isMobile={false} />
+              ) : null;
+            })()}
           </>
       </div>
 

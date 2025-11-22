@@ -12,18 +12,25 @@ export default defineConfig({
       formats: ['es', 'cjs']
     },
     rollupOptions: {
-      external: [
-        'react',
-        'react-dom',
-        'react-router-dom',
-        'firebase',
-        'firebase/compat/app',
-        'firebase/compat/auth',
-        'firebase/compat/firestore',
-        'firebase/compat/storage',
-        'firebase/compat/functions',
-        'piche.ui'
-      ],
+      external: (id) => {
+        // Externalize React and related packages
+        if (id === 'react' || id === 'react-dom' || id === 'react/jsx-runtime' || id.startsWith('react/')) {
+          return true;
+        }
+        // Externalize react-router-dom
+        if (id === 'react-router-dom' || id.startsWith('react-router-dom/')) {
+          return true;
+        }
+        // Externalize Firebase
+        if (id === 'firebase' || id.startsWith('firebase/')) {
+          return true;
+        }
+        // Externalize piche.ui
+        if (id === 'piche.ui' || id.startsWith('piche.ui/')) {
+          return true;
+        }
+        return false;
+      },
       output: {
         globals: {
           react: 'React',

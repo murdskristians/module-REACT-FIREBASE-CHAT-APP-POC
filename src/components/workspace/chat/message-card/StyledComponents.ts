@@ -206,7 +206,9 @@ export const StyledConversationMessageContent = PuiStyled(PuiBox)(() => ({
   minHeight: 'auto',
   maxWidth: 'calc(100% - 64px)',
   width: '100%',
+  minWidth: 0,
   position: 'relative',
+  overflow: 'visible',
 }));
 
 export const StyledStack = PuiStyled(PuiStack)({
