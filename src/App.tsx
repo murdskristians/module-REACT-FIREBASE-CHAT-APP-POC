@@ -12,9 +12,11 @@ import './App.css';
 import {
   type FirebaseUser,
   getCurrentUser,
+  signInAnonymously,
   signOut,
   subscribeToAuthChanges,
 } from './firebase/auth';
+import { ensureDemoData } from './firebase/demoSeed';
 
 function App() {
   const [user, setUser] = useState<FirebaseUser | null>(() => getCurrentUser());
@@ -28,8 +30,23 @@ function App() {
     document.documentElement.setAttribute('data-theme', savedTheme);
 
     const unsubscribe = subscribeToAuthChanges((currentUser) => {
-      setUser(currentUser);
-      setIsLoading(false);
+      if (currentUser) {
+        setUser(currentUser);
+        setIsLoading(false);
+        // Seed a demo conversation for anonymous (guest) visitors so the
+        // chat isn't empty. No-op for real signed-in accounts.
+        if (currentUser.isAnonymous) {
+          void ensureDemoData(currentUser);
+        }
+      } else {
+        // No user: sign in as an anonymous guest so the demo needs no login.
+        // Requires "Anonymous" enabled in Firebase Auth for this project.
+        void signInAnonymously().catch((error) => {
+          // eslint-disable-next-line no-console
+          console.error('Anonymous sign-in failed:', error);
+          setIsLoading(false);
+        });
+      }
     });
 
     return unsubscribe;

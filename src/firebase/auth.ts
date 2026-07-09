@@ -11,6 +11,8 @@ export const subscribeToAuthChanges = (
   listener: (user: FirebaseUser | null) => void
 ) => auth.onAuthStateChanged(listener);
 
+export const signInAnonymously = () => auth.signInAnonymously();
+
 export const signInWithGoogle = async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
 
