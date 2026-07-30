@@ -1,4 +1,32 @@
-# Getting Started with Create React App
+# React Firebase Chat
+
+A reusable chat workspace module (React + TypeScript + Firebase) exposed as
+`Workspace` and `NotificationProvider` from `src/lib.ts`.
+
+## Offline demo mode
+
+Set `REACT_APP_DEMO_MODE=true` and the app runs with **no backend at all** —
+Firebase is replaced by the in-memory implementation in [`src/demo`](src/demo).
+
+- Every visitor is signed in automatically as an anonymous guest; the login,
+  registration and password-reset routes are not registered at all.
+- Firestore, Auth and Storage are stood in for locally. Data lives in the tab
+  and resets on refresh; uploads become object URLs.
+- Contacts are pre-seeded, and the demo conversation is created through the
+  normal app code paths (`src/firebase/demoSeed.ts`).
+- The AI panel answers from a small local responder instead of Groq, so no API
+  key is needed or shipped in the bundle.
+- Calls still open the WebRTC UI but cannot connect — there is no second peer
+  and no signalling server.
+
+This is what the public portfolio build on Netlify uses. Unset the flag and
+supply the `REACT_APP_FIREBASE_*` variables to run against a real project;
+that path is unchanged.
+
+`src/demo/demoMode.test.ts` drives the real `src/firebase/*` modules against
+the demo backend — run it with `npm test`.
+
+---
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

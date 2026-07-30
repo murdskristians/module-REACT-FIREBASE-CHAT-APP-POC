@@ -1,30 +1,35 @@
 import OpenAI from 'openai';
-import firebase from './index';
+import type firebaseCompat from 'firebase/compat/app';
+import firebase, { DEMO_MODE } from './index';
 import { db } from './index';
+import { demoAssistantReply } from '../demo/assistant';
 
 const AI_CONVERSATIONS_COLLECTION = 'aiConversations';
 const MESSAGES_SUBCOLLECTION = 'messages';
 
-// Initialize Groq client (uses OpenAI-compatible API)
-const groq = new OpenAI({
-  apiKey: process.env.REACT_APP_GROQ_API_KEY,
-  baseURL: 'https://api.groq.com/openai/v1',
-  dangerouslyAllowBrowser: true, // Required for client-side usage
-});
+// Initialize Groq client (uses OpenAI-compatible API).
+// Skipped in demo mode so no API key is needed - or shipped in the bundle.
+const groq = DEMO_MODE
+  ? null
+  : new OpenAI({
+      apiKey: process.env.REACT_APP_GROQ_API_KEY,
+      baseURL: 'https://api.groq.com/openai/v1',
+      dangerouslyAllowBrowser: true, // Required for client-side usage
+    });
 
 export type AiConversation = {
   id: string;
   userId: string;
   title: string;
-  createdAt?: firebase.firestore.Timestamp | null;
-  updatedAt?: firebase.firestore.Timestamp | null;
+  createdAt?: firebaseCompat.firestore.Timestamp | null;
+  updatedAt?: firebaseCompat.firestore.Timestamp | null;
 };
 
 export type AiMessage = {
   id: string;
   role: 'user' | 'assistant';
   content: string;
-  createdAt?: firebase.firestore.Timestamp | null;
+  createdAt?: firebaseCompat.firestore.Timestamp | null;
 };
 
 /**
@@ -50,7 +55,7 @@ export async function createAiConversation(
 export function subscribeToAiConversations(
   userId: string,
   callback: (conversations: AiConversation[]) => void
-): firebase.Unsubscribe {
+): firebaseCompat.Unsubscribe {
   return db
     .collection(AI_CONVERSATIONS_COLLECTION)
     .where('userId', '==', userId)
@@ -84,7 +89,7 @@ export function subscribeToAiConversations(
 export function subscribeToAiMessages(
   conversationId: string,
   callback: (messages: AiMessage[]) => void
-): firebase.Unsubscribe {
+): firebaseCompat.Unsubscribe {
   return db
     .collection(AI_CONVERSATIONS_COLLECTION)
     .doc(conversationId)
@@ -148,23 +153,30 @@ export async function sendAiMessage(
           };
         });
 
-    // Call Groq API (using llama-3.3-70b-versatile model - fast and free)
-    const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are a helpful AI assistant. Be concise and friendly.',
-        },
-        ...messages,
-      ],
-      temperature: 0.7,
-      max_tokens: 1000,
-    });
+    // Call Groq API (using llama-3.3-70b-versatile model - fast and free).
+    // The offline demo answers locally instead - no network, no API key.
+    let assistantMessage: string;
 
-    const assistantMessage =
-      completion.choices[0]?.message?.content ||
-      "I'm sorry, I couldn't generate a response.";
+    if (!groq) {
+      assistantMessage = await demoAssistantReply(messages);
+    } else {
+      const completion = await groq.chat.completions.create({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a helpful AI assistant. Be concise and friendly.',
+          },
+          ...messages,
+        ],
+        temperature: 0.7,
+        max_tokens: 1000,
+      });
+
+      assistantMessage =
+        completion.choices[0]?.message?.content ||
+        "I'm sorry, I couldn't generate a response.";
+    }
 
     // Save AI response to Firestore
     await db

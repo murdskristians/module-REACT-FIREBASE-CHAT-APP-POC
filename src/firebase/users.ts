@@ -1,6 +1,6 @@
-import firebase from 'firebase/compat/app';
+import type firebaseCompat from 'firebase/compat/app';
 
-import { db } from './index';
+import firebase, { db } from './index';
 import { ensureSavedMessagesConversationExists } from './conversations';
 import type {
   ProfileAdditionalEmail,
@@ -33,7 +33,7 @@ const pickAvatarColor = (uid: string) => {
   return AVATAR_COLORS[hash % AVATAR_COLORS.length];
 };
 
-export async function upsertUserProfile(user: firebase.User): Promise<void> {
+export async function upsertUserProfile(user: firebaseCompat.User): Promise<void> {
   const userRef = db.collection('users').doc(user.uid);
   const snapshot = await userRef.get();
 
@@ -68,7 +68,7 @@ export async function upsertUserProfile(user: firebase.User): Promise<void> {
 export function subscribeToContacts(
   excludeUserId: string,
   callback: (contacts: Contact[]) => void
-): firebase.Unsubscribe {
+): firebaseCompat.Unsubscribe {
   return db.collection('users').onSnapshot((snapshot) => {
     const contacts = snapshot.docs
       .filter((doc) => doc.id !== excludeUserId)
@@ -204,7 +204,7 @@ const normalizeSocialLinks = (value: unknown): ProfileSocialLink[] => {
 export function subscribeToUserProfile(
   userId: string,
   callback: (profile: ProfileContact | null) => void
-): firebase.Unsubscribe {
+): firebaseCompat.Unsubscribe {
   return db
     .collection('users')
     .doc(userId)

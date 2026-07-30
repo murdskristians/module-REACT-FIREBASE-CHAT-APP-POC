@@ -17,6 +17,7 @@ import {
   subscribeToAuthChanges,
 } from './firebase/auth';
 import { ensureDemoData } from './firebase/demoSeed';
+import { DEMO_MODE } from './firebase';
 
 function App() {
   const [user, setUser] = useState<FirebaseUser | null>(() => getCurrentUser());
@@ -69,22 +70,40 @@ function App() {
     <NotificationProvider>
       <BrowserRouter>
         <Routes>
-        {/* Auth routes */}
-        <Route
-          path="/auth/login"
-          element={user ? <Navigate to="/" replace /> : <Login />}
-        />
-        <Route
-          path="/auth/register"
-          element={user ? <Navigate to="/" replace /> : <Register />}
-        />
-        <Route
-          path="/auth/reset-password"
-          element={user ? <Navigate to="/" replace /> : <ResetPassword />}
-        />
+        {/* Auth routes - omitted in demo mode, where every visitor is an
+            automatically signed-in guest and the forms have no backend. */}
+        {!DEMO_MODE && (
+          <>
+            <Route
+              path="/auth/login"
+              element={user ? <Navigate to="/" replace /> : <Login />}
+            />
+            <Route
+              path="/auth/register"
+              element={user ? <Navigate to="/" replace /> : <Register />}
+            />
+            <Route
+              path="/auth/reset-password"
+              element={user ? <Navigate to="/" replace /> : <ResetPassword />}
+            />
+          </>
+        )}
 
         {/* Protected routes */}
-        <Route path="/" element={user ? <Workspace user={user} onSignOut={handleSignOut} /> : <Navigate to="/auth/login" replace />} />
+        <Route
+          path="/"
+          element={
+            user ? (
+              <Workspace user={user} onSignOut={handleSignOut} />
+            ) : DEMO_MODE ? (
+              // No login route to fall back to in demo mode; the guest sign-in
+              // is local and resolves immediately.
+              <div className="loading">Loading...</div>
+            ) : (
+              <Navigate to="/auth/login" replace />
+            )
+          }
+        />
 
         {/* Catch all - redirect to home */}
         <Route path="*" element={<Navigate to="/" replace />} />

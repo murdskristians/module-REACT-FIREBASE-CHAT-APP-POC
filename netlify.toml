@@ -2,9 +2,15 @@
   command = "pnpm run build"
   publish = "build"
 
-# Disable secrets scanning for client-side environment variables
-# These values are intentionally included in the client bundle
 [build.environment]
+  # Portfolio demo: run against the in-memory store in src/demo instead of a
+  # Firebase project. No login, no API keys in the bundle, no backend to keep
+  # alive. Remove this (and supply the REACT_APP_FIREBASE_* vars) to deploy a
+  # build backed by a real Firebase project.
+  REACT_APP_DEMO_MODE = "true"
+
+  # No secrets are baked into the demo build, but the scanner also trips on
+  # harmless client-side config, so it stays off.
   SECRETS_SCAN_ENABLED = "false"
 
 # SPA redirect - serve index.html for all routes

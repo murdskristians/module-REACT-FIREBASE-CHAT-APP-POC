@@ -1,4 +1,5 @@
 import firebase from './index';
+import type firebaseCompat from 'firebase/compat/app';
 import { db } from './index';
 import { uploadConversationAttachment } from './storage';
 
@@ -15,7 +16,7 @@ export type Conversation = {
   type: 'private' | 'direct' | 'group';
   isPinned?: boolean;
   isHidden?: boolean;
-  updatedAt?: firebase.firestore.Timestamp | null;
+  updatedAt?: firebaseCompat.firestore.Timestamp | null;
   lastMessage?: ConversationMessagePreview | null;
 };
 
@@ -25,14 +26,14 @@ export type ConversationMessagePreview = {
   senderId: string;
   senderName?: string | null;
   type: 'text' | 'image';
-  createdAt?: firebase.firestore.Timestamp | null;
+  createdAt?: firebaseCompat.firestore.Timestamp | null;
 };
 
 export type MessageReaction = {
   id: string;
   reactedBy: string;
   emoji: string;
-  reactedAt?: firebase.firestore.Timestamp | null;
+  reactedAt?: firebaseCompat.firestore.Timestamp | null;
 };
 
 export type MessageReply = {
@@ -43,7 +44,7 @@ export type MessageReply = {
   imageUrl?: string | null;
   fileUrl?: string | null; // For video/audio files
   type: 'text' | 'image' | 'video' | 'audio' | 'file';
-  createdAt?: firebase.firestore.Timestamp | null;
+  createdAt?: firebaseCompat.firestore.Timestamp | null;
 };
 
 export type MessageForward = {
@@ -58,7 +59,7 @@ export type MessageForward = {
   originalAudioDuration?: number | null;
   originalAudioVolumeLevels?: number[] | null;
   originalType: 'text' | 'image' | 'file' | 'audio' | 'video';
-  originalCreatedAt?: firebase.firestore.Timestamp | null;
+  originalCreatedAt?: firebaseCompat.firestore.Timestamp | null;
 };
 
 export type ConversationMessage = {
@@ -74,10 +75,10 @@ export type ConversationMessage = {
   audioDuration?: number | null;
   audioVolumeLevels?: number[] | null;
   type: 'text' | 'image' | 'file' | 'audio' | 'video';
-  createdAt?: firebase.firestore.Timestamp | null;
+  createdAt?: firebaseCompat.firestore.Timestamp | null;
   isPinned?: boolean;
   pinnedBy?: string | null;
-  pinnedAt?: firebase.firestore.Timestamp | null;
+  pinnedAt?: firebaseCompat.firestore.Timestamp | null;
   reactions?: MessageReaction[];
   replyTo?: MessageReply | null;
   forwardedFrom?: MessageForward | null;
@@ -86,7 +87,7 @@ export type ConversationMessage = {
 export function subscribeToConversations(
   userId: string,
   callback: (conversations: Conversation[]) => void
-): firebase.Unsubscribe {
+): firebaseCompat.Unsubscribe {
   return db
     .collection(CONVERSATIONS_COLLECTION)
     .where('participants', 'array-contains', userId)
@@ -121,7 +122,7 @@ export function subscribeToConversations(
 export function subscribeToConversationMessages(
   conversationId: string,
   callback: (messages: ConversationMessage[]) => void
-): firebase.Unsubscribe {
+): firebaseCompat.Unsubscribe {
   return db
     .collection(CONVERSATIONS_COLLECTION)
     .doc(conversationId)

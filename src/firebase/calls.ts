@@ -1,7 +1,7 @@
 import { db, auth } from './index';
 import type { SignallingMessage, CallRoom } from '../types/call';
 import { CallMessageType } from '../types/call';
-import firebase from 'firebase/compat/app';
+import firebase from './index';
 
 const CALL_ROOMS_COLLECTION = 'callRooms';
 const CALL_MESSAGES_COLLECTION = 'callMessages';
