@@ -414,10 +414,6 @@ class DemoQuery {
 /* -------------------------------------------------------------------------- */
 
 class DemoCollectionReference extends DemoQuery {
-  constructor(store: Store, path: string) {
-    super(store, path);
-  }
-
   get id(): string {
     return this.path.split('/').pop() as string;
   }
