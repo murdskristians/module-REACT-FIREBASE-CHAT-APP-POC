@@ -9,6 +9,20 @@
   # build backed by a real Firebase project.
   REACT_APP_DEMO_MODE = "true"
 
+  # Blank out the credentials this site used to build with. Create React App
+  # inlines the whole process.env object into the bundle (the openai SDK reads
+  # process.env generically), so any REACT_APP_* value configured for the site
+  # ends up published - whether or not the demo code path uses it. The demo
+  # needs none of them, so they are pinned empty here.
+  REACT_APP_GROQ_API_KEY = ""
+  REACT_APP_FIREBASE_API_KEY = ""
+  REACT_APP_FIREBASE_AUTH_DOMAIN = ""
+  REACT_APP_FIREBASE_PROJECT_ID = ""
+  REACT_APP_FIREBASE_STORAGE_BUCKET = ""
+  REACT_APP_FIREBASE_MESSAGING_SENDER_ID = ""
+  REACT_APP_FIREBASE_APP_ID = ""
+  REACT_APP_FIREBASE_MEASUREMENT_ID = ""
+
   # No secrets are baked into the demo build, but the scanner also trips on
   # harmless client-side config, so it stays off.
   SECRETS_SCAN_ENABLED = "false"
